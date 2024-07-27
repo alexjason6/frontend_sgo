@@ -12,8 +12,11 @@
     "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.2.1",
+    "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
-    "typescript": "^4.9.5",
+    "styled-components": "^6.1.12",
+    "typescript": "*",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -39,5 +42,19 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "description": "Frontend do APP SGO - Sistema de gestão de obras",
+  "main": "src/index.tsx",
+  "repository": "https://github.com/alexjason6/frontend_sgo.git",
+  "author": "Alex Jason - La Publicitè - alex@alexjason.com.br",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.35.0"
   }
 }
