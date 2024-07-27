@@ -16,7 +16,5 @@ export const Title = styled.h3`
 export const Divisor = styled.hr`
   width: 100%;
   border: none;
-  border-top-width: 2px;
-  border-top-style: solid;
-  color: ${({ theme }) => theme.colors.oranges.primary};
+  border-top: 2px solid ${({ theme }) => theme.colors.oranges.primary};
 `

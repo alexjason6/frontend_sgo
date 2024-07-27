@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
@@ -18,22 +17,21 @@ export const Container = styled.nav`
 export const Item = styled.div<PropStyles>`
   width: 100%;
   height: 50px;
-  margin: 0px;
+  margin: 0;
   color: ${({ theme }) => theme.colors.white};
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 
   &:hover {
     background: ${({ theme }) => theme.colors.oranges.light};
     color: ${({ theme }) => theme.colors.white};
-    transition: all 0.2s;
-  };
+  }
 
   ${({ theme, active }) => active && css`
-  background: ${({ theme }) => theme.colors.blues.primary};
+    background: ${theme.colors.blues.primary};
     color: ${theme.colors.white};
-    transition: all 0.2s;
-  `};
+  `}
 `

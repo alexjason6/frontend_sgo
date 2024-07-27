@@ -1,5 +1,69 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { device } from '../../assets/styles/themes/devices'
+
+const mobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    flex-direction: column;
+  }
+`
+
+const sgoMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    height: 30%;
+    flex-direction: row;
+  }
+`
+
+const nameMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    width: 35%;
+    font-size: 16px;
+    margin-top: 0;
+    margin-left: 20px;
+  }
+`
+
+const logoMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    max-width: 100px;
+  }
+`
+
+const formContainerMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    max-width: 300px !important;
+    padding-bottom: 30px;
+  }
+`
+
+const formMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    margin-top: 30px;
+    padding: 30px;
+  }
+`
+
+const textMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+`
+
+const legendMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    text-align: center;
+  }
+`
+
+const clienteMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    margin-top: 20px;
+  }
+`
 
 export const Container = styled.div`
   width: 100%;
@@ -8,18 +72,7 @@ export const Container = styled.div`
   background: ${({ theme }) => theme.colors.white};
   display: flex;
   align-items: center;
-
-  @media ${device.mobileL} {
-    flex-direction: column;
-  }
-
-  @media ${device.mobileM} {
-    flex-direction: column;
-  }
-
-  @media ${device.mobileS} {
-    flex-direction: column;
-  }
+  ${mobileStyles}
 `
 
 export const SgoContainer = styled.section`
@@ -32,30 +85,7 @@ export const SgoContainer = styled.section`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-
-  @media ${device.mobileL} {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    height: 30%;
-    flex-direction: row;
-  }
-
-  @media ${device.mobileM} {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    height: 30%;
-    flex-direction: row;
-  }
-
-  @media ${device.mobileS} {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    height: 30%;
-    flex-direction: row;
-  }
+  ${sgoMobileStyles}
 `
 
 export const Name = styled.h1`
@@ -65,45 +95,14 @@ export const Name = styled.h1`
   font-weight: 200;
   line-height: 25px;
   color: ${({ theme }) => theme.colors.white};
-
-  @media ${device.mobileL} {
-    width: 35%;
-    font-size: 16px;
-    margin-top: 0px;
-    margin-left: 20px;
-  }
-
-  @media ${device.mobileM} {
-    width: 35%;
-    font-size: 16px;
-    margin-top: 0px;
-    margin-left: 20px;
-  }
-
-  @media ${device.mobileS} {
-    width: 35%;
-    font-size: 16px;
-    margin-top: 0px;
-    margin-left: 20px;
-  }
+  ${nameMobileStyles}
 `
 
 export const Logo = styled.img`
   width: 100%;
   max-width: 180px;
-  margin: 20px 0px;
-
-  @media ${device.mobileL} {
-    max-width: 100px;
-  }
-
-  @media ${device.mobileM} {
-    max-width: 100px;
-  }
-
-  @media ${device.mobileS} {
-    max-width: 100px;;
-  }
+  margin: 20px 0;
+  ${logoMobileStyles}
 `
 
 export const FormContainer = styled.section`
@@ -114,20 +113,7 @@ export const FormContainer = styled.section`
   display: flex;
   align-items: center;
   flex-direction: column;
-
-  @media ${device.mobileL} {
-    max-width: 300px !important;
-    padding-bottom: 30px;
-  }
-
-  @media ${device.mobileM} {
-    max-width: 300px !important;
-    padding-bottom: 30px;
-  }
-  @media ${device.mobileS} {
-    max-width: 300px !important;
-    padding-bottom: 30px;
-  }
+  ${formContainerMobileStyles}
 `
 
 export const Form = styled.form`
@@ -140,21 +126,7 @@ export const Form = styled.form`
   background: ${({ theme }) => theme.colors.white};
   filter: drop-shadow(1px 1px 15px rgba(0, 0, 0, 0.3));
   border-radius: 8px;
-
-  @media ${device.mobileL} {
-    margin-top: 30px;
-    padding: 30px;
-  }
-
-  @media ${device.mobileM} {
-    margin-top: 30px;
-    padding: 30px;
-  }
-
-  @media ${device.mobileS} {
-    margin-top: 30px;
-    padding: 30px;
-  }
+  ${formMobileStyles}
 `
 
 export const Text = styled.p`
@@ -164,21 +136,7 @@ export const Text = styled.p`
   line-height: 22px;
   font-weight: 200;
   color: ${({ theme }) => theme.colors.grays.light};
-
-  @media ${device.mobileL} {
-    font-size: 14px;
-    margin-bottom: 40px;
-  }
-
-  @media ${device.mobileM} {
-    font-size: 14px;
-    margin-bottom: 40px;
-  }
-
-  @media ${device.mobileS} {
-    font-size: 14px;
-    margin-bottom: 40px;
-  }
+  ${textMobileStyles}
 `
 
 export const Legend = styled.legend`
@@ -186,18 +144,7 @@ export const Legend = styled.legend`
   color: ${({ theme }) => theme.colors.grays.light};
   margin-left: 5px;
   margin-bottom: 3px;
-
-  @media ${device.mobileL} {
-    text-align: center;
-  }
-
-  @media ${device.mobileM} {
-    text-align: center;
-  }
-
-  @media ${device.mobileS} {
-    text-align: center;
-  }
+  ${legendMobileStyles}
 `
 
 export const Cliente = styled.div`
@@ -205,18 +152,7 @@ export const Cliente = styled.div`
   height: 50px;
   bottom: 10px;
   right: 20px;
-
-  @media ${device.mobileL} {
-    margin-top: 20px;
-  }
-
-  @media ${device.mobileM} {
-    margin-top: 20px;
-  }
-
-  @media ${device.mobileS} {
-    margin-top: 20px;
-  }
+  ${clienteMobileStyles}
 `
 
 export const LogoCliente = styled.img`

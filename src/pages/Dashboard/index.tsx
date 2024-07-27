@@ -3,7 +3,7 @@ import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import { Content } from './styles'
 
-export default function Dashboard () {
+const Dashboard: React.FC = () => {
   return (
     <>
       <Menu />
@@ -13,3 +13,5 @@ export default function Dashboard () {
     </>
   )
 }
+
+export default Dashboard

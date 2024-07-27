@@ -13,14 +13,14 @@ import {
   Container, Item, LogoCliente
 } from './styles'
 
-import { type TypesOpenedMenu } from './interfaces/openedMenuInterface'
+import { type TypesOpenedMenu } from '../../../../interfaces/globalInterfaces'
 
 export default function OpenedMenu ({
-  open, itemActive, handleSelectItem, handleChangenMenu
+  open, itemActive, handleChangeMenu
 }: TypesOpenedMenu) {
   return (
     <Container visible={open}>
-      <Item active={itemActive.name === 'menu'} onClick={handleChangenMenu}>
+      <Item active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
         <MdClose size={25} />
         <span>Menu</span>
       </Item>

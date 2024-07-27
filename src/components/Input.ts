@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
-  error?: any
+  error?: boolean
 }
 
 export default styled.input<PropStyles>`
@@ -12,18 +12,18 @@ export default styled.input<PropStyles>`
   width: 100%;
   height: 40px;
   font-size: 12px;
-  padding: 0px 15px;
+  padding: 0 15px;
   background: ${({ theme }) => theme.colors.grays.lighter};
   border: 2px solid ${({ theme }) => theme.colors.grays.lighter};
   border-radius: 4px;
   outline: none;
   text-align: center;
   color: ${({ theme }) => theme.colors.grays.light};
+  transition: border-color 0.2s ease-in;
 
   &:focus,
   &:hover {
-    border: 2px solid ${({ theme }) => theme.colors.blues.light};
-    transition: border-color 0.2s ease-in;
+    border-color: ${({ theme }) => theme.colors.blues.light};
   }
 
   &:placeholder-shown {
@@ -34,7 +34,6 @@ export default styled.input<PropStyles>`
   ${({ error, theme }) =>
     error &&
     css`
-      border-width: 2px;
       border-color: ${theme.colors.danger.primary};
-    `};
+    `}
 `

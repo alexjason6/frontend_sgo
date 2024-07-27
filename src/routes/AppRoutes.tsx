@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import Dashboard from '../pages/Dashboard'
 import NotFound from '../pages/NotFound'
 
-export default function AppRouter () {
+const AppRouter = () => {
   return (
     <Routes>
       <Route path="/dashboard" element={<Dashboard />} />
@@ -12,3 +12,5 @@ export default function AppRouter () {
     </Routes>
   )
 }
+
+export default AppRouter

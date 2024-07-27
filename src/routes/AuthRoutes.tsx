@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import Login from '../pages/Login'
 import NotFound from '../pages/NotFound'
 
-export default function AuthRouter () {
+const AuthRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
@@ -12,3 +12,5 @@ export default function AuthRouter () {
     </Routes>
   )
 }
+
+export default AuthRouter

@@ -1,21 +1,24 @@
-import React, { type ReactNode } from 'react'
+import React from 'react'
 
 import { Container } from './styles'
 
-interface PropStyles {
-  children: ReactNode[]
-  error?: string
-  oneOftree?: boolean
-  oneOfFour?: boolean
-  oneOfFive?: boolean
-  passwordChange?: boolean
-}
+import { type TypesInputs } from '../../interfaces/globalInterfaces'
 
 export default function FormGroup ({
-  children, error, oneOftree, oneOfFour, oneOfFive, passwordChange
-}: PropStyles) {
+  children,
+  error,
+  oneOftree,
+  oneOfFour,
+  oneOfFive,
+  passwordChange
+}: TypesInputs) {
   return (
-    <Container oneOftree={oneOftree} oneOfFour={oneOfFour} oneOfFive={oneOfFive} passwordChange={passwordChange}>
+    <Container
+      oneOftree={oneOftree}
+      oneOfFour={oneOfFour}
+      oneOfFive={oneOfFive}
+      passwordChange={passwordChange}
+    >
       {children}
       {error && <small>{error}</small>}
     </Container>

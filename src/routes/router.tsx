@@ -3,7 +3,7 @@ import React from 'react'
 import AuthRouter from './AuthRoutes'
 import AppRouter from './AppRoutes'
 
-export default function Router () {
+const Router = () => {
   // const user = 1
 
   /*   return user ? <AuthRouter /> : <AuthRouter /> */
@@ -15,3 +15,5 @@ export default function Router () {
     </>
   )
 }
+
+export default Router

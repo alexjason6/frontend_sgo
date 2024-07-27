@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React from 'react'
 import { ThemeProvider } from 'styled-components'
 import { BrowserRouter } from 'react-router-dom'
@@ -8,12 +7,12 @@ import defaultTheme from '../assets/styles/themes/default'
 
 import Router from '../routes/router'
 
-function App () {
+const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
         <GlobalStyles />
-          <Router />
+        <Router />
       </ThemeProvider>
     </BrowserRouter>
   )
