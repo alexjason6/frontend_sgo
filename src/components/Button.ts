@@ -1,12 +1,16 @@
 import styled, { css } from 'styled-components'
 
-export default styled.button`
+interface PropStyle {
+  blue?: boolean
+}
+
+export default styled.button<PropStyle>`
   height: 45px;
   font-size: 12px;
   padding: 0 30px;
   margin-top: 20px;
   margin-bottom: 20px;
-  background: ${({ theme }) => theme.colors.oranges.primary};
+  background: ${({ theme, blue }) => !blue ? theme.colors.oranges.primary : theme.colors.blues.primary};
   color: ${({ theme }) => theme.colors.white};
   font-weight: 500;
   border: none;
@@ -14,11 +18,11 @@ export default styled.button`
   transition: background 0.4s;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.oranges.dark};
+    background: ${({ theme, blue }) => !blue ? theme.colors.oranges.dark : theme.colors.blues.dark};
   }
 
   &:active {
-    background: ${({ theme }) => theme.colors.oranges.darker};
+    background: ${({ theme, blue }) => !blue ? theme.colors.oranges.darker : theme.colors.blues.darker};
   }
 
   ${({ disabled, theme }) =>

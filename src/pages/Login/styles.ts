@@ -95,6 +95,7 @@ export const Name = styled.h1`
   font-weight: 200;
   line-height: 25px;
   color: ${({ theme }) => theme.colors.white};
+  font-family: 'Poppins', sans-serif;
   ${nameMobileStyles}
 `
 

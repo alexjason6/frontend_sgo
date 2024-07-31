@@ -18,6 +18,8 @@ export default {
     blues: {
       primary: '#1b74fe',
       light: '#4b93ff',
+      dark: '#0046b3',
+      darker: '#001e50',
       50: '#dff1ff',
       100: '#afd1ff',
       200: '#7db2ff',
@@ -45,6 +47,7 @@ export default {
     grays: {
       primary: '#444444',
       lighter: '#fbf0f2',
+      lightHalf: '#bfbfbf',
       light: '#8c8c8c',
       50: '#fbf0f2',
       100: '#dcd8d9',

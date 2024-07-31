@@ -1,11 +1,11 @@
-import { createGlobalStyle } from 'styled-components'
+import { styled, createGlobalStyle } from 'styled-components'
 
 export default createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Open Sans', sans-serif;
   }
 
   html {
@@ -25,7 +25,13 @@ export default createGlobalStyle`
     text-decoration: none;
   }
 
-  .leaflet-attribution-flag {
-    display: none !important;
+  p {
+    font-size: 12px;
   }
+`
+
+export const GlobalContainer = styled.main`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 `

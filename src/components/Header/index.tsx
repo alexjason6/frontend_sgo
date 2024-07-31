@@ -1,15 +1,15 @@
 import React from 'react'
 import { Container, Title, Divisor } from './styles'
 
-interface TypeHeader {
-  title: string
-}
+import { type TypeHeader } from '../../interfaces/globalInterfaces'
 
-export default function Header ({ title }: TypeHeader) {
+const Header: React.FC<TypeHeader> = ({ title, colorLine }) => {
   return (
     <Container>
       <Title>{title}</Title>
-      <Divisor />
+      <Divisor colorLine={colorLine} />
     </Container>
   )
 }
+
+export default Header

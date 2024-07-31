@@ -13,6 +13,11 @@ export interface TypesOpenedMenu {
   handleChangeMenu: () => void
 }
 
+export interface TypeHeader {
+  title: string
+  colorLine?: string
+}
+
 export interface TypesInputs {
   children: ReactNode
   error?: string
@@ -24,4 +29,33 @@ export interface TypesInputs {
 
 export interface TypesItemActive {
   name: string
+}
+
+export interface TypeCardObras {
+  id?: number
+  idCliente?: number
+  nome?: string
+}
+
+export interface Obra {
+  id: number;
+  alvara: string;
+  nome: string;
+  cnd: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  engenheiro: string;
+  data_cadastro: string;
+  data_alteracao: string;
+  data_inicio: string;
+  previsao_entrega: string;
+  data_entrega?: string | null;
+  status: number;
+  tipo: number;
+  id_cliente: number;
 }
