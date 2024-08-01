@@ -35,34 +35,34 @@ const Menu: React.FC = () => {
         handleChangeMenu={handleChangeMenu}
         itemActive={itemActive}
       />
-      <Item active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
+      <Item $active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
         <MdMenu size={25} />
       </Item>
       <Link to="/dashboard" onClick={() => handleSelectItem('/dashboard')}>
-        <Item active={itemActive.name === '/dashboard'}>
+        <Item $active={itemActive.name === '/dashboard'}>
           <MdDashboard size={20} />
         </Item>
       </Link>
       <Link to="/clientes" onClick={() => handleSelectItem('/clientes')}>
-        <Item active={itemActive.name.includes('/clientes')}>
+        <Item $active={itemActive.name.includes('/clientes')}>
           <FiUsers size={20} />
         </Item>
       </Link>
       <Link to="/obras" onClick={() => handleSelectItem('/obras')}>
-        <Item active={itemActive.name.includes('/obras')}>
+        <Item $active={itemActive.name.includes('/obras')}>
           <LuConstruction size={20} />
         </Item>
       </Link>
       <Link to="/orcamentos" onClick={() => handleSelectItem('/orcamentos')}>
-        <Item active={itemActive.name.includes('/orcamentos')}>
+        <Item $active={itemActive.name.includes('/orcamentos')}>
           <FaFileInvoiceDollar size={20} />
         </Item>
       </Link>
-      <Item active={itemActive.name === '/history'} onClick={() => handleSelectItem('/history')}>
+      <Item $active={itemActive.name === '/history'} onClick={() => handleSelectItem('/history')}>
         <MdHistory size={20} />
       </Item>
       <Link to="/vehicles/list" onClick={() => handleSelectItem('/vehicles')}>
-        <Item active={pathname.includes('/vehicles')}>
+        <Item $active={pathname.includes('/vehicles')}>
           <MdDirectionsCar size={20} />
         </Item>
       </Link>

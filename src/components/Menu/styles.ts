@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
-  active?: boolean
+  $active?: boolean
 }
 
 export const Container = styled.nav`
@@ -30,7 +30,7 @@ export const Item = styled.div<PropStyles>`
     color: ${({ theme }) => theme.colors.white};
   }
 
-  ${({ theme, active }) => active && css`
+  ${({ theme, $active }) => $active && css`
     background: ${theme.colors.blues.primary};
     color: ${theme.colors.white};
   `}

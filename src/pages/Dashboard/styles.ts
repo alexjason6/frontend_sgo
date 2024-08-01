@@ -1,17 +1,28 @@
 import styled from 'styled-components'
 
 interface PropStyle {
-  obras: boolean
+  $obras?: boolean
+  $open?: boolean
 }
 
-export const Content = styled.header<PropStyle>`
+export const Content = styled.main<PropStyle>`
   width: calc()(100% - 50px);
   height: 100%;
   margin-left: 50px;
   background: ${({ theme }) => theme.colors.white};
   display: flex;
-  padding: ${({ obras }) => obras ? '0px 70px 0px 70px' : 0};
-  align-items: ${({ obras }) => obras ? 'flex-start' : 'center'};
-  justify-content: ${({ obras }) => obras ? 'flex-start' : 'center'};
+  padding: ${({ $obras }) => $obras ? '0px 70px 0px 70px' : 0};
+  align-items: ${({ $obras }) => $obras ? 'flex-start' : 'center'};
+  justify-content: ${({ $obras }) => $obras ? 'flex-start' : 'center'};
   flex-direction: column;
+`
+
+export const Obras = styled.section<PropStyle>`
+  width: 100%;
+  height: ${({ $open }) => $open ? '100%' : '330px'};
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 20px;
 `

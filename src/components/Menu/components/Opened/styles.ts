@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
-  visible?: boolean
-  active?: boolean
+  $visible?: boolean
+  $active?: boolean
 }
 
 export const Container = styled.div<PropStyles>`
@@ -19,7 +19,7 @@ export const Container = styled.div<PropStyles>`
   transition: all 0.3s ease-in-out;
   filter: drop-shadow(1px 1px 15px rgba(0, 0, 0, 0.3));
 
-  ${({ visible }) => visible && css`
+  ${({ $visible }) => $visible && css`
     transform: translateX(0);
   `};
 `
@@ -39,7 +39,7 @@ export const Item = styled.div<PropStyles>`
   p {
     font-size: 12px;
     margin-left: 20px;
-    color: ${({ theme, active }) => active ? theme.colors.white : theme.colors.grays.primary};
+    color: ${({ theme, $active }) => $active ? theme.colors.white : theme.colors.grays.primary};
   }
 
   span {
@@ -58,7 +58,7 @@ export const Item = styled.div<PropStyles>`
     }
   }
 
-  ${({ theme, active }) => active && css`
+  ${({ theme, $active }) => $active && css`
     background: ${theme.colors.blues.primary};
     color: ${theme.colors.white};
   `};

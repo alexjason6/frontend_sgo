@@ -1,15 +1,15 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyle {
-  title?: boolean
-  valor?: boolean
-  executado?: boolean
-  comprometido?: boolean
-  saldo?: boolean
+  $title?: boolean
+  $valor?: boolean
+  $executado?: boolean
+  $comprometido?: boolean
+  $saldo?: boolean
 }
 
 export const Container = styled.div`
-  width: 20%;
+  width: 16.1%;
   min-width: 250px;
   padding: 20px;
   background: ${({ theme }) => theme.colors.white};
@@ -25,9 +25,9 @@ export const Title = styled.h4`
 export const Hr = styled.hr<PropStyle>`
   border: none;
   border-top: 1px solid
-    ${({ theme, title }) =>
-      title ? theme.colors.grays.lighter : theme.colors.grays.lightHalf};
-  margin-top: ${({ title }) => (title ? '10px' : '0px')};
+    ${({ theme, $title }) =>
+      $title ? theme.colors.grays.lighter : theme.colors.grays.lightHalf};
+  margin-top: ${({ $title }) => ($title ? '10px' : '0px')};
 `
 export const Item = styled.span`
   font-size: 12px;
@@ -41,14 +41,14 @@ export const Value = styled.p<PropStyle>`
   font-size: 14px;
   font-weight: 500;
 
-  ${({ valor, executado, comprometido, saldo, theme }) =>
-    (valor ?? executado ?? comprometido ?? saldo) &&
+  ${({ $valor, $executado, $comprometido, $saldo, theme }) =>
+    ($valor ?? $executado ?? $comprometido ?? $saldo) &&
     css`
-      color: ${valor
+      color: ${$valor
         ? theme.colors.blues.primary
-        : executado
+        : $executado
         ? theme.colors.oranges.primary
-        : comprometido
+        : $comprometido
         ? theme.colors.danger.primary
         : theme.colors.greens.primary};
     `}
