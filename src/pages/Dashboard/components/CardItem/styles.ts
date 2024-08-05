@@ -12,6 +12,7 @@ export const Container = styled.div`
   width: 16.1%;
   min-width: 250px;
   padding: 20px;
+  border-radius: 8px;
   background: ${({ theme }) => theme.colors.white};
   filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.1));
 `

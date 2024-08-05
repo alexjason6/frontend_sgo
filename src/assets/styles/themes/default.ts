@@ -76,6 +76,7 @@ export default {
     oranges: {
       primary: '#ffad4c',
       light: '#ffc47d',
+      lighter: '#ffdbae',
       dark: '#e47c01',
       darker: '#4e2800',
       50: '#fff2db',

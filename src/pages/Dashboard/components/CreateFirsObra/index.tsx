@@ -8,7 +8,7 @@ const CreateFirstObra: React.FC = () => {
   return (
     <Container>
       <p>Não há obras cadastradas.</p>
-      <Button blue>Iniciar</Button>
+      <Button $blue>Iniciar</Button>
     </Container>
   )
 }

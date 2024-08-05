@@ -15,12 +15,12 @@ export interface TypesOpenedMenu {
 
 export interface TypeHeader {
   title: string
-  colorLine?: string
+  subHeader?: boolean
 }
 
 export interface TypesInputs {
   children: ReactNode
-  error?: string
+  $error?: string
   oneOftree?: boolean
   oneOfFour?: boolean
   oneOfFive?: boolean
@@ -31,8 +31,9 @@ export interface TypesItemActive {
   name: string
 }
 
-export interface TypeCardObras {
+export interface TypeCardItem {
   id?: number
+  type: string
   cliente?: string
   nome?: string
 }
@@ -58,4 +59,14 @@ export interface Obra {
   status: number
   tipo: number
   id_cliente: number
+}
+
+export interface RdoRda {
+  id: number
+  data_criacao: string
+  data_alteracao: string
+  orcamento: number
+  obra: number
+  id_cliente: number
+  status: number
 }

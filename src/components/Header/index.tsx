@@ -3,11 +3,11 @@ import { Container, Title, Divisor } from './styles'
 
 import { type TypeHeader } from '../../interfaces/globalInterfaces'
 
-const Header: React.FC<TypeHeader> = ({ title, colorLine }) => {
+const Header: React.FC<TypeHeader> = ({ title, subHeader }) => {
   return (
-    <Container>
+    <Container $subHeader={subHeader}>
       <Title>{title}</Title>
-      <Divisor colorLine={colorLine} />
+      <Divisor $subHeader={subHeader}/>
     </Container>
   )
 }

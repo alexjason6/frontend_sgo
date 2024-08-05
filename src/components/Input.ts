@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
-  error?: boolean
+  $error?: boolean
 }
 
 export default styled.input<PropStyles>`
@@ -31,8 +31,8 @@ export default styled.input<PropStyles>`
     color: ${({ theme }) => theme.colors.grays.light};
   }
 
-  ${({ error, theme }) =>
-    error &&
+  ${({ $error, theme }) =>
+    $error &&
     css`
       border-color: ${theme.colors.danger.primary};
     `}

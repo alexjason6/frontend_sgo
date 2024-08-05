@@ -6,13 +6,16 @@ import GlobalStyles from '../assets/styles/global'
 import defaultTheme from '../assets/styles/themes/default'
 
 import Router from '../routes/router'
+import { LoadingProvider } from '../contexts/loadingContext'
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
-        <GlobalStyles />
-        <Router />
+        <LoadingProvider>
+          <GlobalStyles />
+          <Router />
+        </LoadingProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

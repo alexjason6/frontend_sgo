@@ -1,25 +1,34 @@
-import PropTypes from 'prop-types'
 import React, { createContext, useState, type ReactNode } from 'react'
+
 import Loading from '../components/Loading'
 
-const dataContext = {
-  loading: true || false,
-  changeLoading: (newValue: boolean, textValue: string) => {}
+interface LoadingContextType {
+  loading: boolean
+  changeLoading: (newValue: boolean, textValue: string) => void
 }
 
-const LoadingContext = createContext(dataContext)
+interface LoadingProviderProps {
+  children: ReactNode
+}
 
-const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [loading, setLoading] = useState(true)
+const initialContextValue: LoadingContextType = {
+  loading: false,
+  changeLoading: () => {}
+}
+
+const LoadingContext = createContext<LoadingContextType>(initialContextValue)
+
+export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) => {
+  const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string | null | undefined>()
 
   const changeLoading = (newValue: boolean, textValue: string) => {
+    setMessage(textValue)
+
     if (newValue) {
-      setMessage(textValue)
       setLoading(newValue)
     } else {
-      setMessage(null)
-      setInterval(() => {
+      setTimeout(() => {
         setLoading(newValue)
       }, 2000)
     }
@@ -36,10 +45,6 @@ const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       {children}
     </LoadingContext.Provider>
   )
-}
-
-LoadingProvider.propTypes = {
-  children: PropTypes.node.isRequired
 }
 
 export default LoadingContext

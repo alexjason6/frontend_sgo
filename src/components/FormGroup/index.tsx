@@ -6,7 +6,7 @@ import { type TypesInputs } from '../../interfaces/globalInterfaces'
 
 export default function FormGroup ({
   children,
-  error,
+  $error,
   oneOftree,
   oneOfFour,
   oneOfFive,
@@ -20,7 +20,7 @@ export default function FormGroup ({
       passwordChange={passwordChange}
     >
       {children}
-      {error && <small>{error}</small>}
+      {$error && <small>{$error}</small>}
     </Container>
   )
 }

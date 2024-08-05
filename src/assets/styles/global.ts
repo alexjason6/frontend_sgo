@@ -32,6 +32,7 @@ export default createGlobalStyle`
 
 export const GlobalContainer = styled.main`
   display: flex;
-  flex-direction: column;
   height: 100vh;
+  flex-direction: column;
+  padding-bottom: 30px;
 `

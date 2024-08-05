@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 
 interface PropStyle {
-  colorLine?: string
+  $subHeader?: boolean
 }
 
-export const Container = styled.section`
+export const Container = styled.section<PropStyle>`
   width: calc(100% - 50px);
   background: ${({ theme }) => theme.colors.white};
-  padding: 50px 50px 10px 50px;
+  padding: ${({ $subHeader }) => !$subHeader ? '50px 50px 10px 50px' : '20px 50px 10px 50px'};
   margin-left: 50px;
 `
 
@@ -22,9 +22,7 @@ export const Divisor = styled.hr<PropStyle>`
   width: 100%;
   border: none;
   margin-bottom: 20px;
-  border-top: 3px solid
-    ${({ theme, colorLine }) =>
-      colorLine === 'gray'
-        ? theme.colors.grays.light
-        : theme.colors.oranges.primary};
+  border-top: ${({ $subHeader }) => $subHeader ? '1px' : '3px'} solid
+    ${({ theme, $subHeader }) =>
+      $subHeader ? theme.colors.grays.light : theme.colors.oranges.primary};
 `

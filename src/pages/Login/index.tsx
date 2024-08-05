@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useState, type ChangeEvent, type FormEvent } from 'react'
+import React, { useContext, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import logo from '../../assets/images/marca_sgo_preferencial.svg'
 import cliente from '../../assets/images/miranto.svg'
+
+import LoadingContext from '../../contexts/loadingContext'
 
 import FormGroup from '../../components/FormGroup'
 import Input from '../../components/Input'
@@ -21,6 +23,7 @@ import {
 const Login: React.FC = () => {
   const navigate = useNavigate()
   const wellcomeMessage = WellcomeMessage()
+  const { changeLoading } = useContext(LoadingContext)
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const {
@@ -52,6 +55,8 @@ const Login: React.FC = () => {
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault()
+    changeLoading(true, 'Fazendo login...')
+
     navigate('dashboard')
     // signIn({ login, password })
   }
@@ -70,25 +75,25 @@ const Login: React.FC = () => {
           <Text>
             Digite os dados abaixo para acessar o sistema.
           </Text>
-          <FormGroup error={getErrorMessageByFieldName('email')}>
+          <FormGroup $error={getErrorMessageByFieldName('email')}>
             <Legend>Digite seu e-mail</Legend>
             <Input
               placeholder="Ex.: contato@sgo.com.br"
               type="email"
               onChange={handleChangelogin}
               value={login}
-              error={!!getErrorMessageByFieldName('email')}
+              $error={!!getErrorMessageByFieldName('email')}
             />
           </FormGroup>
 
-          <FormGroup error={getErrorMessageByFieldName('password')}>
+          <FormGroup $error={getErrorMessageByFieldName('password')}>
             <Legend>Digite a senha</Legend>
             <Input
               placeholder="*************"
               type="password"
               onChange={handleChangePassword}
               value={password}
-              error={!!getErrorMessageByFieldName('password')}
+              $error={!!getErrorMessageByFieldName('password')}
             />
           </FormGroup>
           <Button type="submit" disabled={!loginIsValid}>Entrar</Button>
