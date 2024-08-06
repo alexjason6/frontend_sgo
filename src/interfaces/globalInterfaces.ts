@@ -74,6 +74,7 @@ export interface RdoRda {
 export interface Clientes {
   id: number
   nome: string
+  razao_social: string
   cpf_cnpj: string
   telefone: string
   email: string
@@ -84,6 +85,8 @@ export interface Clientes {
   bairro: string
   cidade: string
   uf: string
+  inscricao_municipal?: string
+  inscricao_estadual?: string
   responsavel: string
   responsavel_financeiro: string
   telefone_financeiro: string

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   MdClose, MdDashboard, MdSimCard, MdDescription, MdSettings
@@ -7,7 +7,7 @@ import { FiUser, FiUsers } from 'react-icons/fi'
 import { LuConstruction } from 'react-icons/lu'
 import { FaFileInvoiceDollar } from 'react-icons/fa'
 
-import logoCliente from '../../../../assets/images/miranto.svg'
+import logoCliente from '../../../../assets/images/cliente.svg'
 
 import {
   Container, Item, LogoCliente
@@ -15,19 +15,32 @@ import {
 
 import { type TypesOpenedMenu } from '../../../../interfaces/globalInterfaces'
 
-export default function OpenedMenu ({
+const OpenedMenu: React.FC<TypesOpenedMenu> = ({
   open, itemActive, handleChangeMenu
-}: TypesOpenedMenu) {
+}) => {
+  useEffect(() => {
+    if (open) {
+      const closeOnEscapeKey = (e: { key: string }) => e.key === 'Escape' ? handleChangeMenu() : null
+      document.body.addEventListener('keydown', closeOnEscapeKey)
+
+      return () => {
+        document.body.removeEventListener('keydown', closeOnEscapeKey)
+      }
+    }
+  }, [handleChangeMenu, open])
+
   return (
     <Container $visible={open}>
       <Item $active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
         <MdClose size={25} />
         <span>Menu</span>
       </Item>
-      <Item $active={itemActive.name === '/dashboard'}>
-        <MdDashboard size={20} />
-        <p>Dashboard</p>
-      </Item>
+      <Link to="/dashboard">
+        <Item $active={itemActive.name.includes('/dashboard')}>
+          <MdDashboard size={20} />
+          <p>Dashboard</p>
+        </Item>
+      </Link>
       <Link to="/clientes">
         <Item $active={itemActive.name.includes('/clientes')}>
           <FiUsers size={20} />
@@ -73,3 +86,5 @@ export default function OpenedMenu ({
     </Container>
   )
 }
+
+export default OpenedMenu

@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components'
 
 interface PropStyles {
   $error?: boolean
+  $listData?: boolean
 }
 
 export default styled.input<PropStyles>`
@@ -35,5 +36,17 @@ export default styled.input<PropStyles>`
     $error &&
     css`
       border-color: ${theme.colors.danger.primary};
-    `}
+  `}
+
+  ${({ $listData, theme }) => $listData && css`
+    background: ${theme.colors.white};
+    color: ${theme.colors.grays.primary};
+    border: none;
+    border-radius: 0;
+    border-bottom: 2px solid ${theme.colors.grays.lighter};
+
+    &:hover {
+      border-color: ${theme.colors.grays.lighter};
+    }
+  `}
 `

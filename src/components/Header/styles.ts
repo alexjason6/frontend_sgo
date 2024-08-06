@@ -4,7 +4,7 @@ interface PropStyle {
   $subHeader?: boolean
 }
 
-export const Container = styled.section<PropStyle>`
+export const Container = styled.header<PropStyle>`
   width: calc(100% - 50px);
   background: ${({ theme }) => theme.colors.white};
   padding: ${({ $subHeader }) => !$subHeader ? '50px 50px 10px 50px' : '20px 50px 10px 50px'};

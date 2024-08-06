@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { device } from '../assets/styles/themes/devices'
 
 export default styled.select`
@@ -19,7 +19,7 @@ export default styled.select`
 
   &:focus,
   &:hover {
-    border: 2px solid ${({ theme }) => theme.colors.primary.main};
+    border: 2px solid ${({ theme }) => theme.colors.blues.primary};
     transition: border-color 0.2s ease-in;
   }
 
@@ -42,4 +42,16 @@ export default styled.select`
     background: ${({ theme }) => theme.colors.white};
     border: 2px solid ${({ theme }) => theme.colors.white};
   }
+
+  ${({ disabled, theme }) => disabled && css`
+    background: ${theme.colors.white};
+    border: none;
+    border-radius: 0;
+    border-bottom: 2px solid ${theme.colors.grays.lighter};
+
+    &:hover {
+      border: none;
+      border-bottom: 2px solid ${theme.colors.grays.lighter};
+    }
+  `}
 `

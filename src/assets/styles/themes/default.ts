@@ -18,6 +18,7 @@ export default {
     blues: {
       primary: '#1b74fe',
       light: '#4b93ff',
+      lighter: '#dff1ff',
       dark: '#0046b3',
       darker: '#001e50',
       50: '#dff1ff',
@@ -62,6 +63,8 @@ export default {
     },
     greens: {
       primary: '#54cf4a',
+      dark: '#1d6519',
+      darker: '#001600',
       50: '#e5fce4',
       100: '#c3f0bf',
       200: '#9ee498',

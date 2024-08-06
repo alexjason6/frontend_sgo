@@ -5,6 +5,7 @@ interface PropStyle {
   $inadimplente?: boolean
   $inativo?: boolean
   $clientes?: boolean
+  $open?: boolean
 }
 
 export const Table = styled.table`
@@ -21,17 +22,20 @@ export const Table = styled.table`
 `
 
 export const Tr = styled.tr<PropStyle>`
-    width: 100%;
+    width: 95%;
+    margin: 0 auto;
     display: table;
     cursor: pointer;
     color: ${({ theme, $index }) => !$index ? theme.colors.grays.primary : theme.colors.grays.light};
 
     &:nth-child(even) {
-    background: ${({ theme }) => theme.colors.white};
+    background: ${({ theme, $open }) => $open ? theme.colors.blues.primary : theme.colors.white};
+    color: ${({ theme, $index, $open }) => (!$index && $open) && theme.colors.white};
   }
 
   &:nth-child(odd) {
-    background: ${({ theme }) => theme.colors.grays.lighter};
+    background: ${({ theme, $open }) => $open ? theme.colors.blues.primary : theme.colors.grays.lighter};
+    color: ${({ theme, $index, $open }) => (!$index && $open) && theme.colors.white};
   }
 
   &:hover {
@@ -49,7 +53,7 @@ export const Tr = styled.tr<PropStyle>`
 
 export const Td = styled.td<PropStyle>`
   width: 11%;
-  height: 50px;
+  height: ${({ $index }) => $index ? '50px' : '40px'};
   font-size: 12px;
   font-weight: 300;
   text-align: center;

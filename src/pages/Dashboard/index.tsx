@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef, useContext, useLayoutEffect, type Dispatch, type SetStateAction } from 'react'
 import { GlobalContainer } from '../../assets/styles/global'
 
@@ -6,15 +5,15 @@ import LoadingContext from '../../contexts/loadingContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
+
 import CreateFirstObra from './components/CreateFirsObra'
+import Sections from './components/Sections'
 
 import { obrasDb } from '../../assets/database/obras'
-import { clientesDb } from '../../assets/database/clientes'
 import { rdosDb } from '../../assets/database/rdos'
 import { rdasDb } from '../../assets/database/rdas'
 
 import { type Obra, type RdoRda } from '../../interfaces/globalInterfaces'
-import Sections from './components/Sections'
 
 const Dashboard: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
@@ -140,85 +139,6 @@ const Dashboard: React.FC = () => {
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
             />
-            {/* <Content $obras={obras.length > 0}>
-              <Itens>
-                {obras.map((obra) => {
-                  const cliente = clientesDb.find((item) => item.id === obra.id_cliente)
-                  return (
-                    <CardItem
-                      type="obra"
-                      key={obra.id}
-                      cliente={cliente?.nome ?? 'Cliente desconhecido'}
-                      id={obra.id}
-                      nome={obra.nome}
-                    />
-                  )
-                })}
-              </Itens>
-              {obrasDb.length >= obras.length && (
-                <More>
-                  <p onClick={() => handleChangeMore('obras', setObras, obrasDb)}>
-                    {more.includes('obras') ? 'Recolher' : 'Expandir obras'}
-                    <Chevron $obras={more.includes('obras')} />
-                  </p>
-                </More>
-              )}
-            </Content>
-
-            <Header title="RDOs" subHeader />
-            <Content $obras={rdos.length > 0}>
-              <Itens>
-                {rdos.map((rdo) => {
-                  const obra = obrasDb.find((item) => item.id === rdo.obra)
-                  const cliente = clientesDb.find((item) => item.id === rdo.id_cliente)
-                  return (
-                    <CardItem
-                      type="rdo"
-                      key={rdo.id}
-                      cliente={cliente?.nome ?? 'Cliente desconhecido'}
-                      id={rdo.id}
-                      nome={obra?.nome ?? 'Obra desconhecida'}
-                    />
-                  )
-                })}
-              </Itens>
-              {rdosDb.length >= rdos.length && (
-                <More>
-                  <p onClick={() => handleChangeMore('rdos', setRdos, rdosDb)}>
-                    {more.includes('rdos') ? 'Recolher' : 'Expandir RDOs'}
-                    <Chevron $obras={more.includes('rdos')} />
-                  </p>
-                </More>
-              )}
-            </Content>
-
-            <Header title="RDAs" subHeader />
-            <Content $obras={rdas.length > 0}>
-              <Itens>
-                {rdas.map((rda) => {
-                  const obra = obrasDb.find((item) => item.id === rda.obra)
-                  const cliente = clientesDb.find((item) => item.id === rda.id_cliente)
-                  return (
-                    <CardItem
-                      type="rda"
-                      key={rda.id}
-                      cliente={cliente?.nome ?? 'Cliente desconhecido'}
-                      id={rda.id}
-                      nome={obra?.nome ?? 'Obra desconhecida'}
-                    />
-                  )
-                })}
-              </Itens>
-
-              {rdasDb.length >= rdas.length && (
-              <More>
-                <p onClick={() => handleChangeMore('rdas', setRdas, rdasDb)}>
-                  {more.includes('rdas') ? 'Recolher' : 'Expandir RDAs'}
-                  <Chevron $obras={more.includes('rdas')} />
-                </p>
-              </More>
-              )}
-            </Content> */}
         </div>
             )}
     </GlobalContainer>

@@ -30,7 +30,7 @@ export const Container = styled.div<PropStyles>`
   `};
 
   ${({ oneOfFour }) => oneOfFour && css`
-    max-width: 22%;
+    max-width: 24%;
     min-width: 200px;
   `};
 

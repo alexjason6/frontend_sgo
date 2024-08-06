@@ -3,7 +3,7 @@ import React, { useContext, useState, type ChangeEvent, type FormEvent } from 'r
 import { useNavigate } from 'react-router-dom'
 
 import logo from '../../assets/images/marca_sgo_preferencial.svg'
-import cliente from '../../assets/images/miranto.svg'
+import cliente from '../../assets/images/cliente.svg'
 
 import LoadingContext from '../../contexts/loadingContext'
 

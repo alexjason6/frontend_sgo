@@ -55,9 +55,11 @@ export const Value = styled.p<PropStyle>`
     `}
 `
 
-export const Cliente = styled.p`
+export const Cliente = styled.var`
   width: 100%;
+  font-size: 12px;
   margin-top: 20px;
   text-align: right;
   color: ${({ theme }) => theme.colors.grays.light};
+  float: right;
 `

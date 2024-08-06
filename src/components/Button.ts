@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 interface PropStyle {
   $blue?: boolean
   $rdoRda?: boolean
+  $green?: boolean
   $stroke?: boolean
 }
 
@@ -11,7 +12,12 @@ export default styled.button<PropStyle>`
   font-size: 12px;
   padding: 0 30px;
   margin: 20px 0px;
-  background: ${({ theme, $blue }) => !$blue ? theme.colors.oranges.primary : theme.colors.blues.primary};
+  background: ${({ theme, $blue, $green }) =>
+    $blue
+      ? theme.colors.blues.primary
+      : $green
+      ? theme.colors.greens.primary
+      : theme.colors.oranges.primary};
   color: ${({ theme }) => theme.colors.white};
   font-weight: 500;
   border: none;
@@ -19,11 +25,21 @@ export default styled.button<PropStyle>`
   transition: background 0.4s;
 
   &:hover {
-    background: ${({ theme, $blue }) => !$blue ? theme.colors.oranges.dark : theme.colors.blues.dark};
+    background: ${({ theme, $blue, $green }) =>
+      $blue
+        ? theme.colors.blues.dark
+        : $green
+        ? theme.colors.greens.dark
+        : theme.colors.oranges.dark};
   }
 
   &:active {
-    background: ${({ theme, $blue }) => !$blue ? theme.colors.oranges.darker : theme.colors.blues.darker};
+    background: ${({ theme, $blue, $green }) =>
+      $blue
+        ? theme.colors.blues.darker
+        : $green
+        ? theme.colors.greens.darker
+        : theme.colors.oranges.darker};
   }
 
   ${({ disabled, theme }) =>
@@ -38,7 +54,9 @@ export default styled.button<PropStyle>`
       }
     `}
 
-  ${({ $stroke, $rdoRda, theme }) => $rdoRda && css`
+  ${({ $stroke, $rdoRda, theme }) =>
+    $rdoRda &&
+    css`
       & + & {
         margin-top: -10px;
       }
@@ -55,5 +73,5 @@ export default styled.button<PropStyle>`
       &:active {
         background: ${$stroke && theme.colors.oranges.dark};
       }
-  `}
+    `}
 `
