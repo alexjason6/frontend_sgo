@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef, useContext, useLayoutEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState, useRef, useContext, useLayoutEffect, type Dispatch, type SetStateAction } from 'react'
 import { GlobalContainer } from '../../assets/styles/global'
 
 import LoadingContext from '../../contexts/loadingContext'
@@ -6,16 +7,14 @@ import LoadingContext from '../../contexts/loadingContext'
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import CreateFirstObra from './components/CreateFirsObra'
-import CardItem from './components/CardItem'
 
 import { obrasDb } from '../../assets/database/obras'
 import { clientesDb } from '../../assets/database/clientes'
 import { rdosDb } from '../../assets/database/rdos'
 import { rdasDb } from '../../assets/database/rdas'
 
-import { Content, More, Itens, Chevron } from './styles'
-
 import { type Obra, type RdoRda } from '../../interfaces/globalInterfaces'
+import Sections from './components/Sections'
 
 const Dashboard: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
@@ -64,7 +63,7 @@ const Dashboard: React.FC = () => {
     }
   }
 
-  const handleChangeMore = (type: string, setItems: React.Dispatch<React.SetStateAction<any[]>>, itemsDb: any[]) => {
+  const handleChangeMore = (type: string, setItems: Dispatch<SetStateAction<any[]>>, itemsDb: any[]) => {
     setMore((prevMore) => {
       if (prevMore.includes(type)) {
         setItems(itemsDb.slice(0, width))
@@ -110,7 +109,38 @@ const Dashboard: React.FC = () => {
           ? <CreateFirstObra />
           : (
           <div style={{ paddingBottom: 30 }}>
-            <Content $obras={obras.length > 0}>
+            <Sections
+              titleHeader='Obras'
+              typeSection={'obra'}
+              items={obras}
+              itemDb={obrasDb}
+              setItem={setObras}
+              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
+              more={more}
+            />
+
+            <Sections
+              titleHeader='RDOS'
+              typeSection={'rdo'}
+              isSubHeader
+              items={rdos}
+              itemDb={rdosDb}
+              setItem={setRdos}
+              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
+              more={more}
+            />
+
+            <Sections
+              titleHeader='RDAS'
+              typeSection={'rda'}
+              isSubHeader
+              items={rdas}
+              itemDb={rdasDb}
+              setItem={setRdas}
+              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
+              more={more}
+            />
+            {/* <Content $obras={obras.length > 0}>
               <Itens>
                 {obras.map((obra) => {
                   const cliente = clientesDb.find((item) => item.id === obra.id_cliente)
@@ -188,7 +218,7 @@ const Dashboard: React.FC = () => {
                 </p>
               </More>
               )}
-            </Content>
+            </Content> */}
         </div>
             )}
     </GlobalContainer>

@@ -70,3 +70,23 @@ export interface RdoRda {
   id_cliente: number
   status: number
 }
+
+export interface Clientes {
+  id: number
+  nome: string
+  cpf_cnpj: string
+  telefone: string
+  email: string
+  cep: string
+  logradouro: string
+  numero: string
+  complemento?: string
+  bairro: string
+  cidade: string
+  uf: string
+  responsavel: string
+  responsavel_financeiro: string
+  telefone_financeiro: string
+  email_financeiro: string
+  status: number
+}

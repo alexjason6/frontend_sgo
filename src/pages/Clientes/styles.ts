@@ -1,10 +1,20 @@
 import styled from 'styled-components'
 
-export const Content = styled.section`
+interface PropStyle {
+  $clientes?: boolean
+}
+
+export const Content = styled.section<PropStyle>`
   width: calc(100% - 50px);
   height: 100%;
   margin-left: 50px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: ${({ $clientes }) => !$clientes ? 'center' : 'flex-start'};
 `
+
+export const Itens = styled.div`
+  width: 100%;
+`
+
+export const Item = styled.div``

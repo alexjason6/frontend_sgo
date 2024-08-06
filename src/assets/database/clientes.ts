@@ -5,7 +5,7 @@ export const clientesDb = [
     nome: 'Viana Flex',
     razao_social: 'Viana Flex SA',
     email: 'contato@vianaflex.com.br',
-    telefone: '+552732133144',
+    telefone: '+5527999011548',
     cep: '29136519',
     logradouro: 'Rua Idalino Carvalho',
     numero: 'SN',

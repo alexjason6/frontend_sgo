@@ -34,5 +34,5 @@ export const GlobalContainer = styled.main`
   display: flex;
   height: 100vh;
   flex-direction: column;
-  padding-bottom: 30px;
+  background: ${({ theme }) => theme.colors.background};
 `
