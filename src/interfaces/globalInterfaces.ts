@@ -16,6 +16,7 @@ export interface TypesOpenedMenu {
 export interface TypeHeader {
   title: string
   subHeader?: boolean
+  goBack?: boolean
 }
 
 export interface TypesInputs {

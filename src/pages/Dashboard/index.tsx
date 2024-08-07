@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
         {!obras || obras.length === 0
           ? <CreateFirstObra />
           : (
-          <div style={{ paddingBottom: 30 }}>
+          <div>
             <Sections
               titleHeader='Obras'
               typeSection={'obra'}

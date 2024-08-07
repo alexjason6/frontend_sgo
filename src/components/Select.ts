@@ -47,11 +47,11 @@ export default styled.select`
     background: ${theme.colors.white};
     border: none;
     border-radius: 0;
-    border-bottom: 2px solid ${theme.colors.grays.lighter};
+    border-bottom: 2px solid ${theme.colors.oranges.primary};
 
     &:hover {
       border: none;
-      border-bottom: 2px solid ${theme.colors.grays.lighter};
+      border-bottom: 2px solid ${theme.colors.oranges.primary};
     }
   `}
 `

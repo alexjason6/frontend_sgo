@@ -43,10 +43,10 @@ export default styled.input<PropStyles>`
     color: ${theme.colors.grays.primary};
     border: none;
     border-radius: 0;
-    border-bottom: 2px solid ${theme.colors.grays.lighter};
+    border-bottom: 2px solid ${theme.colors.oranges.primary};
 
     &:hover {
-      border-color: ${theme.colors.grays.lighter};
+      border-color: ${theme.colors.oranges.primary};
     }
   `}
 `

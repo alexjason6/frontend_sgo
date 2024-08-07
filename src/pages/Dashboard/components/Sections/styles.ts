@@ -19,22 +19,26 @@ export const Content = styled.main<PropStyle>`
 
 export const Itens = styled.section`
   width: 100%;
+  padding-top: 20px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  padding-top: 20px;
 `
 export const More = styled.div`
   width: 100%;
   height: 30px;
   margin: 30px 0px;
-  padding-top: 30px;
   border-top: 1px solid ${({ theme }) => theme.colors.oranges.lighter};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   p {
+    width: fit-content;
     font-size: 12px;
     font-weight: 500;
+    margin-top: 30px;
     display: flex;
     justify-content: center;
     align-items: center;

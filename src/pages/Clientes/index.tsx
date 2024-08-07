@@ -27,7 +27,7 @@ const ListClientes: React.FC = () => {
   return (
   <GlobalContainer>
     <Menu />
-    <Header title='Clientes' />
+    <Header title='Clientes' goBack/>
     <Content $clientes={clientes.length > 0}>
       {!clientes || clientes.length === 0
         ? <CreateCliente changeModal={handleChangeModal} />
