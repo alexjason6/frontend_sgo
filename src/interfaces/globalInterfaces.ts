@@ -17,6 +17,7 @@ export interface TypeHeader {
   title: string
   subHeader?: boolean
   goBack?: boolean
+  modal?: boolean
 }
 
 export interface TypesInputs {
@@ -30,13 +31,6 @@ export interface TypesInputs {
 
 export interface TypesItemActive {
   name: string
-}
-
-export interface TypeCardItem {
-  id?: number
-  type: string
-  cliente?: string
-  nome?: string
 }
 
 export interface Obra {
@@ -59,7 +53,16 @@ export interface Obra {
   data_entrega?: string | null
   status: number
   tipo: number
+  metragem?: number
   id_cliente: number
+}
+
+export interface TypeCardItem {
+  item?: Obra | RdoRda
+  type: string
+  cliente?: string
+  nome?: string
+  id?: number
 }
 
 export interface RdoRda {

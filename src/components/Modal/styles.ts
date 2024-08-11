@@ -22,6 +22,7 @@ export const Content = styled.section`
   border-radius: 4px;
   color: ${({ theme }) => theme.colors.grays.primary};
   box-shadow: 0 0px 36px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  overflow: auto;
 `
 
 export const Close = styled.div`
@@ -32,6 +33,6 @@ export const Close = styled.div`
 
 export const X = styled(FiX)`
   font-size: 2rem;
-  color: ${({ theme }) => theme.colors.oranges.primary};
+  color: ${({ theme }) => theme.colors.danger.primary};
   cursor: pointer;
 `

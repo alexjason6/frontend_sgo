@@ -1,5 +1,9 @@
 import { styled, createGlobalStyle } from 'styled-components'
 
+interface PropStyle {
+  $modal?: boolean
+}
+
 export default createGlobalStyle`
   * {
     margin: 0;
@@ -17,6 +21,10 @@ export default createGlobalStyle`
     font-size: 16px;
   }
 
+  .no-scroll {
+    overflow: hidden;
+  }
+
   button {
     cursor: pointer;
   }
@@ -30,9 +38,9 @@ export default createGlobalStyle`
   }
 `
 
-export const GlobalContainer = styled.main`
+export const GlobalContainer = styled.main<PropStyle>`
   display: flex;
-  height: 100vh;
+  height: ${({ $modal }) => $modal ? '100%' : '100vh'};
   flex-direction: column;
   background: ${({ theme }) => theme.colors.background};
 `

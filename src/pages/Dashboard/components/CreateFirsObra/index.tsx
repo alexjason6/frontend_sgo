@@ -2,13 +2,15 @@ import React from 'react'
 
 import Button from '../../../../components/Button'
 
-import { Container } from './styles'
+import { Container, Content } from './styles'
 
 const CreateFirstObra: React.FC = () => {
   return (
     <Container>
-      <p>Não há obras cadastradas.</p>
-      <Button $blue>Iniciar</Button>
+      <Content>
+        <p>Não há obras cadastradas.</p>
+        <Button $blue>Iniciar</Button>
+      </Content>
     </Container>
   )
 }

@@ -1,12 +1,13 @@
+import styled, { css } from 'styled-components'
 import { FiChevronLeft } from 'react-icons/fi'
-import styled from 'styled-components'
 
 interface PropStyle {
   $subHeader?: boolean
+  $modal?: boolean
 }
 
 export const Container = styled.header<PropStyle>`
-  width: calc(100% - 50px);
+  width: ${({ $modal }) => $modal ? '100%' : 'calc(100% - 50px)'};
   background: ${({ theme }) => theme.colors.white};
   padding: ${({ $subHeader }) => !$subHeader ? '50px 50px 10px 50px' : '20px 50px 10px 50px'};
   margin-left: 50px;
@@ -14,6 +15,11 @@ export const Container = styled.header<PropStyle>`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+
+  ${({ $modal }) => $modal && css`
+    padding: 20px 0px 10px 30px;
+    margin-left: 0px;
+  `}
 `
 
 export const Title = styled.h3`

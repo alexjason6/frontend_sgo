@@ -7,14 +7,17 @@ import defaultTheme from '../assets/styles/themes/default'
 
 import Router from '../routes/router'
 import { LoadingProvider } from '../contexts/loadingContext'
+import { ModalProvider } from '../contexts/modalContext'
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
         <LoadingProvider>
-          <GlobalStyles />
-          <Router />
+          <ModalProvider>
+            <GlobalStyles />
+            <Router />
+          </ModalProvider>
         </LoadingProvider>
       </ThemeProvider>
     </BrowserRouter>

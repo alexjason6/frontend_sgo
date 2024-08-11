@@ -6,7 +6,7 @@ interface PropStyle {
   $open?: boolean
 }
 
-export const Content = styled.main<PropStyle>`
+export const Content = styled.section<PropStyle>`
   width: calc()(100% - 50px);
   margin-left: 50px;
   background: ${({ theme }) => theme.colors.white};
@@ -17,13 +17,14 @@ export const Content = styled.main<PropStyle>`
   flex-direction: column;
 `
 
-export const Itens = styled.section`
+export const Itens = styled.div<PropStyle>`
   width: 100%;
   padding-top: 20px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  cursor: ${({ $obras }) => $obras && 'pointer'};
 `
 export const More = styled.div`
   width: 100%;

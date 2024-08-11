@@ -31,24 +31,25 @@ const Sections: React.FC<PropsSections> = ({
   typeSection,
   items,
   itemDb,
+  more,
   setItem,
-  handleChangeMore,
-  more
+  handleChangeMore
 }) => {
   return (
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}
     <Content $obras={items.length > 0}>
-      <Itens>
+      <Itens $obras={typeSection === 'obra'} >
         {items.map((item) => {
           const cliente = clientesDb.find((cliente) => cliente.id === item.id_cliente)
           const name = isObra(item) ? item.nome : obrasDb.find((obra) => obra.id === item.obra)?.nome
 
           return (
             <CardItem
-              type={typeSection}
               key={item.id}
+              type={typeSection}
               cliente={cliente?.nome ?? 'Cliente desconhecido'}
+              item={item}
               id={item.id}
               nome={name ?? 'Obra desconhecida'}
             />

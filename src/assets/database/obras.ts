@@ -18,7 +18,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 1,
+    metragem: 25435,
     id_cliente: 1
   },
   {
@@ -40,7 +41,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 3,
+    metragem: 25435,
     id_cliente: 2
   },
   {
@@ -62,7 +64,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 3,
+    metragem: 25435,
     id_cliente: 3
   },
   {
@@ -84,7 +87,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 1,
+    metragem: 25435,
     id_cliente: 4
   },
   {
@@ -106,7 +110,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 4,
+    metragem: 25435,
     id_cliente: 5
   },
   {
@@ -129,6 +134,7 @@ export const obrasDb = [
     data_entrega: null,
     status: 1,
     tipo: 2,
+    metragem: 25435,
     id_cliente: 6
   },
   {
@@ -151,6 +157,7 @@ export const obrasDb = [
     data_entrega: null,
     status: 1,
     tipo: 2,
+    metragem: 25435,
     id_cliente: 7
   },
   {
@@ -172,7 +179,8 @@ export const obrasDb = [
     previsao_entrega: '1721604552',
     data_entrega: null,
     status: 1,
-    tipo: 2,
+    tipo: 5,
+    metragem: 25435,
     id_cliente: 8
   },
   {
@@ -195,6 +203,7 @@ export const obrasDb = [
     data_entrega: null,
     status: 1,
     tipo: 2,
+    metragem: 25435,
     id_cliente: 9
   }
 ]
