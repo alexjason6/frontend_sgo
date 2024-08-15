@@ -30,8 +30,6 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     }
   }
 
-  console.log(isOpen)
-
   return (
     <ModalContext.Provider
       value={{

@@ -19,7 +19,7 @@ export const obrasDb = [
     data_entrega: null,
     status: 1,
     tipo: 1,
-    metragem: 25435,
+    metragem: 33500,
     id_cliente: 1
   },
   {
@@ -134,7 +134,7 @@ export const obrasDb = [
     data_entrega: null,
     status: 1,
     tipo: 2,
-    metragem: 25435,
+    metragem: 33500,
     id_cliente: 6
   },
   {

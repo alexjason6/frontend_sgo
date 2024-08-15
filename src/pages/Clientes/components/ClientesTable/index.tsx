@@ -9,10 +9,10 @@ import Infos from '../Infos'
 
 import { Table, Tr, Td } from './styles'
 
-import { type Clientes } from '../../../../interfaces/globalInterfaces'
+import { type Cliente } from '../../../../interfaces/globalInterfaces'
 
 interface ClientTableProps {
-  clientes: Clientes[]
+  clientes: Cliente[]
 }
 
 const ClientesTable: React.FC<ClientTableProps> = ({ clientes }) => {

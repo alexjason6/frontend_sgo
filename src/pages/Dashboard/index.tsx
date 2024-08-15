@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef, useContext, useLayoutEffect, type D
 import { GlobalContainer } from '../../assets/styles/global'
 
 import LoadingContext from '../../contexts/loadingContext'
+import ObrasContext from '../../contexts/obrasContext'
+import RdoRdaContext from '../../contexts/rdoRdaContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
@@ -9,23 +11,19 @@ import Header from '../../components/Header'
 import CreateFirstObra from './components/CreateFirsObra'
 import Sections from './components/Sections'
 
-import { obrasDb } from '../../assets/database/obras'
-import { rdosDb } from '../../assets/database/rdos'
-import { rdasDb } from '../../assets/database/rdas'
-
-import { type Obra, type RdoRda } from '../../interfaces/globalInterfaces'
-
 const Dashboard: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
   const refPage = useRef<null | HTMLElement>(null)
-  const [obras, setObras] = useState<Obra[]>(obrasDb)
-  const [rdos, setRdos] = useState<RdoRda[]>(rdosDb)
-  const [rdas, setRdas] = useState<RdoRda[]>(rdasDb)
+  const { obras } = useContext(ObrasContext)
+  const { rdos, rdas } = useContext(RdoRdaContext)
+  const [itensObras, setItensObras] = useState(obras)
+  const [itensRdo, setItensRdos] = useState(rdos)
+  const [itensRda, setItensRdas] = useState(rdas)
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
 
   const resizeHandler = (sizeWindow: number) => {
-    if (obrasDb && rdosDb && rdasDb) {
+    if (obras && rdos && rdas) {
       let size
       if (sizeWindow >= 1740) {
         size = 6
@@ -47,9 +45,9 @@ const Dashboard: React.FC = () => {
         setWidth(1)
       }
 
-      if (!more.includes('obras')) setObras(obrasDb.slice(0, size))
-      if (!more.includes('rdos')) setRdos(rdosDb.slice(0, size))
-      if (!more.includes('rdas')) setRdas(rdasDb.slice(0, size))
+      if (!more.includes('obras')) setItensObras(obras.slice(0, size))
+      if (!more.includes('rdos')) setItensRdos(rdos.slice(0, size))
+      if (!more.includes('rdas')) setItensRdas(rdas.slice(0, size))
     }
 
     changeLoading(false, 'Carregando obras...')
@@ -111,9 +109,9 @@ const Dashboard: React.FC = () => {
             <Sections
               titleHeader='Obras'
               typeSection={'obra'}
-              items={obras}
-              itemDb={obrasDb}
-              setItem={setObras}
+              items={itensObras}
+              itemDb={obras}
+              setItem={setItensObras}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
             />
@@ -122,9 +120,9 @@ const Dashboard: React.FC = () => {
               titleHeader='RDOS'
               typeSection={'rdo'}
               isSubHeader
-              items={rdos}
-              itemDb={rdosDb}
-              setItem={setRdos}
+              items={itensRdo}
+              itemDb={rdos}
+              setItem={setItensRdos}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
             />
@@ -133,9 +131,9 @@ const Dashboard: React.FC = () => {
               titleHeader='RDAS'
               typeSection={'rda'}
               isSubHeader
-              items={rdas}
-              itemDb={rdasDb}
-              setItem={setRdas}
+              items={itensRda}
+              itemDb={rdas}
+              setItem={setItensRdas}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
             />

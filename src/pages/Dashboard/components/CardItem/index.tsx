@@ -1,45 +1,39 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { useContext } from 'react'
+
+import ModalContext from '../../../../contexts/modalContext'
+import OrcamentosContext from '../../../../contexts/orcamentosContext'
+import RdoRdaContext from '../../../../contexts/rdoRdaContext'
 
 import Button from '../../../../components/Button'
 
 import ResumoObra from '../../../Obras/Resumo'
 
-// import { orcamentosDb } from '../../../../assets/database/orcamentos'
-import { itensOrcamentoDb } from '../../../../assets/database/itensOrcamentos'
+import { comprometidoValue, executadoValue, m2ValueTotalOrcamento, orcamentoValue, saldoValue } from '../../../../utils/calculateInfosObras'
 
 import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
 import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
-import { lancamentosRdoDb } from '../../../../assets/database/lancamentosRdo'
-import { rdosDb } from '../../../../assets/database/rdos'
-import ModalContext from '../../../../contexts/modalContext'
-// import { orcamentosDb } from '../../../../assets/database/orcamentos'
+import ObrasContext from '../../../../contexts/obrasContext'
 
 const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => {
   const { changeModal } = useContext(ModalContext)
-  // const orcamento = orcamentosDb.filter((itemDb) => itemDb.obra === id)
-  const rdo = rdosDb.find((file) => file.obra === id)
-  const lancamentos = lancamentosRdoDb.filter((lancamento) => lancamento.obra === rdo?.id)
-  const valorOrcamento = itensOrcamentoDb.reduce<number>((accumulator, valor) => {
-    return accumulator + Number(valor.valor_total)
-  }, 0)
-  const valorExecutado = lancamentos.reduce<number>((accumulator, valor) => {
-    return accumulator + Number(valor.valor_pagamento)
-  }, 0)
-  const valorComprometido = lancamentos.reduce<number>((accumulator, valor) => {
-    return accumulator + Number(valor.valor_comprometido)
-  }, 0)
-  const saldoOrcamento = valorOrcamento - (valorComprometido + valorExecutado)
+  const { itens } = useContext(OrcamentosContext)
+  const { rdos, lancamentosRdo } = useContext(RdoRdaContext)
+  const { obras } = useContext(ObrasContext)
+  const rdo = rdos.find((file) => file.obra === id)
+  const lancamentos = lancamentosRdo.filter((lancamento) => lancamento.obra === rdo?.id)
 
   const handleClickCard = () => {
-    changeModal(<ResumoObra
-      saldo={saldoOrcamento}
-      orcamento={valorOrcamento}
-      executado={valorExecutado}
-      comprometido={valorComprometido}
-      obra={item as Obra}
-    />)
+    changeModal(
+      <ResumoObra
+        saldo={saldoValue(itens, lancamentos)}
+        orcamento={orcamentoValue(itens)}
+        executado={executadoValue(lancamentos)}
+        comprometido={comprometidoValue(lancamentos)}
+        obra={item as Obra}
+        valorM2={m2ValueTotalOrcamento(itens, obras, item as Obra)}
+      />
+    )
   }
 
   return (
@@ -50,28 +44,16 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
         {type === 'obra'
           ? (
             <>
-              <Item>Valor da obra <Value $valor>{Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(valorOrcamento)}</Value></Item>
+              <Item>Valor da obra <Value $valor>{orcamentoValue(itens)}</Value></Item>
               <Hr />
 
-              <Item>Executado <Value $executado>{Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(valorExecutado)}</Value></Item>
+              <Item>Executado <Value $executado>{executadoValue(lancamentos)}</Value></Item>
               <Hr />
 
-              <Item>Comprometido <Value $comprometido>{Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(valorComprometido)}</Value></Item>
+              <Item>Comprometido <Value $comprometido>{comprometidoValue(lancamentos)}</Value></Item>
               <Hr />
 
-              <Item>Saldo <Value $saldo>{Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(saldoOrcamento)}</Value></Item>
+              <Item>Saldo <Value $saldo>{saldoValue(itens, lancamentos)}</Value></Item>
               <Hr />
 
             </>

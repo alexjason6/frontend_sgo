@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 
 import { GlobalContainer } from '../../assets/styles/global'
-import { clientesDb } from '../../assets/database/clientes'
+
+import ClientesContext from '../../contexts/clientesContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
@@ -12,10 +13,8 @@ import ClientesTable from './components/ClientesTable'
 
 import { Content } from './styles'
 
-import { type Clientes } from '../../interfaces/globalInterfaces'
-
 const ListClientes: React.FC = () => {
-  const [clientes, setClientes] = useState<Clientes[]>(clientesDb)
+  const { clientes } = useContext(ClientesContext)
 
   return (
   <GlobalContainer>

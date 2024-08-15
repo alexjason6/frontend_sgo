@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import Dashboard from '../pages/Dashboard'
 import Clientes from '../pages/Clientes'
+import Obras from '../pages/Obras'
 import DetalhamentoObra from '../pages/Obras/Detalhamento'
 import NotFound from '../pages/NotFound'
 
@@ -11,6 +12,7 @@ const AppRouter = () => {
     <Routes>
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/clientes" element={<Clientes />} />
+      <Route path="/obras" element={<Obras />} />
       <Route path="/obras/detalhamento/:id" element={<DetalhamentoObra />} />
       <Route path="/notFound" element={<NotFound />} />
     </Routes>

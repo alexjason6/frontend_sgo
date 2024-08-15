@@ -4,6 +4,8 @@ export default {
 
     alert: {
       primary: '#fed01b',
+      dark: '#b28e00',
+      darker: '#4d3d00',
       50: '#fffadb',
       100: '#ffefad',
       200: '#fee57d',
@@ -34,6 +36,8 @@ export default {
     },
     danger: {
       primary: '#e60000',
+      dark: '#810000',
+      darker: '#500000',
       50: '#ffe1e1',
       100: '#ffb1b1',
       200: '#ff7f7f',

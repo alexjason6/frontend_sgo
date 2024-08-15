@@ -1,14 +1,14 @@
-import React, { type Dispatch, type SetStateAction } from 'react'
+import React, { useContext, type Dispatch, type SetStateAction } from 'react'
 
 import Header from '../../../../components/Header'
 import CardItem from '../CardItem'
 
-import { clientesDb } from '../../../../assets/database/clientes'
 import { obrasDb } from '../../../../assets/database/obras'
 
 import { Content, Itens, More, Chevron } from './styles'
 
 import { type Obra, type RdoRda } from '../../../../interfaces/globalInterfaces'
+import ClientesContext from '../../../../contexts/clientesContext'
 
 interface PropsSections {
   titleHeader: string
@@ -35,13 +35,14 @@ const Sections: React.FC<PropsSections> = ({
   setItem,
   handleChangeMore
 }) => {
+  const { clientes } = useContext(ClientesContext)
   return (
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}
     <Content $obras={items.length > 0}>
       <Itens $obras={typeSection === 'obra'} >
         {items.map((item) => {
-          const cliente = clientesDb.find((cliente) => cliente.id === item.id_cliente)
+          const cliente = clientes.find((cliente) => cliente.id === item.id_cliente)
           const name = isObra(item) ? item.nome : obrasDb.find((obra) => obra.id === item.obra)?.nome
 
           return (

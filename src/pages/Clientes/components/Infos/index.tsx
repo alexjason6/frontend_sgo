@@ -12,10 +12,10 @@ import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 
 import { Container, Legend, Edit, EditIcon, ButtonContainer, Form } from './styles'
 
-import { type Clientes } from '../../../../interfaces/globalInterfaces'
+import { type Cliente } from '../../../../interfaces/globalInterfaces'
 
 interface typeCliente {
-  cliente: Clientes
+  cliente: Cliente
 }
 
 const Infos: React.FC<typeCliente> = ({ cliente }) => {

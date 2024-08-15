@@ -2,6 +2,7 @@ import { styled, createGlobalStyle } from 'styled-components'
 
 interface PropStyle {
   $modal?: boolean
+  $obras?: boolean
 }
 
 export default createGlobalStyle`
@@ -43,4 +44,12 @@ export const GlobalContainer = styled.main<PropStyle>`
   height: ${({ $modal }) => $modal ? '100%' : '100vh'};
   flex-direction: column;
   background: ${({ theme }) => theme.colors.background};
+`
+export const Content = styled.section<PropStyle>`
+  width: calc(100% - 50px);
+  height: 100%;
+  margin-left: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: ${({ $obras }) => !$obras ? 'center' : 'flex-start'};
 `
