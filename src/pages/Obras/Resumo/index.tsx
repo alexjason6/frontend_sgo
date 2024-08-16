@@ -17,7 +17,7 @@ import { calculaPerCentValue } from '../../../utils/calculateInfosObras'
 
 interface TypeObra {
   obra: Obra
-  saldo: string
+  saldo: string | number
   orcamento?: string | number
   executado?: string | number
   comprometido?: string | number

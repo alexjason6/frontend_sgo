@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import moment from 'moment'
 
@@ -13,6 +13,8 @@ import Header from '../../../components/Header'
 import Menu from '../../../components/Menu'
 import HeaderResumoObra from '../components/HeaderResumo'
 import BoxInfos from '../components/BoxInfos'
+import TableInfos from '../../../components/TableInfos'
+import Button from '../../../components/Button'
 
 import { calculaPerCentValue, comprometidoValue, executadoValue, orcamentoValue, saldoValue } from '../../../utils/calculateInfosObras'
 
@@ -21,17 +23,18 @@ import { Content, CardsInfos, Title, Infos, Bar, Var } from './styles'
 const DetalhamentoObra: React.FC = () => {
   const { id } = useParams()
   const { obras } = useContext(ObrasContext)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
   const { fornecedores } = useContext(FornecedoresContext)
   const { itens } = useContext(OrcamentosContext)
-  const [obra] = obras.filter((item) => item.id === Number(id))
-  const bigestPayments = lancamentosRdo.sort((a, b) => Number(a.valor_pagamento) > Number(b.valor_pagamento) ? 1 : -1).slice(0, 5)
-  const comprometidoPayments = lancamentosRdo.sort((a, b) => Number(a.valor_comprometido) > Number(b.valor_comprometido) ? -1 : 1).slice(0, 8)
+  const [obra] = useMemo(() => obras.filter((item) => item.id === Number(id)), [])
+  const bigestPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_pagamento) > Number(b.valor_pagamento) ? -1 : 1).slice(0, 5), [])
+  const comprometidoPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_comprometido) > Number(b.valor_comprometido) ? -1 : 1).slice(0, 8), [])
   const trataInicio = moment.unix(Number(obra.data_inicio))
   const inicio = moment(trataInicio, 'YYYY-MM-DD').diff(moment().format('YYYY-MM-DD'), 'months')
-
-  const [widths, setWidths] = useState([])
+  const sizeExecutado = Number(calculaPerCentValue(executadoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
+  const sizeComprometido = Number(calculaPerCentValue(comprometidoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
+  const sizeSaldo = Number(String(calculaPerCentValue(saldoValue(itens, lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure'))).split(',')[0])
+  const [animate, setAnimate] = useState(false)
 
   const mediaGastosRDO = (days: number) => {
     const value = lancamentosRdo.reduce<number>((accumulator, item) => {
@@ -57,13 +60,14 @@ const DetalhamentoObra: React.FC = () => {
   }
 
   useEffect(() => {
-    const executado = document.querySelector('.executado')
-    const comprometido = document.querySelector('.comprometido')
-    const saldo = document.querySelector('.saldo')
-    const widthsArray = [executado, comprometido, saldo].map(element => element?.clientWidth)
+    const timeout = setInterval(() => {
+      setAnimate(true)
+    }, 0)
 
-    setWidths(widthsArray as [])
+    return () => clearInterval(timeout)
   }, [])
+
+  if (!obra) return <p>Obra não encontrada</p>
 
   return (
     <GlobalContainer>
@@ -74,33 +78,36 @@ const DetalhamentoObra: React.FC = () => {
         <Header title='RDO' subHeader fullwidth/>
         <CardsInfos $bars>
           <Title>Evolução dos pagamentos</Title>
-          <Bar $color='blues' $width={'100%'}>
+          <Bar $animate={animate} $color='blues' $width={'100'}>
             <p>{orcamentoValue(itens)}</p>
             <Var className={'bar'}>orçamento</Var>
           </Bar>
           <Bar
-            $size={widths[0]}
+            $size={sizeExecutado}
             $color='alert'
-            $width={String(calculaPerCentValue(executadoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure'))).replace(',', '.')}
+            $width={String(sizeExecutado)}
+            $animate={animate}
           >
             <p className='bargray executado'>{executadoValue(lancamentosRdo)}</p>
-            <Var $size={widths[0]} className={'bar bargray'}>executado</Var>
+            <Var $size={sizeExecutado} className={'bar bargray'}>executado</Var>
           </Bar>
           <Bar
-            $size={widths[1]}
+            $size={sizeComprometido}
             $color='oranges'
-            $width={String(calculaPerCentValue(comprometidoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure'))).replace(',', '.')}
+            $width={String(sizeComprometido)}
+            $animate={animate}
           >
             <p className='comprometido'>{comprometidoValue(lancamentosRdo)}</p>
-            <Var $size={widths[1]} className={'bar'}>comprometido</Var>
+            <Var $size={sizeComprometido} className={'bar'}>comprometido</Var>
           </Bar>
           <Bar
-            $size={widths[2]}
+            $size={sizeSaldo}
             $color='greens'
-            $width={String(calculaPerCentValue(saldoValue(itens, lancamentosRdo), orcamentoValue(itens, 'pure'))).split(',')[0] + '%'}
+            $width={String(sizeSaldo).split(',')[0]}
+            $animate={animate}
           >
             <p className='saldo'>{saldoValue(itens, lancamentosRdo)}</p>
-            <Var $size={widths[2]} className={'bar'}>saldo</Var>
+            <Var $size={sizeSaldo} className={'bar'}>saldo</Var>
           </Bar>
         </CardsInfos>
 
@@ -176,6 +183,23 @@ const DetalhamentoObra: React.FC = () => {
               )
             })}
           </Infos>
+        </CardsInfos>
+
+        <CardsInfos $fullWidth>
+            <Title>Últimos lançamentos</Title>
+            <TableInfos infos={lancamentosRdo} />
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button $blue>Ver mais</Button>
+            </div>
+        </CardsInfos>
+
+        <Header title='RDA' subHeader fullwidth/>
+        <CardsInfos $fullWidth>
+            <Title>Últimos lançamentos</Title>
+            <TableInfos infos={lancamentosRda} />
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button $blue>Ver mais</Button>
+            </div>
         </CardsInfos>
       </Content>
     </GlobalContainer>

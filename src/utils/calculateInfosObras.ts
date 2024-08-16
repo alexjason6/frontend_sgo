@@ -64,7 +64,7 @@ export const m2ValueTotalOrcamento = (itens: Etapa[], obras: Obra[], obra: Obra)
   return m2Value
 }
 
-export const saldoValue = (itens: Etapa[], lancamentos: LancamentoRdoRda[]) => {
+export const saldoValue = (itens: Etapa[], lancamentos: LancamentoRdoRda[], type?: string) => {
   const orcamento = itens.reduce<number>((accumulator, item) => {
     return accumulator + Number(item.valor_total)
   }, 0)
@@ -77,6 +77,10 @@ export const saldoValue = (itens: Etapa[], lancamentos: LancamentoRdoRda[]) => {
     return accumulator + Number(item.valor_comprometido)
   }, 0)
 
+  if (type === 'pure') {
+    return orcamento - (comprometido + executado)
+  }
+
   return Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
@@ -88,26 +92,22 @@ export const percentValue = (value: string) => {
     ?.replace(/\D/g, ''))
 }
 
-export const calculaPerCentValue = (value1: any, value2: any) => {
-  if (typeof (value1) === 'string' && typeof (value2) === 'string') {
-    const calcula = ((percentValue(value1) / percentValue(value2)) * 100).toFixed(2)
-    const trataValue = Intl.NumberFormat('pt-BR').format(Number(calcula))
-
-    return `${trataValue}%`
-  } else if (typeof (value1) === 'string' && typeof (value2) === 'number') {
-    const calcula = ((percentValue(value1) / value2) * 100).toFixed(2)
-    const trataValue = Intl.NumberFormat('pt-BR').format(Number(calcula))
-
-    return `${trataValue}%`
-  } else if (typeof (value1) === 'number' && typeof (value2) === 'string') {
-    const calcula = ((value1 / percentValue(value2)) * 100).toFixed(2)
-    const trataValue = Intl.NumberFormat('pt-BR').format(Number(calcula))
-
-    return `${trataValue}%`
-  } else {
-    const calcula = ((value1 / value2) * 100).toFixed(2)
-    const trataValue = Intl.NumberFormat('pt-BR').format(Number(calcula))
-
-    return `${trataValue}%`
+export const calculaPerCentValue = (value1?: string | number, value2?: string | number): string => {
+  const convertValue = (value: string | number | undefined): number => {
+    if (value === undefined) {
+      return 0
+    }
+    return typeof value === 'string' ? percentValue(value) : value
   }
+
+  const convertedValue1 = convertValue(value1)
+  const convertedValue2 = convertValue(value2)
+
+  if (convertedValue2 === 0) {
+    return '0%'
+  }
+
+  const calcula = ((convertedValue1 / convertedValue2) * 100).toFixed(2)
+
+  return calcula
 }

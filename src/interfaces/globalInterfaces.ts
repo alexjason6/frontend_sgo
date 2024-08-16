@@ -130,6 +130,14 @@ export interface Etapa {
   status: number
 }
 
+export interface Subetapa {
+  id: number
+  numero: number
+  etapa: number
+  nome: string
+  status: number
+}
+
 export interface TiposOrcamentos {
   id: number
   tipo: number
