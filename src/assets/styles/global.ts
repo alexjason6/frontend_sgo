@@ -45,6 +45,7 @@ export const GlobalContainer = styled.main<PropStyle>`
   flex-direction: column;
   background: ${({ theme }) => theme.colors.background};
 `
+
 export const Content = styled.section<PropStyle>`
   width: calc(100% - 50px);
   height: 100%;

@@ -4,7 +4,7 @@ import Loading from '../components/Loading'
 
 interface LoadingContextType {
   loading: boolean
-  changeLoading: (newValue: boolean, textValue: string) => void
+  changeLoading: (newValue: boolean, textValue?: string) => void
 }
 
 interface LoadingProviderProps {
@@ -22,11 +22,10 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string | null | undefined>()
 
-  const changeLoading = (newValue: boolean, textValue: string) => {
-    setMessage(textValue)
-
+  const changeLoading = (newValue: boolean, textValue?: string) => {
     if (newValue) {
       setLoading(newValue)
+      setMessage(textValue)
     } else {
       setTimeout(() => {
         setLoading(newValue)

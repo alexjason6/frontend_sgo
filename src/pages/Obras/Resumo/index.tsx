@@ -25,7 +25,6 @@ interface TypeObra {
 }
 
 const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, comprometido, obra, valorM2 }) => {
-  console.log({ saldo, orcamento, executado, comprometido, obra, valorM2 })
   return (
     <GlobalContainer $modal>
       <Header title='Resumo de obra' modal/>

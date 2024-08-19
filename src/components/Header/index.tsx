@@ -5,7 +5,7 @@ import { Container, Title, Divisor, Back, GoBack } from './styles'
 
 import { type TypeHeader } from '../../interfaces/globalInterfaces'
 
-const Header: React.FC<TypeHeader> = ({ title, subHeader, goBack, modal, fullwidth }) => {
+const Header: React.FC<TypeHeader> = ({ title, cliente, subHeader, goBack, modal, fullwidth }) => {
   const navigate = useNavigate()
 
   const handleGoBack = () => {
@@ -14,7 +14,7 @@ const Header: React.FC<TypeHeader> = ({ title, subHeader, goBack, modal, fullwid
 
   return (
     <Container $subHeader={subHeader} $modal={modal} $fullwidth={fullwidth}>
-      <Title>{title}</Title>
+      <Title>{title}{cliente && <span> - <b>{cliente}</b></span>}</Title>
       {goBack && <GoBack onClick={handleGoBack}><Back /><p>Voltar</p></GoBack>}
       <Divisor $subHeader={subHeader}/>
     </Container>

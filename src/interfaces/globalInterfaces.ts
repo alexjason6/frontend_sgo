@@ -15,6 +15,7 @@ export interface TypesOpenedMenu {
 
 export interface TypeHeader {
   title: string
+  cliente?: string
   subHeader?: boolean
   goBack?: boolean
   modal?: boolean

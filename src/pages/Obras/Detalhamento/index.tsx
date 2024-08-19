@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment'
 
 import { GlobalContainer } from '../../../assets/styles/global'
@@ -8,6 +8,7 @@ import RdoRdaContext from '../../../contexts/rdoRdaContext'
 import FornecedoresContext from '../../../contexts/fornecedoresContext'
 import ObrasContext from '../../../contexts/obrasContext'
 import OrcamentosContext from '../../../contexts/orcamentosContext'
+import LoadingContext from '../../../contexts/loadingContext'
 
 import Header from '../../../components/Header'
 import Menu from '../../../components/Menu'
@@ -22,8 +23,10 @@ import { Content, CardsInfos, Title, Infos, Bar, Var } from './styles'
 
 const DetalhamentoObra: React.FC = () => {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { changeLoading } = useContext(LoadingContext)
   const { obras } = useContext(ObrasContext)
-  const { lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
+  const { lancamentosRdo, lancamentosRda, rdos, rdas } = useContext(RdoRdaContext)
   const { fornecedores } = useContext(FornecedoresContext)
   const { itens } = useContext(OrcamentosContext)
   const [obra] = useMemo(() => obras.filter((item) => item.id === Number(id)), [])
@@ -34,6 +37,8 @@ const DetalhamentoObra: React.FC = () => {
   const sizeExecutado = Number(calculaPerCentValue(executadoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
   const sizeComprometido = Number(calculaPerCentValue(comprometidoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
   const sizeSaldo = Number(String(calculaPerCentValue(saldoValue(itens, lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure'))).split(',')[0])
+  const currentRdo = rdos.find((rdo) => rdo.obra === obra.id)
+  const currentRda = rdas.find((rda) => rda.obra === obra.id)
   const [animate, setAnimate] = useState(false)
 
   const mediaGastosRDO = (days: number) => {
@@ -57,6 +62,16 @@ const DetalhamentoObra: React.FC = () => {
     const maxOpacity = 1
 
     return maxOpacity - ((maxOpacity - minOpacity) * index) / (arrayLength - 1)
+  }
+
+  const handleOpenLancamentoRDORDA = (type: string, id?: number) => {
+    if (!type || !id) {
+      return
+    }
+
+    changeLoading(true, `carregando dados do ${type}...`)
+
+    navigate(`/obras/lancamentos/${type}/${id}`)
   }
 
   useEffect(() => {
@@ -189,7 +204,7 @@ const DetalhamentoObra: React.FC = () => {
             <Title>Últimos lançamentos</Title>
             <TableInfos infos={lancamentosRdo} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button $blue>Ver mais</Button>
+              <Button $blue onClick={() => handleOpenLancamentoRDORDA('rdo', currentRdo?.id)}>Abrir RDO</Button>
             </div>
         </CardsInfos>
 
@@ -198,7 +213,7 @@ const DetalhamentoObra: React.FC = () => {
             <Title>Últimos lançamentos</Title>
             <TableInfos infos={lancamentosRda} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button $blue>Ver mais</Button>
+              <Button $blue onClick={() => handleOpenLancamentoRDORDA('rda', currentRda?.id)}>Abrir RDA</Button>
             </div>
         </CardsInfos>
       </Content>

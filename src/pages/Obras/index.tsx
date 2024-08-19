@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 
 import { GlobalContainer, Content } from '../../assets/styles/global'
 
