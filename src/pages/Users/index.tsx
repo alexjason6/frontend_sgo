@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 
 import { GlobalContainer } from '../../assets/styles/global'
 
-import ClientesContext from '../../contexts/clientesContext'
+import UsersContext from '../../contexts/usersContext'
 import ModalContext from '../../contexts/modalContext'
 import AuthContext from '../../contexts/authContext'
 import LoadingContext from '../../contexts/loadingContext'
@@ -19,7 +19,7 @@ import CreateUser from './CreateUser'
 import { Content, ContentPage, ButtonContainer } from './styles'
 
 const ListUsers: React.FC = () => {
-  const { clientes, listClientes } = useContext(ClientesContext)
+  const { users, listUsers } = useContext(UsersContext)
   const { token } = useContext(AuthContext)
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
@@ -29,14 +29,14 @@ const ListUsers: React.FC = () => {
   }
 
   const getClientes = async () => {
-    await listClientes({ token })
+    await listUsers({ token })
 
     changeLoading(false)
   }
 
   useEffect(() => {
-    changeLoading(true, 'buscando clientes...')
-    if (!clientes || clientes.length === 0) {
+    changeLoading(true, 'buscando usuários...')
+    if (!users || users.length === 0) {
       void getClientes()
     }
   }, [])
@@ -44,16 +44,16 @@ const ListUsers: React.FC = () => {
   return (
   <GlobalContainer>
     <Menu />
-    <Header title='Clientes' goBack/>
-    <Content $clientes={clientes.length > 0}>
-      {!clientes || clientes.length === 0
-        ? (<NoItemListed component={<></>} text='Não foram encontrados nenhum usuário cadastrado' />)
+    <Header title='Usuários' goBack/>
+    <Content $data={users.length > 0}>
+      {!users || users.length === 0
+        ? (<NoItemListed component={<CreateUser />} text='Não foram encontrados usuários cadastrados.' />)
         : (
             <ContentPage>
               <ButtonContainer>
                 <Button $blue onClick={handleCreateUser}>Adicionar usuário</Button>
               </ButtonContainer>
-              <UsersTable clientes={clientes} />
+              <UsersTable users={users} />
             </ContentPage>
           )}
     </Content>

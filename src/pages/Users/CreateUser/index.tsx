@@ -1,7 +1,8 @@
 import React from 'react'
+import Infos from '../components/Infos'
 
 const CreateUser: React.FC = () => {
-  return <p>Criar cliente</p>
+  return <Infos />
 }
 
 export default CreateUser

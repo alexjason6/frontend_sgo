@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 interface PropStyle {
-  $clientes?: boolean
+  $data?: boolean
 }
 
 export const Content = styled.section<PropStyle>`
@@ -10,7 +10,7 @@ export const Content = styled.section<PropStyle>`
   margin-left: 50px;
   display: flex;
   justify-content: center;
-  align-items: ${({ $clientes }) => !$clientes ? 'center' : 'flex-start'};
+  align-items: ${({ $data }) => !$data ? 'center' : 'flex-start'};
 `
 
 export const Itens = styled.div`

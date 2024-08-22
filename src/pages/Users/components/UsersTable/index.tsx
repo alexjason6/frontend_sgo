@@ -9,13 +9,13 @@ import Infos from '../Infos'
 
 import { Table, Tr, Td } from './styles'
 
-import { type Cliente } from '../../../../interfaces/globalInterfaces'
+import { type User } from '../../../../interfaces/globalInterfaces'
 
 interface ClientTableProps {
-  clientes: Cliente[]
+  users: User[]
 }
 
-const UsersTable: React.FC<ClientTableProps> = ({ clientes }) => {
+const UsersTable: React.FC<ClientTableProps> = ({ users }) => {
   const [infoOpen, setInfoOpen] = useState<number[]>([])
 
   const handleOpenInfo = (id: number) => {
@@ -36,27 +36,25 @@ const UsersTable: React.FC<ClientTableProps> = ({ clientes }) => {
       <tbody>
         <Tr $index>
           <Td $index><b>Nome</b></Td>
-          <Td $index><b>CPF/CNPJ</b></Td>
+          <Td $index><b>CPF</b></Td>
           <Td $index><b>Telefone</b></Td>
           <Td $index><b>e-Mail</b></Td>
-          <Td $index><b>Responsável</b></Td>
           <Td $index><b>Situação</b></Td>
         </Tr>
-        {clientes?.map((cliente) => {
-          const [open] = infoOpen.filter((info) => info === cliente.id)
+        {users?.map((user) => {
+          const [open] = infoOpen.filter((info) => info === user.id)
 
           return (
-            <React.Fragment key={cliente.id}>
-              <Tr $open={open === cliente.id} onClick={() => handleOpenInfo(cliente.id)}>
-                <Td>{cliente.nome}</Td>
-                <Td>{cpfCnpjFormat(cliente.cpf_cnpj)}</Td>
-                <Td>{phoneFormat(cliente.telefone)}</Td>
-                <Td>{cliente.email}</Td>
-                <Td>{cliente.responsavel}</Td>
-                <Td>{checkStatus(cliente.status)}</Td>
+            <React.Fragment key={user.id}>
+              <Tr $open={open === user.id} onClick={() => handleOpenInfo(user.id)}>
+                <Td>{user.nome}</Td>
+                <Td>{cpfCnpjFormat(user?.cpf)}</Td>
+                <Td>{phoneFormat(user.telefone)}</Td>
+                <Td>{user.email}</Td>
+                <Td>{checkStatus(user.status)}</Td>
               </Tr>
-              {open === cliente.id && (
-                <Infos cliente={cliente} />
+              {open === user.id && (
+                <Infos data={user} />
               )}
             </React.Fragment>
           )

@@ -3,6 +3,10 @@ import styled, { css } from 'styled-components'
 import { FiEdit } from 'react-icons/fi'
 import { device } from '../../../../assets/styles/themes/devices'
 
+interface PropStyle {
+  $create?: boolean
+}
+
 const mobileStyles = css`
   @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
     flex-direction: column;
@@ -25,10 +29,7 @@ const formContainerTablesStyles = css`
 export const Container = styled.div`
   width: 95%;
   margin: 0 auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding: 20px 30px;
   background: ${({ theme }) => theme.colors.white};
   display: flex;
   align-items: center;
@@ -37,23 +38,19 @@ export const Container = styled.div`
   ${mobileStyles}
 `
 
-export const Form = styled.form`
+export const Form = styled.form<PropStyle>`
   width: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   padding: 10px;
 
+  ${({ $create }) => $create && css`
+    padding-left: 40px !important;
+  `}
+
   ${formContainerMobileStyles}
   ${formContainerTablesStyles}
-`
-
-export const Legend = styled.legend`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.grays.light};
-  margin-left: 5px;
-  margin-bottom: 3px;
-  font-style: italic;
 `
 export const Edit = styled.div`
   width: 100%;

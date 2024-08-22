@@ -1,243 +1,383 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import React, { useState, type Dispatch, type SetStateAction } from 'react'
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
+import React, { useState, type Dispatch, type SetStateAction, type ChangeEvent, useContext } from 'react'
+
+import { Legend } from '../../../../assets/styles/global'
+
+import LoadingContext from '../../../../contexts/loadingContext'
+import ModalContext from '../../../../contexts/modalContext'
+import AuthContext from '../../../../contexts/authContext'
+import UsersContext from '../../../../contexts/usersContext'
 
 import Input from '../../../../components/Input'
 import Select from '../../../../components/Select'
 import Button from '../../../../components/Button'
 import FormGroup from '../../../../components/FormGroup'
+import Header from '../../../../components/Header'
 
 import phoneFormat from '../../../../utils/phoneFormat'
 import cepFormat from '../../../../utils/cepFormat'
 import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
+import isEmailValid from '../../../../utils/isEmailValid'
 
-import { Container, Legend, Edit, EditIcon, ButtonContainer, Form } from './styles'
+import UserServices from '../../../../services/sgo/UsersServices'
+import CepServices from '../../../../services/cep/CepServices'
+import UserMapper from '../../../../services/mappers/UserMapper'
 
-import { type Cliente } from '../../../../interfaces/globalInterfaces'
+import useErrors from '../../../../hooks/useErrors'
 
-interface typeCliente {
-  cliente: Cliente
+import { Container, Edit, EditIcon, ButtonContainer, Form } from './styles'
+
+import { type User } from '../../../../interfaces/globalInterfaces'
+
+interface Data {
+  data?: User
 }
 
-const Infos: React.FC<typeCliente> = ({ cliente }) => {
-  const [edit, setEdit] = useState(false)
-  const [razao_social, setRazao_social] = useState(cliente.razao_social)
-  const [nome, setNome] = useState(cliente.nome)
-  const [cpf_cnpj, setCpf_cnpj] = useState(cliente.cpf_cnpj)
-  const [inscricao_municipal, setInscricao_municipal] = useState(cliente.inscricao_municipal)
-  const [inscricao_estadual, setInscricao_estadual] = useState(cliente.inscricao_estadual)
-  const [responsavel, setResponsavel] = useState(cliente.responsavel)
-  const [telefone, setTelefone] = useState(cliente.telefone)
-  const [email, setEmail] = useState(cliente.email)
-  const [responsavel_financeiro, setResponsavel_financeiro] = useState(cliente.responsavel_financeiro)
-  const [telefone_financeiro, setTelefone_financeiro] = useState(cliente.telefone_financeiro)
-  const [email_financeiro, setEmail_financeiro] = useState(cliente.email_financeiro)
-  const [cep, setCep] = useState(cliente.cep)
-  const [logradouro, setLogradouro] = useState(cliente.logradouro)
-  const [numero, setNumero] = useState(cliente.numero)
-  const [complemento, setComplemento] = useState(cliente.complemento)
-  const [bairro, setBairro] = useState(cliente.bairro)
-  const [cidade, setCidade] = useState(cliente.cidade)
-  const [uf, setUf] = useState(cliente.uf)
+const Infos: React.FC<Data> = ({ data }) => {
+  const { token } = useContext(AuthContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { isOpen, changeModal } = useContext(ModalContext)
+  const { listUsers } = useContext(UsersContext)
+
+  const [edit, setEdit] = useState(!data)
+  const [nome, setNome] = useState(data?.nome ?? '')
+  const [cpf, setCpf] = useState(data?.cpf ?? '')
+  const [telefone, setTelefone] = useState(data?.telefone ?? '')
+  const [email, setEmail] = useState(data?.email ?? '')
+  const [cep, setCep] = useState(data?.cep ?? '')
+  const [logradouro, setLogradouro] = useState(data?.logradouro ?? '')
+  const [numero, setNumero] = useState(data?.numero ?? '')
+  const [complemento, setComplemento] = useState(data?.complemento ?? '')
+  const [bairro, setBairro] = useState(data?.bairro ?? '')
+  const [cidade, setCidade] = useState(data?.cidade ?? '')
+  const [uf, setUf] = useState(data?.uf ?? '')
+  const [status, setStatus] = useState(data?.status ?? '1')
+  const [permissoes, setPermissoes] = useState<string[]>(data?.permissoes ?? [''])
+  const [password, setPassword] = useState('')
+
+  const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
+  const formIsValid = isEmailValid(email) && telefone && nome && cpf && status && errors.length === 0
 
   const handleEditInfos = () => {
     setEdit(!edit)
   }
 
-  const handleChangeField = (setItem: Dispatch<SetStateAction<string | number>>, value: string | number) => {
-    setItem(value)
+  const handleChangeItem = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>, fieldName: string, message: string, setState: Dispatch<SetStateAction<string>>) => {
+    const value = fieldName === 'email' || fieldName === 'emailFinanceiro' ? event.target.value.toLowerCase() : event.target.value.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+
+    setState(value)
+
+    // Lidar com campos específicos de forma separada
+    if (setState === setCep && value.length >= 8) {
+      void fetchCep(value)
+    }
+
+    if (!value) {
+      setError({ field: fieldName, message })
+    } else if (setState === setEmail && !isEmailValid(value)) {
+      setError({ field: 'email', message: 'Digite um e-mail válido para entrar.' })
+    } else {
+      removeError(fieldName)
+    }
+  }
+
+  const fetchCep = async (cepValue: string) => {
+    const cepResponse = await CepServices.buscaCep(cepValue.replace('-', ''))
+
+    if (cepResponse) {
+      setLogradouro(cepResponse.data.logradouro)
+      setBairro(cepResponse.data.bairro)
+      setCidade(cepResponse.data.localidade)
+      setUf(cepResponse.data.uf)
+    }
+  }
+
+  const handleChangePermissions = (event: ChangeEvent<HTMLSelectElement>) => {
+    setPermissoes([event.target.value])
+  }
+
+  const handleCreateUser = async () => {
+    try {
+      changeLoading(true, 'enviando dados...')
+
+      const dataUser = {
+        nome,
+        cpf,
+        telefone,
+        email,
+        status: Number(status),
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        uf,
+        password,
+        permissoes
+      }
+
+      const mapperUser = UserMapper.toPersistence(dataUser)
+      const create = !data
+        ? await UserServices.create({ token, mapperUser })
+        : await UserServices.update({ token, mapperUser })
+
+      if (create.id) {
+        clearFormFields()
+      }
+
+      changeLoading(true, 'atualizando lista de clientes...')
+      await listUsers({ token })
+
+      if (isOpen) {
+        changeModal()
+      }
+    } catch (error) {
+      console.error('Erro ao criar/atualizar usuário:', error)
+    } finally {
+      changeLoading(false)
+    }
+  }
+
+  const clearFormFields = () => {
+    setNome('')
+    setCpf('')
+    setTelefone('')
+    setEmail('')
+    setStatus('1')
+    setCep('')
+    setLogradouro('')
+    setNumero('')
+    setComplemento('')
+    setBairro('')
+    setCidade('')
+    setUf('')
+    setPassword('')
+    setPermissoes([''])
   }
 
   return (
     <Container>
-      <Edit>
-        <p onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</p>
-        <EditIcon onClick={handleEditInfos} />
-      </Edit>
-
-      <Form>
-        <FormGroup>
-          <Legend>Razão Social:</Legend>
+      {data && (
+        <Edit>
+          <p onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</p>
+          <EditIcon onClick={handleEditInfos} />
+        </Edit>
+      )}
+      {(edit && !data) && <Header title={!data ? 'Cadastrar novo usuário' : 'Editar usuário'} subHeader={!!data} fullwidth={!!data} modal={!data} />}
+      <Form $create>
+        <FormGroup $error={getErrorMessageByFieldName('nome')}>
+          <Legend>Nome:<sup>*</sup></Legend>
           <Input
-            value={razao_social}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setRazao_social as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>Nome:</Legend>
-          <Input
+            $error={!!getErrorMessageByFieldName('nome')}
+            placeholder='Ex.: José Fausto'
             value={nome}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setNome as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'nome', 'Por favor, digite o nome do usuário', setNome)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>CPF/CNPJ:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('cpf')}>
+          <Legend>CPF/CNPJ:<sup>*</sup></Legend>
           <Input
-            value={cpfCnpjFormat(cpf_cnpj)}
+            $error={!!getErrorMessageByFieldName('cpf')}
+            placeholder='Ex.: 000.000.000-00'
+            type='tel'
+            maxLength={14}
+            value={cpfCnpjFormat(cpf)}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCpf_cnpj as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'cpf', 'Por favor, digite o CPF', setCpf)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>Inscrição municipal:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('telefone')}>
+          <Legend>Telefone:<sup>*</sup></Legend>
           <Input
-            value={inscricao_municipal}
+            $error={!!getErrorMessageByFieldName('telefone')}
+            placeholder='Ex.: 31 3333-3333'
+            type='tel'
+            maxLength={15}
+            value={telefone && phoneFormat(telefone)}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setInscricao_municipal as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'telefone', 'Por favor, digite o telefone do usuário', setTelefone)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>Inscrição estadual:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('email')}>
+          <Legend>e-Mail:<sup>*</sup></Legend>
           <Input
-            value={inscricao_estadual}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setInscricao_estadual as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>Responsável:</Legend>
-          <Input
-            value={responsavel}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setResponsavel as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>Telefone:</Legend>
-          <Input
-            value={phoneFormat(telefone)}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setTelefone as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>e-Mail:</Legend>
-          <Input
+            $error={!!getErrorMessageByFieldName('email')}
+            placeholder='Ex.: miranto@miranto.com.br'
             value={email}
+            type='email'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setEmail as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'email', 'Por favor, digite o email do usuário', setEmail)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>Financeiro:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('cep')}>
+          <Legend>CEP:<sup>*</sup></Legend>
           <Input
-            value={responsavel_financeiro}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setResponsavel_financeiro as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>Telefone financeiro:</Legend>
-          <Input
-            value={phoneFormat(telefone_financeiro)}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setTelefone_financeiro as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>e-Mail financeiro:</Legend>
-          <Input
-            value={email_financeiro}
-            disabled={!edit}
-            $listData={!edit}
-            onChange={(event) => handleChangeField(setEmail_financeiro as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Legend>CEP:</Legend>
-          <Input
+            $error={!!getErrorMessageByFieldName('cep')}
+            maxLength={9}
+            placeholder='Ex.: 00000-000'
+            type='tel'
             value={cepFormat(cep)}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCep as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'cep', 'Por favor, digite o CEP', setCep)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('logradouro')}>
           <Legend>Logradouro:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('logradouro')}
+            placeholder='Ex.: Rua Rio de Janeiro'
             value={logradouro}
             disabled={!edit}
+            type='text'
             $listData={!edit}
-            onChange={(event) => handleChangeField(setLogradouro as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'logradouro', 'Por favor, digite o logradouro', setLogradouro)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>Número:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('numero')}>
+          <Legend>Número:<sup>*</sup></Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('numero')}
+            placeholder='Ex.: 1535'
+            type='tel'
             value={numero}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setNumero as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'numero', 'Por favor, digite o número ou S/N', setNumero)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('complemento')}>
           <Legend>Complemento:</Legend>
           <Input
             value={complemento}
+            placeholder='Ex.: Loja 4'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setComplemento as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, '', '', setComplemento)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('bairro')}>
           <Legend>Bairro:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('bairro')}
+            placeholder='Ex.: Esplanada'
             value={bairro}
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setBairro as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'bairro', 'Por favor, digite o bairro', setBairro)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>Cidade:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('cidade')}>
+          <Legend>Cidade:<sup>*</sup></Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('cidade')}
+            placeholder='Ex.: São Paulo'
+            type='text'
             value={cidade}
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCidade as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            readOnly
+            onChange={async (event) =>
+              handleChangeItem(event, 'cidade', 'Por favor, digite o nome da cidade', setCidade)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
-          <Legend>UF:</Legend>
-          <Select
+        <FormGroup $error={getErrorMessageByFieldName('uf')}>
+          <Legend>UF:<sup>*</sup></Legend>
+          <Input
+            $error={!!getErrorMessageByFieldName('uf')}
+            placeholder='Ex.: BA'
+            type='text'
             value={uf}
             disabled={!edit}
-            onChange={(event) => handleChangeField(setUf as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            readOnly
+            onChange={async (event) =>
+              handleChangeItem(event, 'uf', 'Por favor, digite a UF', setUf)
+            }
+          />
+        </FormGroup>
+
+        <FormGroup $error={getErrorMessageByFieldName('status')}>
+          <Legend>Situacao:<sup>*</sup></Legend>
+          <Select
+            $error={!!getErrorMessageByFieldName('status')}
+            value={status}
+            disabled={!edit}
+            onChange={async (event) =>
+              handleChangeItem(event, 'status', 'Por favor, selecione uma situação', setStatus)
+            }
           >
-            <option value={uf}>{uf}</option>
+            <option value={'1'}>Ativo</option>
+            <option value={'2'}>Inativo</option>
           </Select>
         </FormGroup>
+
+        <FormGroup $error={getErrorMessageByFieldName('permissoes')}>
+          <Legend>Permissões:<sup>*</sup></Legend>
+          <Select
+            $error={!!getErrorMessageByFieldName('permissoes')}
+            disabled={!edit}
+            onChange={(event) => handleChangePermissions(event)}
+          >
+            <option value={'superAdmin'}>Super admin</option>
+            <option value={'superAdmin'}>Financeiro</option>
+            <option value={'superAdmin'}>Lançamentos</option>
+          </Select>
+        </FormGroup>
+
+        {!data && <FormGroup $error={getErrorMessageByFieldName('password')}>
+          <Legend>Senha:<sup>*</sup></Legend>
+          <Input
+            $error={!!getErrorMessageByFieldName('password')}
+            placeholder='••••••••'
+            value={password}
+            type='password'
+            disabled={!edit}
+            onChange={async (event) =>
+              handleChangeItem(event, 'password', 'Por favor, digite uma senha para o usuário', setPassword)
+            }
+          />
+        </FormGroup>}
       </Form>
       <ButtonContainer>
-        <Button disabled={!edit} $green>Salvar</Button>
+        <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateUser}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
       </ButtonContainer>
     </Container>
   )

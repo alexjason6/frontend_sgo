@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useState, type ReactNode } from 'react'
 
-import { type Cliente } from '../interfaces/globalInterfaces'
-import ClientesServices from '../services/sgo/ClientesServices'
+import { type User } from '../interfaces/globalInterfaces'
+import UsersServices from '../services/sgo/UsersServices'
 
 interface TokenParams {
   token: string
 }
 
 interface UsersContextType {
-  users: Cliente[]
+  users: User[]
   listUsers: ({ token }: TokenParams) => Promise<void>
 }
 
@@ -29,7 +29,7 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
 
   const listUsers = async ({ token }: TokenParams) => {
     try {
-      const response = await ClientesServices.list({ token })
+      const response = await UsersServices.list({ token })
 
       if (response.message) {
         return

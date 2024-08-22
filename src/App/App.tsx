@@ -14,6 +14,7 @@ import { ClientesProvider } from '../contexts/clientesContext'
 import { OrcamentosProvider } from '../contexts/orcamentosContext'
 import { RdoRdaProvider } from '../contexts/rdoRdaContext'
 import { FornecedoresProvider } from '../contexts/fornecedoresContext'
+import { UsersProvider } from '../contexts/usersContext'
 
 const App: React.FC = () => {
   return (
@@ -22,19 +23,21 @@ const App: React.FC = () => {
         <GlobalStyles />
         <LoadingProvider>
           <AuthProvider>
-            <ClientesProvider>
-              <FornecedoresProvider>
-                <ObrasProvider>
-                  <OrcamentosProvider>
-                    <RdoRdaProvider>
-                      <ModalProvider>
-                        <Router />
-                      </ModalProvider>
-                    </RdoRdaProvider>
-                  </OrcamentosProvider>
-                </ObrasProvider>
-              </FornecedoresProvider>
-            </ClientesProvider>
+            <UsersProvider>
+              <ClientesProvider>
+                <FornecedoresProvider>
+                  <ObrasProvider>
+                    <OrcamentosProvider>
+                      <RdoRdaProvider>
+                        <ModalProvider>
+                          <Router />
+                        </ModalProvider>
+                      </RdoRdaProvider>
+                    </OrcamentosProvider>
+                  </ObrasProvider>
+                </FornecedoresProvider>
+              </ClientesProvider>
+            </UsersProvider>
           </AuthProvider>
         </LoadingProvider>
       </ThemeProvider>

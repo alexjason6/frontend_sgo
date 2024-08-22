@@ -10,5 +10,6 @@ export const Container = styled.section`
 
   p {
     color: ${({ theme }) => theme.colors.grays.light};
+    text-align: center;
   }
 `

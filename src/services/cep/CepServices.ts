@@ -2,9 +2,7 @@ import axios from 'axios'
 
 class CepService {
   async buscaCep (cep: string) {
-    const response = await axios(`https://viacep.com.br/ws/${cep}/json`, {
-      method: 'GET'
-    })
+    const response = await axios.get(`https://viacep.com.br/ws/${cep}/json`)
 
     return response
   }

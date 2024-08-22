@@ -180,6 +180,7 @@ const CreateCliente: React.FC = () => {
                 $error={!!getErrorMessageByFieldName('cpfCnpj')}
                 type='tel'
                 placeholder='Ex.: 00.000.000/0000-00'
+                maxLength={18}
                 value={cpfCnpjFormat(cpfCnpj)}
                 onChange={(event) =>
                   handleChangeItem(event, 'cpfCnpj', 'Por favor, digite o CFP ou CNPJ do cliente', setCpfCnpj)
@@ -240,6 +241,7 @@ const CreateCliente: React.FC = () => {
                 $error={!!getErrorMessageByFieldName('telefone')}
                 type='tel'
                 placeholder='Ex.: 31 3333-3333'
+                maxLength={15}
                 value={telefone && phoneFormat(telefone)}
                 onChange={(event) =>
                   handleChangeItem(event, 'telefone', 'Por favor, digite o telefone', setTelefone)
@@ -279,6 +281,7 @@ const CreateCliente: React.FC = () => {
               <Input
                 $error={!!getErrorMessageByFieldName('telefoneFinanceiro')}
                 type='tel'
+                maxLength={15}
                 placeholder='Ex.: 31 3333-3333'
                 value={telefoneFinanceiro && phoneFormat(telefoneFinanceiro)}
                 onChange={(event) =>
@@ -294,6 +297,7 @@ const CreateCliente: React.FC = () => {
               <Legend>CEP:<sup>*</sup></Legend>
               <Input
                 $error={!!getErrorMessageByFieldName('cep')}
+                maxLength={9}
                 type='tel'
                 placeholder='Ex.: 30555-000'
                 value={cepFormat(cep)}

@@ -37,7 +37,7 @@ export interface TypesItemActive {
 
 export interface User {
   id: number
-  cpf: number
+  cpf: string
   nome: string
   email: string
   telefone: string
@@ -51,8 +51,10 @@ export interface User {
   permissoes?: string[]
   data_cadastro: string
   data_alteracao?: string
-  status: number
+  status: any
   push?: string
+  password: string
+
 }
 
 export interface Obra {
@@ -128,6 +130,26 @@ export interface Cliente {
   telefone_financeiro: string
   email_financeiro: string
   status: number
+}
+
+export interface Users {
+  id: number
+  cpf: string
+  nome: string
+  email: string
+  telefone: string
+  cep: string
+  logradouro: string
+  numero: string
+  complemento: string
+  bairro: string
+  cidade: string
+  uf: string
+  permissoes: string[]
+  data_cadastro: string
+  data_alteracao?: string
+  status: number
+  push?: string
 }
 
 export interface Orcamento {
