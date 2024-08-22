@@ -36,6 +36,7 @@ const Sections: React.FC<PropsSections> = ({
   handleChangeMore
 }) => {
   const { clientes } = useContext(ClientesContext)
+
   return (
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}
@@ -58,14 +59,15 @@ const Sections: React.FC<PropsSections> = ({
         })}
       </Itens>
 
-      {itemDb.length >= items.length && (
-      <More>
-        <p onClick={() => handleChangeMore(typeSection, setItem, itemDb)}>
-          {more.includes(typeSection) ? 'Recolher' : 'Expandir'}
-          <Chevron $obras={more.includes(typeSection)} />
-        </p>
-      </More>
-      )}
+      {(items.length > 3 && itemDb.length > 3) && (
+        itemDb.length >= items.length && (
+          <More>
+            <p onClick={() => handleChangeMore(typeSection, setItem, itemDb)}>
+              {more.includes(typeSection) ? 'Recolher' : 'Expandir'}
+              <Chevron $obras={more.includes(typeSection)} />
+            </p>
+          </More>
+        ))}
     </Content>
   </div>
   )

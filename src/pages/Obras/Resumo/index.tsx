@@ -85,17 +85,17 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
         <BoxInfos
           legend='% executado'
           color='alert'
-          info={calculaPerCentValue(executado, orcamento)}
+          info={`${calculaPerCentValue(executado, orcamento)}%`}
         />
         <BoxInfos
           legend='% comprometido'
           color='oranges'
-          info={calculaPerCentValue(comprometido, orcamento)}
+          info={`${calculaPerCentValue(comprometido, orcamento)}%`}
         />
         <BoxInfos
           legend='% disponível'
           color='greens'
-          info={calculaPerCentValue(saldo, orcamento)}
+          info={`${calculaPerCentValue(saldo, orcamento)}%`}
         />
         <div className='containerButtons' style={{ marginBottom: 20 }}>
           <Button $blue>Ver mais</Button>

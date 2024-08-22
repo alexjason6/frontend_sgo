@@ -42,7 +42,7 @@ const ClientesTable: React.FC<ClientTableProps> = ({ clientes }) => {
           <Td $index><b>Responsável</b></Td>
           <Td $index><b>Situação</b></Td>
         </Tr>
-        {clientes.map((cliente) => {
+        {clientes?.map((cliente) => {
           const [open] = infoOpen.filter((info) => info === cliente.id)
 
           return (

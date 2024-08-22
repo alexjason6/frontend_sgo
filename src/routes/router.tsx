@@ -1,19 +1,21 @@
-// import PropTypes from 'prop-types';
-import React from 'react'
+import React, { useContext } from 'react'
 import AuthRouter from './AuthRoutes'
 import AppRouter from './AppRoutes'
+import AuthContext from '../contexts/authContext'
+import LoadingContext from '../contexts/loadingContext'
 
 const Router = () => {
-  // const user = 1
+  const { user, loadingAuth } = useContext(AuthContext)
+  const { changeLoading } = useContext(LoadingContext)
 
-  /*   return user ? <AuthRouter /> : <AuthRouter /> */
+  // Exibe o carregamento enquanto a verificação de autenticação está em andamento
+  if (loadingAuth) {
+    changeLoading(true, 'verificando autenticação...')
+    return null // Retorna null enquanto está verificando
+  }
 
-  return (
-    <>
-      <AuthRouter />
-      <AppRouter />
-    </>
-  )
+  changeLoading(false) // Quando a verificação termina, desativa o carregamento
+  return user ? <AppRouter /> : <AuthRouter />
 }
 
 export default Router

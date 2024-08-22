@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import moment from 'moment'
 
 import { GlobalContainer } from '../../../assets/styles/global'
@@ -22,8 +22,11 @@ import { calculaPerCentValue, comprometidoValue, executadoValue, orcamentoValue,
 import { Content, CardsInfos, Title, Infos, Bar, Var } from './styles'
 
 const DetalhamentoObra: React.FC = () => {
-  const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { id } = useParams()
+  const { cliente, clienteId } = location.state
+
   const { changeLoading } = useContext(LoadingContext)
   const { obras } = useContext(ObrasContext)
   const { lancamentosRdo, lancamentosRda, rdos, rdas } = useContext(RdoRdaContext)
@@ -71,7 +74,13 @@ const DetalhamentoObra: React.FC = () => {
 
     changeLoading(true, `carregando dados do ${type}...`)
 
-    navigate(`/obras/lancamentos/${type}/${id}`)
+    navigate(`/obras/lancamentos/${type}/${id}`, {
+      state: {
+        cliente,
+        clienteId,
+        obra: obra.id
+      }
+    })
   }
 
   useEffect(() => {

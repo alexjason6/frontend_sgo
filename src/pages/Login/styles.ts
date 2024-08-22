@@ -53,12 +53,6 @@ const textMobileStyles = css`
   }
 `
 
-const legendMobileStyles = css`
-  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
-    text-align: center;
-  }
-`
-
 const clienteMobileStyles = css`
   @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
     margin-top: 20px;
@@ -138,14 +132,6 @@ export const Text = styled.p`
   font-weight: 200;
   color: ${({ theme }) => theme.colors.grays.light};
   ${textMobileStyles}
-`
-
-export const Legend = styled.legend`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.grays.light};
-  margin-left: 5px;
-  margin-bottom: 3px;
-  ${legendMobileStyles}
 `
 
 export const Cliente = styled.div`

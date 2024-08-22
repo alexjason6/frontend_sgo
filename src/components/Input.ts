@@ -11,6 +11,7 @@ export default styled.input<PropStyles>`
   }
 
   width: 100%;
+  min-width: 200px;
   height: 40px;
   font-size: 12px;
   padding: 0 15px;

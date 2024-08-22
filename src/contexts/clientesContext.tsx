@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useEffect, useState, type ReactNode } from 'react'
-
-import { clientesDb } from '../assets/database/clientes'
+import React, { createContext, useState, type ReactNode } from 'react'
 
 import { type Cliente } from '../interfaces/globalInterfaces'
+import ClientesServices from '../services/sgo/ClientesServices'
+
+interface TokenParams {
+  token: string
+}
 
 interface ClientesContextType {
   clientes: Cliente[]
+  listClientes: ({ token }: TokenParams) => Promise<void>
 }
 
 interface ClientesProviderProps {
@@ -14,22 +18,35 @@ interface ClientesProviderProps {
 }
 
 const initialContextValue: ClientesContextType = {
-  clientes: []
+  clientes: [],
+  listClientes: async () => {}
 }
 
 const ClientesContext = createContext<ClientesContextType>(initialContextValue)
 
 export const ClientesProvider: React.FC<ClientesProviderProps> = ({ children }) => {
-  const [clientes, setClientes] = useState(clientesDb)
+  const [clientes, setClientes] = useState([])
 
-  useEffect(() => {
-    setClientes(clientesDb)
-  }, [])
+  const listClientes = async ({ token }: TokenParams) => {
+    try {
+      const response = await ClientesServices.list({ token })
+
+      if (response.message) {
+        return
+      }
+
+      setClientes(response)
+    } catch (error) {
+      console.error('Erro ao realizar listagem de clientes:', error)
+      // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
+    }
+  }
 
   return (
     <ClientesContext.Provider
       value={{
-        clientes
+        clientes,
+        listClientes
       }}
     >
       {children}

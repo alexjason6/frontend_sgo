@@ -27,9 +27,7 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) =>
       setLoading(newValue)
       setMessage(textValue)
     } else {
-      setTimeout(() => {
-        setLoading(newValue)
-      }, 2000)
+      setLoading(false)
     }
   }
 

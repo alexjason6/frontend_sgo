@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components'
 
 interface PropStyles {
-  oneOftree?: boolean
-  oneOfFour?: boolean
-  oneOfFive?: boolean
+  $oneOftree?: boolean
+  $oneOfFour?: boolean
+  $oneOfFive?: boolean
   passwordChange?: boolean
 
 }
@@ -24,17 +24,17 @@ export const Container = styled.div<PropStyles>`
     color: ${({ theme }) => theme.colors.danger.primary};
   }
 
-  ${({ oneOftree }) => oneOftree && css`
+  ${({ $oneOftree }) => $oneOftree && css`
     max-width: 31.2%;
     min-width: 300px;
   `};
 
-  ${({ oneOfFour }) => oneOfFour && css`
+  ${({ $oneOfFour }) => $oneOfFour && css`
     max-width: 24%;
     min-width: 200px;
   `};
 
-  ${({ oneOfFive }) => oneOfFive && css`
+  ${({ $oneOfFive }) => $oneOfFive && css`
     max-width: 15%;
     min-width: 200px;
 

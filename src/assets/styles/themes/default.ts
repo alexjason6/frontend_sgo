@@ -66,6 +66,7 @@ export default {
       900: '#150a0d'
     },
     greens: {
+      light: '#9ee498',
       primary: '#54cf4a',
       dark: '#1d6519',
       darker: '#001600',

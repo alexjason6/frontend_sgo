@@ -24,7 +24,6 @@ export const Itens = styled.div<PropStyle>`
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  cursor: ${({ $obras }) => $obras && 'pointer'};
 `
 export const More = styled.div`
   width: 100%;

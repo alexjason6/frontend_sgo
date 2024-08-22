@@ -2,6 +2,8 @@
 import React, { useContext, useState, type Dispatch, type SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Legend } from '../../../../assets/styles/global'
+
 import ClientesContext from '../../../../contexts/clientesContext'
 import ModalContext from '../../../../contexts/modalContext'
 
@@ -14,7 +16,7 @@ import Header from '../../../../components/Header'
 import dateFormat from '../../../../utils/dateFormat'
 import cepFormat from '../../../../utils/cepFormat'
 
-import { Container, Legend, Edit, ButtonContainer, Form } from './styles'
+import { Container, Edit, ButtonContainer, Form } from './styles'
 
 import { type Obra, type Cliente } from '../../../../interfaces/globalInterfaces'
 
@@ -27,6 +29,7 @@ const Infos: React.FC<typeCliente> = ({ obra, cliente }) => {
   const navigate = useNavigate()
   const { clientes } = useContext(ClientesContext)
   const { changeModal } = useContext(ModalContext)
+
   const [edit, setEdit] = useState(false)
   const [nome, setNome] = useState(obra.nome)
   const [cnd, setCnd] = useState(obra.cnd)
@@ -55,7 +58,13 @@ const Infos: React.FC<typeCliente> = ({ obra, cliente }) => {
   }
 
   const handleNavigateDetalhamento = () => {
-    navigate(`/obras/detalhamento/${obra.id}`)
+    navigate(`/obras/detalhamento/${obra.id}`, {
+      state: {
+        obra: obra.id,
+        clienteId: cliente.id,
+        cliente: cliente.nome
+      }
+    })
     changeModal()
   }
 
@@ -75,7 +84,7 @@ const Infos: React.FC<typeCliente> = ({ obra, cliente }) => {
             value={id_cliente}
             disabled={!edit}
             onChange={(event) => handleChangeField(setId_cliente as Dispatch<SetStateAction<string | number>>, event.target.value)}>
-              <option value={obra.id_cliente}>{cliente.nome}</option>
+              <option value={obra.id_cliente}>{cliente?.nome}</option>
               {clientes.map((item) => (
                 <option key={item.id} value={item.id}>{item.nome}</option>
               ))}

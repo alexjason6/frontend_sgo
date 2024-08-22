@@ -1,14 +1,16 @@
 import React, { useContext } from 'react'
 
+import FornecedoresContext from '../../contexts/fornecedoresContext'
+import OrcamentosContext from '../../contexts/orcamentosContext'
+
 import dateFormat from '../../utils/dateFormat'
+import { numberFormat } from '../../utils/numberFormat'
+import { currencyFormat } from '../../utils/currencyFormat'
 import { comprometidoValue, executadoValue } from '../../utils/calculateInfosObras'
 
 import { Table, Td, Tr } from './styles'
 
 import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
-import FornecedoresContext from '../../contexts/fornecedoresContext'
-import OrcamentosContext from '../../contexts/orcamentosContext'
-import { numberFormat } from '../../utils/numberFormat'
 
 interface TypeInfos {
   infos: LancamentoRdoRda[]
@@ -25,10 +27,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos }) => {
       return '-'
     }
 
-    const formatedValue = Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(Number(value))
+    const formatedValue = currencyFormat(value)
 
     return formatedValue
   }

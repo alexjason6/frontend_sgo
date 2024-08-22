@@ -1,7 +1,11 @@
 import styled, { css } from 'styled-components'
 import { device } from '../assets/styles/themes/devices'
 
-export default styled.select`
+interface PropStyles {
+  $error?: boolean
+}
+
+export default styled.select<PropStyles>`
   & + & {
     margin-top: 30px;
   }
@@ -27,6 +31,12 @@ export default styled.select`
     font-style: italic;
     color: ${({ theme }) => theme.colors.grays.light};
   }
+
+  ${({ $error, theme }) =>
+    $error &&
+    css`
+      border-color: ${theme.colors.danger.primary};
+  `}
 
   @media ${device.mobileL} {
     background: ${({ theme }) => theme.colors.white};

@@ -15,6 +15,10 @@ export const Container = styled.div`
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.white};
   filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.1));
+
+  .card {
+    cursor: pointer;
+  }
 `
 
 export const Title = styled.h4`

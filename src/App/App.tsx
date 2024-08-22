@@ -6,6 +6,7 @@ import GlobalStyles from '../assets/styles/global'
 import defaultTheme from '../assets/styles/themes/default'
 
 import Router from '../routes/router'
+import { AuthProvider } from '../contexts/authContext'
 import { LoadingProvider } from '../contexts/loadingContext'
 import { ModalProvider } from '../contexts/modalContext'
 import { ObrasProvider } from '../contexts/obrasContext'
@@ -19,21 +20,23 @@ const App: React.FC = () => {
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
         <GlobalStyles />
-        <ClientesProvider>
-          <FornecedoresProvider>
-            <ObrasProvider>
-              <OrcamentosProvider>
-                <RdoRdaProvider>
-                  <LoadingProvider>
-                    <ModalProvider>
-                      <Router />
-                    </ModalProvider>
-                  </LoadingProvider>
-                </RdoRdaProvider>
-              </OrcamentosProvider>
-            </ObrasProvider>
-          </FornecedoresProvider>
-        </ClientesProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <ClientesProvider>
+              <FornecedoresProvider>
+                <ObrasProvider>
+                  <OrcamentosProvider>
+                    <RdoRdaProvider>
+                      <ModalProvider>
+                        <Router />
+                      </ModalProvider>
+                    </RdoRdaProvider>
+                  </OrcamentosProvider>
+                </ObrasProvider>
+              </FornecedoresProvider>
+            </ClientesProvider>
+          </AuthProvider>
+        </LoadingProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

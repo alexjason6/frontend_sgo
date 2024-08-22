@@ -1,12 +1,11 @@
 import React, { useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  MdMenu, MdDashboard, MdHistory,
-  MdDirectionsCar
+  MdMenu, MdDashboard
 } from 'react-icons/md'
-import { FiUsers } from 'react-icons/fi'
+import { FiUsers, FiUser } from 'react-icons/fi'
 import { LuConstruction } from 'react-icons/lu'
-import { FaFileInvoiceDollar } from 'react-icons/fa'
+import { FaFileInvoiceDollar, FaHandHoldingUsd } from 'react-icons/fa'
 
 import OpenedMenu from './components/Opened'
 
@@ -53,17 +52,17 @@ const Menu: React.FC = () => {
           <LuConstruction size={20} />
         </Item>
       </Link>
+      <Item $active={itemActive.name === '/fornecedores'} onClick={() => handleSelectItem('/fornecedores')}>
+        <FaHandHoldingUsd size={20} />
+      </Item>
       <Link to="/orcamentos" onClick={() => handleSelectItem('/orcamentos')}>
         <Item $active={itemActive.name.includes('/orcamentos')}>
           <FaFileInvoiceDollar size={20} />
         </Item>
       </Link>
-      <Item $active={itemActive.name === '/history'} onClick={() => handleSelectItem('/history')}>
-        <MdHistory size={20} />
-      </Item>
-      <Link to="/vehicles/list" onClick={() => handleSelectItem('/vehicles')}>
-        <Item $active={pathname.includes('/vehicles')}>
-          <MdDirectionsCar size={20} />
+      <Link to="/usuarios" onClick={() => handleSelectItem('/usuarios')}>
+        <Item $active={itemActive.name.includes('/usuarios')}>
+          <FiUser size={20} />
         </Item>
       </Link>
     </Container>

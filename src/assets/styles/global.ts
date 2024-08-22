@@ -1,4 +1,11 @@
-import { styled, createGlobalStyle } from 'styled-components'
+import { styled, createGlobalStyle, css } from 'styled-components'
+import { device } from './themes/devices'
+
+const legendMobileStyles = css`
+  @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
+    text-align: center;
+  }
+`
 
 interface PropStyle {
   $modal?: boolean
@@ -53,4 +60,18 @@ export const Content = styled.section<PropStyle>`
   display: flex;
   justify-content: center;
   align-items: ${({ $obras }) => !$obras ? 'center' : 'flex-start'};
+`
+
+export const Legend = styled.legend`
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.grays.light};
+  margin-left: 5px;
+  margin-bottom: 3px;
+  ${legendMobileStyles}
+
+  sup {
+    font-size: 12px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.danger.primary}
+  }
 `

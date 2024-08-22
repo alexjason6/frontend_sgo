@@ -35,6 +35,26 @@ export interface TypesItemActive {
   name: string
 }
 
+export interface User {
+  id: number
+  cpf: number
+  nome: string
+  email: string
+  telefone: string
+  cep: string
+  logradouro: string
+  numero: string
+  complemento?: string
+  bairro: string
+  cidade: string
+  uf: string
+  permissoes?: string[]
+  data_cadastro: string
+  data_alteracao?: string
+  status: number
+  push?: string
+}
+
 export interface Obra {
   id: number
   alvara: string
@@ -209,4 +229,12 @@ export interface Fornecedores {
   conta: string
   tipo_conta: number
   pix: string
+}
+
+export interface TypeNewLancamento {
+  tipo?: string
+  rdoRda?: string
+  nameCliente?: string
+  obraId?: number
+  cliente_id?: number
 }

@@ -71,12 +71,11 @@ export default styled.button<PropStyle>`
   ${({ $stroke, $rdoRda, theme }) =>
     $rdoRda &&
     css`
-      & + & {
-        margin-top: -10px;
-      }
+    margin-top: ${$rdoRda && '-10px'};
 
       ${$stroke &&
       css`
+        margin-top: 20px;
         background: transparent;
         color: ${theme.colors.grays.primary};
         border: 1px solid ${theme.colors.oranges.primary};

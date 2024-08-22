@@ -22,8 +22,13 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento }
   const [cliente] = clientes.filter((item) => item.id === obra.id_cliente)
   const [modeloOrcamento] = tiposOrcamentos.filter((modelo) => modelo.id === obra.tipo)
 
-  const handleOpenDetalhamento = () => {
-    navigate(`/obras/detalhamento/${obra.id}`)
+  const handleOpenDetalhamento = (cliente: string, clienteId: number) => {
+    navigate(`/obras/detalhamento/${obra.id}`, {
+      state: {
+        cliente,
+        clienteId
+      }
+    })
     changeModal()
   }
 
@@ -83,7 +88,7 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento }
         {new Intl.NumberFormat('pt-BR', { maximumSignificantDigits: 3 }).format(Number(obra.metragem))}m<sup>2</sup>
       </Dados>
     </DadosContainer>
-    {detalhamento && <Button $blue onClick={handleOpenDetalhamento}>Abrir detalhamento</Button>}
+    {detalhamento && <Button $blue onClick={() => handleOpenDetalhamento(cliente.nome, cliente.id)}>Abrir detalhamento</Button>}
   </Content>
   )
 }

@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { GlobalContainer } from '../../assets/styles/global'
 
@@ -16,11 +15,17 @@ import { Content, Infos } from './styles'
 
 import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
 import Input from '../../components/Input'
+import ModalContext from '../../contexts/modalContext'
+import CreateLancamento from './CreateLancamento'
 
 const RdoRda: React.FC = () => {
-  const { type, id } = useParams()
+  const params = useParams()
+  const location = useLocation()
+  const { type, id } = params
+  const { obra, cliente, clienteId } = location.state
   const { changeLoading } = useContext(LoadingContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
+  const { changeModal } = useContext(ModalContext)
   const [data, setData] = useState<LancamentoRdoRda[]>([])
   const [filteredData, setFilteredData] = useState<LancamentoRdoRda[]>([])
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -44,6 +49,10 @@ const RdoRda: React.FC = () => {
     }
   }
 
+  const handleOpenModal = () => {
+    changeModal(<CreateLancamento tipo={type} rdoRda={id} nameCliente={cliente} obraId={obra} cliente_id={clienteId} />)
+  }
+
   useEffect(() => {
     if (!data || data.length === 0) {
       const [document] = type === 'rdo' ? rdos.filter((document) => document.id === Number(id)) : rdas.filter((document) => document.id === Number(id))
@@ -59,11 +68,11 @@ const RdoRda: React.FC = () => {
   return (
     <GlobalContainer>
       <Menu />
-      <Header title={type!.toUpperCase()} cliente='Viana Flex' goBack/>
+      <Header title={type!.toUpperCase()} cliente={cliente} goBack/>
       <Content>
         <Infos>
           <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-            <Button $blue>Novo lançamento</Button>
+            <Button $blue onClick={handleOpenModal}>Novo lançamento</Button>
           </div>
           <div style={{ width: '100%', maxWidth: '300px', marginBottom: 20 }}>
             <Input

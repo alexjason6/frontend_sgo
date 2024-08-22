@@ -14,9 +14,9 @@ export default function FormGroup ({
 }: TypesInputs) {
   return (
     <Container
-      oneOftree={oneOftree}
-      oneOfFour={oneOfFour}
-      oneOfFive={oneOfFive}
+      $oneOftree={oneOftree}
+      $oneOfFour={oneOfFour}
+      $oneOfFive={oneOfFive}
       passwordChange={passwordChange}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext, useLayoutEffect, type Dispatch, type SetStateAction } from 'react'
+import React, { useEffect, useState, useRef, useContext, useLayoutEffect, useCallback, type Dispatch, type SetStateAction } from 'react'
 import { GlobalContainer } from '../../assets/styles/global'
 
 import LoadingContext from '../../contexts/loadingContext'
@@ -10,17 +10,27 @@ import Header from '../../components/Header'
 
 import CreateFirstObra from './components/CreateFirsObra'
 import Sections from './components/Sections'
+import ClientesContext from '../../contexts/clientesContext'
+import AuthContext from '../../contexts/authContext'
+
+import { type Obra } from '../../interfaces/globalInterfaces'
 
 const Dashboard: React.FC = () => {
-  const { changeLoading } = useContext(LoadingContext)
   const refPage = useRef<null | HTMLElement>(null)
-  const { obras } = useContext(ObrasContext)
+
+  const { changeLoading } = useContext(LoadingContext)
+  const { token } = useContext(AuthContext)
+  const { clientes, listClientes } = useContext(ClientesContext)
+  const { obras, listObras } = useContext(ObrasContext)
   const { rdos, rdas } = useContext(RdoRdaContext)
-  const [itensObras, setItensObras] = useState(obras)
+
+  const [itensObras, setItensObras] = useState<Obra[]>([])
   const [itensRdo, setItensRdos] = useState(rdos)
   const [itensRda, setItensRdas] = useState(rdas)
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
+
+  console.log(more)
 
   const resizeHandler = (sizeWindow: number) => {
     if (obras && rdos && rdas) {
@@ -45,22 +55,26 @@ const Dashboard: React.FC = () => {
         setWidth(1)
       }
 
+      if (obras.length > 3) {
+        if (!more.includes('obras')) setItensObras(obras)
+        if (!more.includes('rdos')) setItensRdos(rdos)
+        if (!more.includes('rdas')) setItensRdas(rdas)
+      }
+
       if (!more.includes('obras')) setItensObras(obras.slice(0, size))
       if (!more.includes('rdos')) setItensRdos(rdos.slice(0, size))
       if (!more.includes('rdas')) setItensRdas(rdas.slice(0, size))
     }
-
-    changeLoading(false, 'Carregando obras...')
   }
 
-  const handleResize = () => {
+  const handleResize = useCallback(() => {
     if (refPage.current) {
       const sizeWindow = refPage.current.getBoundingClientRect().width
       resizeHandler(sizeWindow)
     }
-  }
+  }, [resizeHandler])
 
-  const handleChangeMore = (type: string, setItems: Dispatch<SetStateAction<any[]>>, itemsDb: any[]) => {
+  const handleChangeMore = useCallback((type: string, setItems: Dispatch<SetStateAction<any[]>>, itemsDb: any[]) => {
     setMore((prevMore) => {
       if (prevMore.includes(type)) {
         setItems(itemsDb.slice(0, width))
@@ -70,11 +84,9 @@ const Dashboard: React.FC = () => {
         return [...prevMore, type]
       }
     })
-  }
+  }, [width])
 
   useLayoutEffect(() => {
-    changeLoading(true, 'Carregando obras...')
-
     const observer = new ResizeObserver((entries) => {
       const sizeWindow = entries[0].contentRect.width
       resizeHandler(sizeWindow)
@@ -88,6 +100,35 @@ const Dashboard: React.FC = () => {
       observer.disconnect()
     }
   }, [])
+
+  const getClientes = async () => {
+    changeLoading(true, 'Carregando clientes...')
+
+    if (token) {
+      await listClientes({ token })
+      await getObras()
+    }
+  }
+
+  const getObras = async () => {
+    changeLoading(true, 'Carregando obras...')
+
+    if (clientes && token) {
+      await listObras({ token })
+    }
+
+    changeLoading(false)
+  }
+
+  useEffect(() => {
+    if (!clientes || clientes.length === 0) {
+      void getClientes()
+    }
+
+    if (obras.length > 0) {
+      setItensObras(obras)
+    }
+  }, [clientes, token, obras])
 
   useEffect(() => {
     window.addEventListener('resize', handleResize)

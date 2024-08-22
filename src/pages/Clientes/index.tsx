@@ -1,20 +1,47 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 
 import { GlobalContainer } from '../../assets/styles/global'
 
 import ClientesContext from '../../contexts/clientesContext'
+import ModalContext from '../../contexts/modalContext'
+import AuthContext from '../../contexts/authContext'
+import LoadingContext from '../../contexts/loadingContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
+import Button from '../../components/Button'
+import NoItemListed from '../../components/NoItemListed'
 
-import CreateCliente from './CreateCliente'
 import ClientesTable from './components/ClientesTable'
 
-import { Content } from './styles'
+import CreateCliente from './CreateCliente'
+
+import { Content, ContentPage, ButtonContainer } from './styles'
 
 const ListClientes: React.FC = () => {
-  const { clientes } = useContext(ClientesContext)
+  const { clientes, listClientes } = useContext(ClientesContext)
+  const { token } = useContext(AuthContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { changeModal } = useContext(ModalContext)
+
+  console.log(clientes)
+
+  const handleCreateCliente = () => {
+    changeModal(<CreateCliente />)
+  }
+
+  const getClientes = async () => {
+    await listClientes({ token })
+
+    changeLoading(false)
+  }
+
+  useEffect(() => {
+    changeLoading(true, 'buscando clientes...')
+    if (!clientes || clientes.length === 0) {
+      void getClientes()
+    }
+  }, [])
 
   return (
   <GlobalContainer>
@@ -22,9 +49,14 @@ const ListClientes: React.FC = () => {
     <Header title='Clientes' goBack/>
     <Content $clientes={clientes.length > 0}>
       {!clientes || clientes.length === 0
-        ? <CreateCliente/>
+        ? (<NoItemListed component={<CreateCliente />} text='Não foi encontrado nenhum cliente cadastrado.' />)
         : (
-          <ClientesTable clientes={clientes} />
+            <ContentPage>
+              <ButtonContainer>
+                <Button $blue onClick={handleCreateCliente}>Adicionar cliente</Button>
+              </ButtonContainer>
+              <ClientesTable clientes={clientes} />
+            </ContentPage>
           )}
     </Content>
   </GlobalContainer>)

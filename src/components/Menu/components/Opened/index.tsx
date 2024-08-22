@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  MdClose, MdDashboard, MdSimCard, MdDescription, MdSettings
+  MdClose, MdDashboard, MdDescription, MdLogout
 } from 'react-icons/md'
 import { FiUser, FiUsers } from 'react-icons/fi'
 import { LuConstruction } from 'react-icons/lu'
-import { FaFileInvoiceDollar } from 'react-icons/fa'
+import { FaFileInvoiceDollar, FaHandHoldingUsd } from 'react-icons/fa'
+
+import AuthContext from '../../../../contexts/authContext'
 
 import logoCliente from '../../../../assets/images/cliente.svg'
 
@@ -18,6 +20,7 @@ import { type TypesOpenedMenu } from '../../../../interfaces/globalInterfaces'
 const OpenedMenu: React.FC<TypesOpenedMenu> = ({
   open, itemActive, handleChangeMenu
 }) => {
+  const { signOut } = useContext(AuthContext)
   useEffect(() => {
     if (open) {
       const closeOnEscapeKey = (e: { key: string }) => e.key === 'Escape' ? handleChangeMenu() : null
@@ -53,22 +56,22 @@ const OpenedMenu: React.FC<TypesOpenedMenu> = ({
           <p>Obras</p>
         </Item>
       </Link>
+      <Link to="/fornecedores">
+        <Item $active={itemActive.name === '/fornecedores'}>
+          <FaHandHoldingUsd size={20} />
+          <p>Fornecedores</p>
+        </Item>
+      </Link>
       <Link to="/orcamentos">
         <Item $active={itemActive.name === '/orcamentos'}>
           <FaFileInvoiceDollar size={20} />
           <p>Orçamentos</p>
         </Item>
       </Link>
-      <Link to="/users/list">
-        <Item $active={itemActive.name === 'users'}>
+      <Link to="/usuarios">
+        <Item $active={itemActive.name === '/usuarios'}>
           <FiUser size={20} />
           <p>Usuários</p>
-        </Item>
-      </Link>
-      <Link to="/chips/list">
-        <Item $active={itemActive.name === 'simCard'}>
-          <MdSimCard size={20} />
-          <p>Chips</p>
         </Item>
       </Link>
 
@@ -78,9 +81,15 @@ const OpenedMenu: React.FC<TypesOpenedMenu> = ({
           <p>Relatórios</p>
         </Item>
       </Link>
-      <Item $active={itemActive.name === 'settings'}>
+
+{/*       <Item $active={itemActive.name === 'settings'}>
         <MdSettings size={20} />
         <p>Configurações</p>
+      </Item> */}
+
+      <Item onClick={signOut}>
+        <MdLogout size={20} />
+        <p>Sair</p>
       </Item>
       <LogoCliente src={logoCliente} />
     </Container>

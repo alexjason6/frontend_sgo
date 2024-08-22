@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useContext, useState, type ChangeEvent, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+
+import { Legend } from '../../assets/styles/global'
+
+import LoadingContext from '../../contexts/loadingContext'
+import AuthContext from '../../contexts/authContext'
 
 import logo from '../../assets/images/marca_sgo_preferencial.svg'
 import cliente from '../../assets/images/cliente.svg'
-
-import LoadingContext from '../../contexts/loadingContext'
 
 import FormGroup from '../../components/FormGroup'
 import Input from '../../components/Input'
@@ -17,18 +19,22 @@ import isEmailValid from '../../utils/isEmailValid'
 import useErrors from '../../hooks/useErrors'
 
 import {
-  Container, SgoContainer, Name, FormContainer, Form, Logo, Text, Legend, Cliente, LogoCliente
+  Container, SgoContainer, Name, FormContainer, Form, Logo, Text, Cliente, LogoCliente
 } from './styles'
 
 const Login: React.FC = () => {
-  const navigate = useNavigate()
   const wellcomeMessage = WellcomeMessage()
+
   const { changeLoading } = useContext(LoadingContext)
+  const { signIn } = useContext(AuthContext)
+
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
+
   const {
     errors, setError, removeError, getErrorMessageByFieldName
   } = useErrors()
+
   const loginIsValid = isEmailValid(login) && password && errors.length === 0
 
   const handleChangelogin = (event: ChangeEvent<HTMLInputElement>) => {
@@ -57,8 +63,7 @@ const Login: React.FC = () => {
     event.preventDefault()
     changeLoading(true, 'Fazendo login...')
 
-    navigate('dashboard')
-    // signIn({ login, password })
+    await signIn({ email: login, password })
   }
 
   return (

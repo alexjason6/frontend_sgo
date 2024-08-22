@@ -47,13 +47,6 @@ export const Form = styled.form`
   ${formContainerTablesStyles}
 `
 
-export const Legend = styled.legend`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.grays.light};
-  margin-left: 5px;
-  margin-bottom: 3px;
-  font-style: italic;
-`
 export const Edit = styled.div`
   width: 100%;
   padding-bottom: 20px;

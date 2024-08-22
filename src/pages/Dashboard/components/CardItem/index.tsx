@@ -1,8 +1,10 @@
 import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import ModalContext from '../../../../contexts/modalContext'
 import OrcamentosContext from '../../../../contexts/orcamentosContext'
 import RdoRdaContext from '../../../../contexts/rdoRdaContext'
+import ObrasContext from '../../../../contexts/obrasContext'
 
 import Button from '../../../../components/Button'
 
@@ -13,9 +15,9 @@ import { comprometidoValue, executadoValue, m2ValueTotalOrcamento, orcamentoValu
 import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
 import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
-import ObrasContext from '../../../../contexts/obrasContext'
 
 const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => {
+  const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
   const { itens } = useContext(OrcamentosContext)
   const { rdos, lancamentosRdo } = useContext(RdoRdaContext)
@@ -36,9 +38,29 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
     )
   }
 
+  const handleOpenDocument = () => {
+    navigate(`/obras/lancamentos/${type}/${id}`, {
+      state: {
+        obra: item?.id,
+        cliente,
+        clienteId: item?.id_cliente
+      }
+    })
+  }
+
+  const handleOpenNewEntry = () => {
+    navigate(`/obras/lancamentos/${type}/${id}/novo`, {
+      state: {
+        obra: item?.id,
+        cliente,
+        clienteId: item?.id_cliente
+      }
+    })
+  }
+
   return (
     <Container>
-      <div onClick={type === 'obra' ? handleClickCard : undefined}>
+      <div className='card' onClick={type === 'obra' ? handleClickCard : undefined}>
         <Title>{nome}</Title>
         <Hr $title />
         {type === 'obra'
@@ -60,8 +82,8 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
             )
           : (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-              <Button $rdoRda $stroke>Abrir {type === 'rdo' ? 'RDO' : 'RDA'}</Button>
-              <Button $rdoRda $blue>Criar lancamento</Button>
+              <Button $rdoRda $stroke onClick={handleOpenDocument} >Abrir {type === 'rdo' ? 'RDO' : 'RDA'}</Button>
+              <Button $rdoRda $blue onClick={handleOpenNewEntry}>Criar lancamento</Button>
             </div>
             )}
         <Cliente>{cliente}</Cliente>
