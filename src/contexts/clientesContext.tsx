@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useState, type ReactNode } from 'react'
 
-import { type Cliente } from '../interfaces/globalInterfaces'
 import ClientesServices from '../services/sgo/ClientesServices'
+
+import { type Cliente } from '../interfaces/globalInterfaces'
 
 interface TokenParams {
   token: string

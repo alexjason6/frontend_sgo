@@ -14,7 +14,6 @@ const Router = () => {
     return null // Retorna null enquanto está verificando
   }
 
-  changeLoading(false) // Quando a verificação termina, desativa o carregamento
   return user ? <AppRouter /> : <AuthRouter />
 }
 

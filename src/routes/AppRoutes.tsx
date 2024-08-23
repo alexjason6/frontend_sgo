@@ -12,7 +12,7 @@ const Users = lazy(async () => await import('../pages/Users'))
 const NotFound = lazy(async () => await import('../pages/NotFound'))
 
 const AppRouter = () => (
-  <Suspense fallback={<Loading message={'carregando ...'} />}>
+  <Suspense fallback={<Loading message={'Carregando...'} />}>
     <Routes>
       <Route path='/' element={<Navigate to='/dashboard' replace />} />
       <Route path="/dashboard" element={<Dashboard />} />

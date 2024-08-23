@@ -2,6 +2,10 @@
 import styled, { css } from 'styled-components'
 import { device } from '../../../../assets/styles/themes/devices'
 
+interface PropStyle {
+  $create?: boolean
+}
+
 const mobileStyles = css`
   @media ${device.mobileL}, ${device.mobileM}, ${device.mobileS} {
     flex-direction: column;
@@ -36,12 +40,17 @@ export const Container = styled.div`
   ${mobileStyles}
 `
 
-export const Form = styled.form`
+export const Form = styled.form<PropStyle>`
   width: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   padding: 10px;
+
+  ${({ $create }) => $create && css`
+    padding-left: 40px !important;
+  `}
+
 
   ${formContainerMobileStyles}
   ${formContainerTablesStyles}

@@ -21,9 +21,8 @@ const ObrasTable: React.FC<ClientTableProps> = ({ obras }) => {
 
   const handleOpenInfo = (id: number) => {
     const [obra] = obras?.filter((item) => item.id === id)
-    const [cliente] = clientes.filter((item) => item.id === obra.id_cliente)
 
-    changeModal(<Infos obra={obra} cliente={cliente} />)
+    changeModal(<Infos data={obra} />)
   }
 
   return (

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useState, type ChangeEvent, type FormEvent } from 'react'
+import React, { useContext, useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 
 import { Legend } from '../../assets/styles/global'
 
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
   const wellcomeMessage = WellcomeMessage()
 
   const { changeLoading } = useContext(LoadingContext)
-  const { signIn } = useContext(AuthContext)
+  const { signIn, loadingAuth } = useContext(AuthContext)
 
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
@@ -65,6 +65,12 @@ const Login: React.FC = () => {
 
     await signIn({ email: login, password })
   }
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      changeLoading(false)
+    }
+  }, [loadingAuth])
 
   return (
     <Container>

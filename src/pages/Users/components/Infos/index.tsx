@@ -166,7 +166,7 @@ const Infos: React.FC<Data> = ({ data }) => {
         </Edit>
       )}
       {(edit && !data) && <Header title={!data ? 'Cadastrar novo usuário' : 'Editar usuário'} subHeader={!!data} fullwidth={!!data} modal={!data} />}
-      <Form $create>
+      <Form $create={!data}>
         <FormGroup $error={getErrorMessageByFieldName('nome')}>
           <Legend>Nome:<sup>*</sup></Legend>
           <Input

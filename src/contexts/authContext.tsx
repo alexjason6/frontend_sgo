@@ -44,10 +44,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const getUser = useCallback(async ({ id, hash }: GetUserParams) => {
     try {
       const tokenIsValid = await AuthServices.validaToken({ token: hash })
+
       if (!tokenIsValid) throw new Error('Token inválido')
 
       const response = await AuthServices.getUser({ id, token: hash })
+
       localStorage.setItem('@SGO:user', JSON.stringify(response))
+
       setUser(response)
     } catch (error) {
       console.error('Erro ao buscar usuário:', error)
@@ -59,7 +62,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [setUser, setLoadingAuth, changeLoading])
 
   const signIn = async ({ email, password }: LoginData) => {
-    changeLoading(true, 'fazendo login...')
+    changeLoading(true, 'Fazendo login...')
+
     try {
       const response = await AuthServices.signIn({ email, password })
       setToken(response.token)
@@ -73,9 +77,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const signOut = () => {
-    changeLoading(true, 'fazendo logout...')
+    changeLoading(true, 'Fazendo logout...')
+
     localStorage.removeItem('@SGO:token')
     localStorage.removeItem('@SGO:user')
+
     setToken('')
     setUser(null)
     setLoadingAuth(false)

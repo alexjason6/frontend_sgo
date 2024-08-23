@@ -30,8 +30,6 @@ const Dashboard: React.FC = () => {
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
 
-  console.log(more)
-
   const resizeHandler = (sizeWindow: number) => {
     if (obras && rdos && rdas) {
       let size
@@ -87,6 +85,7 @@ const Dashboard: React.FC = () => {
   }, [width])
 
   useLayoutEffect(() => {
+    changeLoading(true, 'Carregando...')
     const observer = new ResizeObserver((entries) => {
       const sizeWindow = entries[0].contentRect.width
       resizeHandler(sizeWindow)
@@ -116,19 +115,7 @@ const Dashboard: React.FC = () => {
     if (clientes && token) {
       await listObras({ token })
     }
-
-    changeLoading(false)
   }
-
-  useEffect(() => {
-    if (!clientes || clientes.length === 0) {
-      void getClientes()
-    }
-
-    if (obras.length > 0) {
-      setItensObras(obras)
-    }
-  }, [clientes, token, obras])
 
   useEffect(() => {
     window.addEventListener('resize', handleResize)
@@ -138,6 +125,24 @@ const Dashboard: React.FC = () => {
       window.removeEventListener('resize', handleResize)
     }
   }, [])
+
+  useEffect(() => {
+    if (!clientes || clientes.length === 0) {
+      void getClientes()
+    }
+
+    if (obras.length > 0) {
+      setItensObras(obras)
+    }
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [clientes, token, obras])
 
   return (
     <GlobalContainer ref={refPage}>

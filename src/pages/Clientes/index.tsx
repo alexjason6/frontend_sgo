@@ -24,24 +24,31 @@ const ListClientes: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
 
-  console.log(clientes)
-
   const handleCreateCliente = () => {
     changeModal(<CreateCliente />)
   }
 
   const getClientes = async () => {
     await listClientes({ token })
-
-    changeLoading(false)
   }
 
   useEffect(() => {
-    changeLoading(true, 'buscando clientes...')
+    changeLoading(true, 'Buscando clientes...')
+
     if (!clientes || clientes.length === 0) {
       void getClientes()
+
+      changeLoading(false)
     }
-  }, [])
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [clientes])
 
   return (
   <GlobalContainer>

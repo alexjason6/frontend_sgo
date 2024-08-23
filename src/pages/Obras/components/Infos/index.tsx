@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/naming-convention */
-import React, { useContext, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useContext, useEffect, useState, type Dispatch, type SetStateAction, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import moment from 'moment'
 
 import { Legend } from '../../../../assets/styles/global'
 
 import ClientesContext from '../../../../contexts/clientesContext'
 import ModalContext from '../../../../contexts/modalContext'
+import AuthContext from '../../../../contexts/authContext'
+import LoadingContext from '../../../../contexts/loadingContext'
+import ObrasContext from '../../../../contexts/obrasContext'
 
 import Input from '../../../../components/Input'
 import Select from '../../../../components/Select'
@@ -16,260 +21,445 @@ import Header from '../../../../components/Header'
 import dateFormat from '../../../../utils/dateFormat'
 import cepFormat from '../../../../utils/cepFormat'
 
+import CepServices from '../../../../services/cep/CepServices'
+import ObrasServices from '../../../../services/sgo/ObrasServices'
+import ObraMapper from '../../../../services/mappers/ObraMapper'
+
+import useErrors from '../../../../hooks/useErrors'
+
+import CreateCliente from '../../../Clientes/CreateCliente'
+
 import { Container, Edit, ButtonContainer, Form } from './styles'
 
-import { type Obra, type Cliente } from '../../../../interfaces/globalInterfaces'
+import { type Obra } from '../../../../interfaces/globalInterfaces'
 
 interface typeCliente {
-  obra: Obra
-  cliente: Cliente
+  data?: Obra
 }
 
-const Infos: React.FC<typeCliente> = ({ obra, cliente }) => {
+const Infos: React.FC<typeCliente> = ({ data }) => {
   const navigate = useNavigate()
-  const { clientes } = useContext(ClientesContext)
-  const { changeModal } = useContext(ModalContext)
+  const { token } = useContext(AuthContext)
+  const { clientes, listClientes } = useContext(ClientesContext)
+  const { isOpen, changeModal } = useContext(ModalContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { listObras } = useContext(ObrasContext)
 
-  const [edit, setEdit] = useState(false)
-  const [nome, setNome] = useState(obra.nome)
-  const [cnd, setCnd] = useState(obra.cnd)
-  const [alvara, setAlvara] = useState(obra.alvara)
-  const [engenheiro, setEngenheiro] = useState(obra.engenheiro)
-  const [cep, setCep] = useState(obra.cep)
-  const [logradouro, setLogradouro] = useState(obra.logradouro)
-  const [numero, setNumero] = useState(obra.numero)
-  const [complemento, setComplemento] = useState(obra.complemento)
-  const [bairro, setBairro] = useState(obra.bairro)
-  const [cidade, setCidade] = useState(obra.cidade)
-  const [uf, setUf] = useState(obra.uf)
-  const [id_cliente, setId_cliente] = useState(obra.id_cliente)
-  const [data_inicio, setData_inicio] = useState(obra.data_inicio)
-  const [previsao_entrega, setPrevisao_entrega] = useState(obra.previsao_entrega)
-  const [data_entrega, setData_entrega] = useState(obra.data_entrega)
-  const [tipo, setTipo] = useState(obra.tipo)
-  const [status, setStatus] = useState(obra.status)
+  const [edit, setEdit] = useState(!data)
+  const [nome, setNome] = useState(data?.nome ?? '')
+  const [cnd, setCnd] = useState(data?.cnd ?? '')
+  const [alvara, setAlvara] = useState(data?.alvara ?? '')
+  const [engenheiro, setEngenheiro] = useState(data?.engenheiro ?? '')
+  const [cep, setCep] = useState(data?.cep ?? '')
+  const [logradouro, setLogradouro] = useState(data?.logradouro ?? '')
+  const [numero, setNumero] = useState(data?.numero ?? '')
+  const [complemento, setComplemento] = useState(data?.complemento ?? '')
+  const [bairro, setBairro] = useState(data?.bairro ?? '')
+  const [cidade, setCidade] = useState(data?.cidade ?? '')
+  const [uf, setUf] = useState(data?.uf ?? '')
+  const [idCliente, setIdCliente] = useState(data?.id_cliente ?? '')
+  const [dataInicio, setDataInicio] = useState(data?.data_inicio ?? '')
+  const [previsaoEntrega, setPrevisaoEntrega] = useState(data?.previsao_entrega ?? '')
+  const [dataEntrega, setDataEntrega] = useState(data?.data_entrega ?? null)
+  const [tipo, setTipo] = useState(data?.tipo ?? '1')
+  const [status, setStatus] = useState(data?.status ?? '1')
+
+  const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
+  const formIsValid = nome && idCliente && logradouro && tipo && status && errors.length === 0
+
+  const [cliente] = clientes.filter((item) => item.id === data?.id_cliente)
 
   const handleEditInfos = () => {
     setEdit(!edit)
   }
 
-  const handleChangeField = (setItem: Dispatch<SetStateAction<string | number>>, value: string | number) => {
-    setItem(value)
+  const handleChangeItem = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>, fieldName: string, message: string, setState: Dispatch<SetStateAction<any>>) => {
+    const value = fieldName === 'email' || fieldName === 'emailFinanceiro' ? event.target.value.toLowerCase() : event.target.value.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+
+    if (fieldName === 'cliente' && event.target.value === '0') {
+      changeModal(<CreateCliente />)
+    }
+
+    setState(value)
+
+    if (setState === setCep && value.length >= 8) {
+      void fetchCep(value)
+    }
+
+    if (!value) {
+      setError({ field: fieldName, message })
+    } else {
+      removeError(fieldName)
+    }
+  }
+
+  const fetchCep = async (cepValue: string) => {
+    const cepResponse = await CepServices.buscaCep(cepValue.replace('-', ''))
+
+    if (!cepResponse) {
+      console.log(cepResponse)
+
+      return
+    }
+
+    if (cepResponse) {
+      setLogradouro(cepResponse.data.logradouro)
+      setBairro(cepResponse.data.bairro)
+      setCidade(cepResponse.data.localidade)
+      setUf(cepResponse.data.uf)
+    }
+  }
+
+  const handleCreateObra = async () => {
+    try {
+      changeLoading(true, 'Enviando os dados...')
+
+      const dataUser = {
+        nome,
+        cnd,
+        alvara,
+        engenheiro,
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        uf,
+        idCliente: Number(idCliente),
+        dataInicio: String(moment(dataInicio).unix()),
+        previsaoEntrega: String(moment(previsaoEntrega).unix()),
+        dataEntrega: String(moment(dataEntrega).unix()),
+        tipo: Number(tipo),
+        status: Number(status)
+      }
+
+      const mapperObra = ObraMapper.toPersistence(dataUser)
+      const create = !data
+        ? await ObrasServices.create({ token, mapperObra })
+        : await ObrasServices.update({ token, mapperObra })
+
+      if (create.id) {
+        clearFormFields()
+      }
+
+      changeLoading(true, 'atualizando lista de obras...')
+      await listObras({ token })
+
+      if (isOpen) {
+        changeModal()
+      }
+    } catch (error) {
+      console.error('Erro ao criar/atualizar usuário:', error)
+    } finally {
+      changeLoading(false)
+    }
   }
 
   const handleNavigateDetalhamento = () => {
-    navigate(`/obras/detalhamento/${obra.id}`, {
+    navigate(`/obras/detalhamento/${data?.id}`, {
       state: {
-        obra: obra.id,
-        clienteId: cliente.id,
-        cliente: cliente.nome
+        obra: data?.id,
+        clienteId: cliente?.id,
+        cliente: cliente?.nome
       }
     })
     changeModal()
   }
 
+  const clearFormFields = () => {
+    setNome('')
+    setStatus('1')
+    setAlvara('')
+    setEngenheiro('')
+    setCnd('')
+    setCep('')
+    setLogradouro('')
+    setNumero('')
+    setComplemento('')
+    setBairro('')
+    setCidade('')
+    setUf('')
+    setIdCliente('')
+    setDataInicio('')
+    setPrevisaoEntrega('')
+    setDataEntrega('')
+    setTipo('')
+  }
+
+  useEffect(() => {
+    void listClientes({ token })
+  }, [])
+
   return (
-    <div style={{ paddingRight: 30 }}>
-    <Header subHeader modal title={`Dados obra - ${obra.nome}`} />
     <Container>
-      <Edit>
+      {data && <Edit>
         <Button $green onClick={handleNavigateDetalhamento}>Detalhamento</Button>
         <Button $alert={!edit} $danger={edit} onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</Button>
-      </Edit>
-
-      <Form>
-        <FormGroup>
+      </Edit>}
+      {!data && <Header title='Cadastrar nova obra' subHeader modal />}
+      {data && <Header title={`Editar obra - ${nome}`} modal />}
+      <Form $create={isOpen}>
+        <FormGroup $error={getErrorMessageByFieldName('cliente')}>
           <Legend>Cliente:</Legend>
           <Select
-            value={id_cliente}
+            $error={!!getErrorMessageByFieldName('cliente')}
             disabled={!edit}
-            onChange={(event) => handleChangeField(setId_cliente as Dispatch<SetStateAction<string | number>>, event.target.value)}>
-              <option value={obra.id_cliente}>{cliente?.nome}</option>
+            onChange={async (event) =>
+              handleChangeItem(event, 'cliente', 'Por favor, digite o cliente do usuário', setIdCliente)
+            }>
+              {cliente ? <option value={idCliente}>{cliente?.nome}</option> : <option>Selecione um cliente</option>}
+              <option value='0'>Criar novo cliente</option>
               {clientes.map((item) => (
-                <option key={item.id} value={item.id}>{item.nome}</option>
+                <option key={item.id} value={String(item.id)}>{item.nome}</option>
               ))}
           </Select>
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('nome')}>
           <Legend>Nome:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('nome')}
             value={nome}
+            placeholder='Ex.: Betim Flex'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setNome as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'nome', 'Por favor, digite o nome da obra', setNome)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('alvara')}>
           <Legend>Alvará:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('alvara')}
             value={alvara}
+            placeholder='Ex.: 1235521887'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setAlvara as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'alvara', 'Por favor, digite o alvara da obra', setAlvara)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('cnd')}>
           <Legend>CND:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('cnd')}
             value={cnd}
+            placeholder='Ex.: 1235521887'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCnd as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'cnd', 'Por favor, digite o numero da CND da obra', setCnd)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('dataInicio')}>
           <Legend>Data início:</Legend>
           <Input
-            value={dateFormat(data_inicio, false, 'reverse')}
+            $error={!!getErrorMessageByFieldName('dataInicio')}
+            value={data ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
             disabled={!edit}
             $listData={!edit}
             type='date'
-            onChange={(event) => handleChangeField(setData_inicio as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'dataInicio', 'Por favor, digite a data de início da obra', setDataInicio)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('tipo')}>
           <Legend>Tipo:</Legend>
           <Select
+            $error={!!getErrorMessageByFieldName('tipo')}
             disabled={!edit}
             defaultValue={tipo}
-            onChange={(event) => handleChangeField(setTipo as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'tipo', 'Por favor, digite o tipo da obra', setTipo)
+            }
           >
-            <option value={1}>Flex</option>
-            <option value={2}>Reforma galpão</option>
-            <option value={3}>Galpão novo</option>
-            <option value={4}>MeLoca</option>
+            <option value={'1'}>Flex</option>
+            <option value={'2'}>Reforma galpão</option>
+            <option value={'3'}>Galpão novo</option>
+            <option value={'4'}>MeLoca</option>
           </Select>
         </FormGroup>
 
-        <FormGroup>
-            <Legend>Previsão de entrega:</Legend>
+        <FormGroup $error={getErrorMessageByFieldName('previsaoEntrega')}>
+          <Legend>Previsão de entrega:</Legend>
             <Input
-              value={dateFormat(previsao_entrega, false, 'reverse')}
-              disabled={!edit}
-              $listData={!edit}
-              type='date'
-              onChange={(event) => handleChangeField(setPrevisao_entrega as Dispatch<SetStateAction<string | number>>, event.target.value)}
-            />
-          </FormGroup>
+            $error={!!getErrorMessageByFieldName('previsaoEntrega')}
+            value={data ? dateFormat(previsaoEntrega, false, 'reverse') : previsaoEntrega}
+            disabled={!edit}
+            $listData={!edit}
+            type='date'
+            onChange={async (event) =>
+              handleChangeItem(event, 'previsaoEntrega', 'Por favor, digite a previsão de entrega da obra', setPrevisaoEntrega)
+            }
+          />
+        </FormGroup>
 
         {status === 4 && (
-          <FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('dataEntrega')}>
             <Legend>Data entrega:</Legend>
             <Input
-              value={dateFormat(data_entrega!, false, 'reverse')}
+              $error={!!getErrorMessageByFieldName('dataEntrega')}
+              value={dateFormat(dataEntrega!, false, 'reverse')}
               disabled={!edit}
               $listData={!edit}
               type='date'
-              onChange={(event) => handleChangeField(setData_entrega as Dispatch<SetStateAction<string | number>>, event.target.value)}
+              onChange={async (event) =>
+                handleChangeItem(event, 'dataEntrega', 'Por favor, digite o dataEntrega da obra', setDataEntrega)
+              }
             />
           </FormGroup>
         )}
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('engenheiro')}>
           <Legend>Engenheiro:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('engenheiro')}
             value={engenheiro}
+            placeholder='Ex.: João Pedro'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setEngenheiro as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'engenheiro', 'Por favor, digite o engenheiro da obra', setEngenheiro)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('cep')}>
           <Legend>CEP:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('cep')}
             value={cepFormat(cep)}
+            maxLength={9}
+            type='tel'
+            placeholder='Ex.: 32321-321'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCep as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'cep', 'Por favor, digite o cep da obra', setCep)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('logradouro')}>
           <Legend>Logradouro:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('logradouro')}
             value={logradouro}
+            placeholder='Ex.: Rua Jupira'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setLogradouro as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'logradouro', 'Por favor, digite o logradouro da obra', setLogradouro)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('numero')}>
           <Legend>Número:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('numero')}
             value={numero}
+            placeholder='Ex.: 1355'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setNumero as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'numero', 'Por favor, digite o numero do logradouro', setNumero)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('telecomplementofone')}>
           <Legend>Complemento:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('complemento')}
             value={complemento}
+            placeholder='Ex.: Galpão 3'
+            type='text'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setComplemento as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'complemento', 'Por favor, digite o complemento da obra', setComplemento)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('bairro')}>
           <Legend>Bairro:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('bairro')}
             value={bairro}
+            placeholder='Ex.: Paraíso'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setBairro as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'bairro', 'Por favor, digite o bairro', setBairro)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('cidade')}>
           <Legend>Cidade:</Legend>
           <Input
+            $error={!!getErrorMessageByFieldName('cidade')}
             value={cidade}
+            placeholder='Ex.: Betim'
             disabled={!edit}
             $listData={!edit}
-            onChange={(event) => handleChangeField(setCidade as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'cidade', 'Por favor, digite a cidade da obra', setCidade)
+            }
           />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('uf')}>
           <Legend>UF:</Legend>
-          <Select
-            defaultValue={uf}
+          <Input
+            $error={!!getErrorMessageByFieldName('uf')}
+            value={uf}
+            placeholder='Ex.: MG'
             disabled={!edit}
-            onChange={(event) => handleChangeField(setUf as Dispatch<SetStateAction<string | number>>, event.target.value)}
-          >
-            <option value={uf}>{uf}</option>
-          </Select>
+            onChange={async (event) =>
+              handleChangeItem(event, 'uf', 'Por favor, digite aUF da obra', setUf)
+            }
+          />
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup $error={getErrorMessageByFieldName('status')}>
           <Legend>Situação:</Legend>
           <Select
-            defaultValue={status}
+            $error={!!getErrorMessageByFieldName('status')}
+            value={status}
             disabled={!edit}
-            onChange={(event) => handleChangeField(setStatus as Dispatch<SetStateAction<string | number>>, event.target.value)}
+            onChange={async (event) =>
+              handleChangeItem(event, 'status', 'Por favor, digite o status da obra', setStatus)
+            }
           >
-            <option value={1}>Ativo</option>
-            <option value={2}>Inativo</option>
-            <option value={3}>Cancelado</option>
-            <option value={4}>Entregue</option>
+            <option value={'1'}>Ativo</option>
+            <option value={'2'}>Inativo</option>
+            <option value={'3'}>Cancelado</option>
+            <option value={'4'}>Entregue</option>
           </Select>
         </FormGroup>
       </Form>
       <ButtonContainer>
-        <Button disabled={!edit} $green>Salvar</Button>
+        <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateObra}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
       </ButtonContainer>
     </Container>
-    </div>
   )
 }
 

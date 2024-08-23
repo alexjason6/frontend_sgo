@@ -35,29 +35,38 @@ const ListUsers: React.FC = () => {
   }
 
   useEffect(() => {
-    changeLoading(true, 'buscando usuários...')
+    changeLoading(true, 'Buscando usuários...')
     if (!users || users.length === 0) {
       void getClientes()
+    }
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
     }
   }, [])
 
   return (
-  <GlobalContainer>
-    <Menu />
-    <Header title='Usuários' goBack/>
-    <Content $data={users.length > 0}>
-      {!users || users.length === 0
-        ? (<NoItemListed component={<CreateUser />} text='Não foram encontrados usuários cadastrados.' />)
-        : (
-            <ContentPage>
-              <ButtonContainer>
-                <Button $blue onClick={handleCreateUser}>Adicionar usuário</Button>
-              </ButtonContainer>
-              <UsersTable users={users} />
-            </ContentPage>
-          )}
-    </Content>
-  </GlobalContainer>)
+    <GlobalContainer>
+      <Menu />
+      <Header title='Usuários' goBack/>
+      <Content $data={users.length > 0}>
+        {!users || users.length === 0
+          ? (<NoItemListed component={<CreateUser />} text='Não foram encontrados usuários cadastrados.' />)
+          : (
+              <ContentPage>
+                <ButtonContainer>
+                  <Button $blue onClick={handleCreateUser}>Adicionar usuário</Button>
+                </ButtonContainer>
+                <UsersTable users={users} />
+              </ContentPage>
+            )}
+      </Content>
+    </GlobalContainer>
+  )
 }
 
 export default ListUsers

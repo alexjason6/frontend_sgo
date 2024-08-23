@@ -28,11 +28,13 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [component, setComponent] = useState<ReactNode>()
 
   const changeModal = (element?: ReactNode) => {
-    setIsOpen(!isOpen)
-
     if (element) {
       setComponent(element)
+      setIsOpen(true)
+      return
     }
+
+    setIsOpen(!isOpen)
   }
 
   const changeModalConfirmacao = (element?: ReactNode) => {

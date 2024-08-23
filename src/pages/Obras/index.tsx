@@ -11,10 +11,11 @@ import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import Button from '../../components/Button'
 
-import CreateObras from './CreateObras'
+import CreateObra from './CreateObra'
 import ObrasTable from './components/ObrasTable'
 
 import { ButtonContainer, ContentPage } from './styles'
+import NoItemListed from '../../components/NoItemListed'
 
 const ListObras: React.FC = () => {
   const { obras, listObras } = useContext(ObrasContext)
@@ -23,21 +24,27 @@ const ListObras: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
 
   const handleCreateObra = () => {
-    changeModal(<CreateObras />)
+    changeModal(<CreateObra />)
   }
 
   const getObras = async () => {
     await listObras({ token })
-
-    changeLoading(false)
   }
 
   useEffect(() => {
-    changeLoading(true, 'buscando obras...')
+    changeLoading(true, 'Buscando obras...')
     if (!obras || obras.length === 0) {
       void getObras()
     }
-  }, [])
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [obras])
 
   return (
   <GlobalContainer>
@@ -45,7 +52,7 @@ const ListObras: React.FC = () => {
     <Header title='Obras' goBack/>
     <Content $obras={obras.length > 0}>
       {!obras || obras.length === 0
-        ? <CreateObras />
+        ? <NoItemListed component={<CreateObra />} text='Não foram encontradas obras cadastradas.' />
         : (
           <ContentPage>
             <ButtonContainer>
