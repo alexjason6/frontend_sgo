@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 
-import FornecedoresContext from '../../contexts/fornecedoresContext'
 import OrcamentosContext from '../../contexts/orcamentosContext'
 
 import dateFormat from '../../utils/dateFormat'
@@ -10,16 +9,16 @@ import { comprometidoValue, executadoValue } from '../../utils/calculateInfosObr
 
 import { Table, Td, Tr } from './styles'
 
-import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
+import { type Fornecedores, type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
 
 interface TypeInfos {
   infos: LancamentoRdoRda[]
+  fornecedores: Fornecedores[]
 }
 
-const TableInfos: React.FC<TypeInfos> = ({ infos }) => {
+const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
   const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
   const lastLancamentos = sortLancamentos.slice(-15)
-  const { fornecedores } = useContext(FornecedoresContext)
   const { itens } = useContext(OrcamentosContext)
 
   const formatValue = (value?: string | null) => {
@@ -74,7 +73,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos }) => {
               <Td $medium>{etapa.nome}</Td>
               <Td $medium>{lancamento.subetapa}</Td>
               <Td>{formatValue(lancamento.valor_comprometido)}</Td>
-              <Td $large>{fornecedor.nome}</Td>
+              <Td $large>{fornecedor?.nome}</Td>
               <Td>{dateFormat(lancamento.data_pagamento)}</Td>
               <Td>{formatValue(lancamento.valor_pagamento)}</Td>
             </Tr>

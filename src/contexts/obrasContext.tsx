@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useState, type ReactNode, useCallback, useMemo } from 'react'
 
-import { type Obra } from '../interfaces/globalInterfaces'
 import ObrasServices from '../services/sgo/ObrasServices'
+
+import { type Obra } from '../interfaces/globalInterfaces'
 
 interface ObraData {
   id?: number

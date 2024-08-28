@@ -34,6 +34,7 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
         comprometido={comprometidoValue(lancamentos)}
         obra={item as Obra}
         valorM2={m2ValueTotalOrcamento(itens, obras, item as Obra)}
+        clienteName={cliente}
       />
     )
   }

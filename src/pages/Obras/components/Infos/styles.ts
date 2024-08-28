@@ -28,10 +28,7 @@ const formContainerTablesStyles = css`
 export const Container = styled.div`
   width: 95%;
   margin: 0 auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding: 20px 30px;
   background: ${({ theme }) => theme.colors.white};
   display: flex;
   align-items: center;
@@ -50,7 +47,6 @@ export const Form = styled.form<PropStyle>`
   ${({ $create }) => $create && css`
     padding-left: 40px !important;
   `}
-
 
   ${formContainerMobileStyles}
   ${formContainerTablesStyles}

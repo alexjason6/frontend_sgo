@@ -72,8 +72,8 @@ class UsersServices {
 
       return response
     } catch (error) {
-      console.error('Erro ao criar cliente', error)
-      throw new Error('Falha na criação de cliente.')
+      console.error('Erro ao editar cliente', error)
+      throw new Error('Falha na edição de cliente.')
     }
   }
 }

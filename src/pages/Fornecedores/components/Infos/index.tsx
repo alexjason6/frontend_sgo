@@ -1,0 +1,528 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent } from 'react'
+
+import { GlobalContainer, Legend } from '../../../../assets/styles/global'
+
+import LoadingContext from '../../../../contexts/loadingContext'
+import ModalContext from '../../../../contexts/modalContext'
+import FornecedoresContext from '../../../../contexts/fornecedoresContext'
+import AuthContext from '../../../../contexts/authContext'
+
+import Input from '../../../../components/Input'
+import Button from '../../../../components/Button'
+import FormGroup from '../../../../components/FormGroup'
+import Header from '../../../../components/Header'
+import Select from '../../../../components/Select'
+
+import phoneFormat from '../../../../utils/phoneFormat'
+import cepFormat from '../../../../utils/cepFormat'
+import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
+import isEmailValid from '../../../../utils/isEmailValid'
+import Toast from '../../../../utils/toast'
+
+import CepServices from '../../../../services/cep/CepServices'
+import FornecedoresServices from '../../../../services/sgo/FornecedoresServices'
+import FornecedoresMapper from '../../../../services/mappers/FornecedoresMapper'
+
+import useErrors from '../../../../hooks/useErrors'
+
+import { Container, Edit, EditIcon, ButtonContainer, Form } from './styles'
+
+import { type Fornecedores } from '../../../../interfaces/globalInterfaces'
+import Menu from '../../../../components/Menu'
+
+interface typeCliente {
+  data?: Fornecedores
+}
+
+const Infos: React.FC<typeCliente> = ({ data }) => {
+  const { token } = useContext(AuthContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { isOpen, changeModal } = useContext(ModalContext)
+  const { listFornecedores } = useContext(FornecedoresContext)
+
+  const [edit, setEdit] = useState(!data)
+  const [razaoSocial, setRazaoSocial] = useState(data?.razao_social ?? '')
+  const [nome, setNome] = useState(data?.nome ?? '')
+  const [cpfCnpj, setCpfCnpj] = useState(data?.cpf_cnpj ?? '')
+  const [responsavel, setResponsavel] = useState(data?.responsavel ?? '')
+  const [telefone, setTelefone] = useState(data?.telefone ?? '')
+  const [email, setEmail] = useState(data?.email ?? '')
+  const [responsavelFinanceiro, setResponsavelFinanceiro] = useState(data?.responsavel_financeiro ?? '')
+  const [telefoneFinanceiro, setTelefoneFinanceiro] = useState(data?.telefone_financeiro ?? '')
+  const [emailFinanceiro, setEmailFinanceiro] = useState(data?.email_financeiro ?? '')
+  const [cep, setCep] = useState(data?.cep ?? '')
+  const [logradouro, setLogradouro] = useState(data?.logradouro ?? '')
+  const [numero, setNumero] = useState(data?.numero ?? '')
+  const [complemento, setComplemento] = useState(data?.complemento ?? '')
+  const [bairro, setBairro] = useState(data?.bairro ?? '')
+  const [cidade, setCidade] = useState(data?.cidade ?? '')
+  const [status, setStatus] = useState(data?.status ?? '1')
+  const [banco, setBanco] = useState(data?.banco ?? '')
+  const [agencia, setAgencia] = useState(data?.agencia ?? '')
+  const [conta, setConta] = useState(data?.conta ?? '')
+  const [tipoConta, setTipoConta] = useState(data?.tipo_conta ?? '')
+  const [pix, setPix] = useState(data?.pix ?? '')
+  const [uf, setUf] = useState(data?.uf ?? '')
+  const menu = document.getElementsByClassName('menu')[0]
+
+  const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
+  const formIsValid = isEmailValid(email) && telefone && nome && cpfCnpj && status && cep && errors.length === 0
+
+  const handleEditInfos = () => {
+    setEdit(!edit)
+  }
+
+  const handleChangeItem = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>, fieldName: string, message: string, setState: Dispatch<SetStateAction<string>>) => {
+    const value = fieldName === 'email' || fieldName === 'emailFinanceiro' ? event.target.value.toLowerCase() : event.target.value.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+
+    setState(value)
+
+    // Lidar com campos específicos de forma separada
+    if (setState === setCep) {
+      const cepValue = value.replace('-', '')
+
+      if (cepValue.length === 8) {
+        void fetchCep(value)
+      }
+    }
+
+    if (!value) {
+      setError({ field: fieldName, message })
+    } else if (setState === setEmail && !isEmailValid(value)) {
+      setError({ field: 'email', message: 'Digite um e-mail válido para entrar.' })
+    } else {
+      removeError(fieldName)
+    }
+  }
+
+  const fetchCep = async (cepValue: string) => {
+    const cepResponse = await CepServices.buscaCep(cepValue)
+
+    if (cepResponse.data.erro) {
+      Toast({ type: 'danger', text: 'Erro ao buscar o CEP.', duration: 5000 })
+    }
+
+    setLogradouro(cepResponse.data.logradouro)
+    setBairro(cepResponse.data.bairro)
+    setCidade(cepResponse.data.localidade)
+    setUf(cepResponse.data.uf)
+  }
+
+  const handleCreateFornecedor = async () => {
+    try {
+      changeLoading(true, 'enviando dados...')
+
+      const dataFornecedor = {
+        nome,
+        cpfCnpj,
+        telefone,
+        email,
+        status: Number(status),
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        uf,
+        responsavelFinanceiro,
+        telefoneFinanceiro,
+        emailFinanceiro,
+        razaoSocial,
+        responsavel,
+        banco,
+        agencia,
+        conta,
+        tipoConta,
+        pix
+      }
+
+      const mapperFornecedores = FornecedoresMapper.toPersistence(dataFornecedor)
+      const create = !data
+        ? await FornecedoresServices.create({ token, mapperFornecedores })
+        : await FornecedoresServices.update({ token, mapperFornecedores })
+
+      if (create.id) {
+        clearFormFields()
+      }
+
+      changeLoading(true, 'atualizando lista de fornecedores...')
+      await listFornecedores({ token })
+
+      if (isOpen) {
+        changeModal()
+      }
+
+      Toast({ type: 'success', text: 'Fornecedor cadastrado com sucesso.', duration: 5000 })
+    } catch (error) {
+      console.error('Erro ao criar/atualizar fornecedor:', error)
+      Toast({ type: 'danger', text: 'Erro ao criar/atualizar fornecedor.', duration: 5000 })
+    } finally {
+      changeLoading(false)
+    }
+  }
+
+  const clearFormFields = () => {
+    setNome('')
+    setCpfCnpj('')
+    setTelefone('')
+    setEmail('')
+    setStatus('1')
+    setCep('')
+    setLogradouro('')
+    setNumero('')
+    setComplemento('')
+    setBairro('')
+    setCidade('')
+    setUf('')
+    setRazaoSocial('')
+    setResponsavel('')
+    setResponsavelFinanceiro('')
+    setTelefoneFinanceiro('')
+    setEmailFinanceiro('')
+    setBanco('')
+    setAgencia('')
+    setConta('')
+    setPix('')
+    setTipoConta('')
+  }
+
+  return (
+    <GlobalContainer>
+      {!isOpen && <Menu />}
+      <Container>
+        {data && (
+          <Edit>
+            <p onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</p>
+            <EditIcon onClick={handleEditInfos} />
+          </Edit>
+        )}
+        {!data && <Header title='Cadastrar novo fornecedor' subHeader={isOpen} modal />}
+        {data && <Header title={`Editar fornecedor - ${nome}`} modal />}
+        <Form $create={!isOpen || !!menu}>
+        <FormGroup $error={getErrorMessageByFieldName('nome')}>
+            <Legend>Nome:<sup>*</sup></Legend>
+            <Input
+              placeholder='Ex.: Almeida Pinto Fundações'
+              value={nome}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('nome')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'nome', 'Por favor, digite o nome do fornecedor', setNome)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('razaoSocial')}>
+            <Legend>Razão Social:<sup>*</sup></Legend>
+            <Input
+              value={razaoSocial}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('razaoSocial')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'razaoSocial', 'Por favor, digite a razao social', setRazaoSocial)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('cpfCnpj')}>
+            <Legend>CPF/CNPJ:<sup>*</sup></Legend>
+            <Input
+              value={cpfCnpjFormat(cpfCnpj)}
+              disabled={!edit}
+              $listData={!edit}
+              maxLength={18}
+              $error={!!getErrorMessageByFieldName('cpfCnpj')}
+              type='tel'
+              onChange={async (event) =>
+                handleChangeItem(event, 'cpfCnpj', 'Por favor, digite o CPF/CNPJ', setCpfCnpj)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('telefone')}>
+            <Legend>Telefone:<sup>*</sup></Legend>
+            <Input
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('telefone')}
+              type='tel'
+              maxLength={15}
+              value={telefone && phoneFormat(telefone)}
+              onChange={async (event) =>
+                handleChangeItem(event, 'telefone', 'Por favor, digite o telefone do fornecedor', setTelefone)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('email')}>
+            <Legend>e-Mail:<sup>*</sup></Legend>
+            <Input
+              value={email}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('email')}
+              type='email'
+              onChange={async (event) =>
+                handleChangeItem(event, 'email', 'Por favor, digite o email', setEmail)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('responsavel')}>
+            <Legend>Responsável:</Legend>
+            <Input
+              value={responsavel}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('responsavel')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'responsavel', 'Por favor, digite a pessoal responsável pela empresa', setResponsavel)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('responsavelFinanceiro')}>
+            <Legend>Financeiro:</Legend>
+            <Input
+              value={responsavelFinanceiro}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('responsavelFinanceiro')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'responsavelFinanceiro', 'Por favor, digite o responsavel financeiro', setResponsavelFinanceiro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('telefoneFinanceiro')}>
+            <Legend>Telefone financeiro:</Legend>
+            <Input
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('telefoneFinanceiro')}
+              type='tel'
+              maxLength={15}
+              value={telefoneFinanceiro && phoneFormat(telefoneFinanceiro)}
+              onChange={async (event) =>
+                handleChangeItem(event, 'telefoneFinanceiro', 'Por favor, digite o telefone do financeiro', setTelefoneFinanceiro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('emailFinanceiro')}>
+            <Legend>e-Mail financeiro:</Legend>
+            <Input
+              value={emailFinanceiro}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('emailFinanceiro')}
+              type='email'
+              onChange={async (event) =>
+                handleChangeItem(event, 'emailFinanceiro', 'Por favor, digite o email do financeiro', setEmailFinanceiro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('cep')}>
+            <Legend>CEP:<sup>*</sup></Legend>
+            <Input
+              value={cepFormat(cep)}
+              disabled={!edit}
+              $listData={!edit}
+              maxLength={9}
+              $error={!!getErrorMessageByFieldName('cep')}
+              type='tel'
+              onChange={async (event) =>
+                handleChangeItem(event, 'cep', 'Por favor, digite o CEP', setCep)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('logradouro')}>
+            <Legend>Logradouro:</Legend>
+            <Input
+              value={logradouro}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('logradouro')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'logradouro', 'Por favor, digite o logradouro', setLogradouro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('numero')}>
+            <Legend>Número:</Legend>
+            <Input
+              value={numero}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('numero')}
+              type='tel'
+              onChange={async (event) =>
+                handleChangeItem(event, 'numero', 'Por favor, digite o número do logradouro', setNumero)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('complemento')}>
+            <Legend>Complemento:</Legend>
+            <Input
+              value={complemento}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('complemento')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'complemento', 'Por favor, digite o complemento do endereço', setComplemento)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('bairro')}>
+            <Legend>Bairro:</Legend>
+            <Input
+              value={bairro}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('bairro')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'bairro', 'Por favor, digite o bairro', setBairro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('cidade')}>
+            <Legend>Cidade:<sup>*</sup></Legend>
+            <Input
+              value={cidade}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('cidade')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'cidade', 'Por favor, digite o cidade', setCidade)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('uf')}>
+            <Legend>UF:<sup>*</sup></Legend>
+            <Input
+              value={uf}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('uf')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'uf', 'Por favor, digite a UF', setUf)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('status')}>
+            <Legend>Situacao:<sup>*</sup></Legend>
+            <Select
+              $error={!!getErrorMessageByFieldName('status')}
+              value={status}
+              disabled={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'status', 'Por favor, selecione uma situação', setStatus)
+              }
+            >
+              <option value={'1'}>Ativo</option>
+              <option value={'2'}>Inativo</option>
+            </Select>
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('banco')}>
+            <Legend>Banco:</Legend>
+            <Input
+              value={banco}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('banco')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'banco', 'Por favor, digite o banco', setBanco)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('agencia')}>
+            <Legend>Agência:</Legend>
+            <Input
+              value={agencia}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('agencia')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'agencia', 'Por favor, digite a agência', setAgencia)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('conta')}>
+            <Legend>Conta:</Legend>
+            <Input
+              value={conta}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('conta')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'conta', 'Por favor, digite a conta', setConta)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('pix')}>
+            <Legend>Pix:</Legend>
+            <Input
+              value={pix}
+              disabled={!edit}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('pix')}
+              type='text'
+              onChange={async (event) =>
+                handleChangeItem(event, 'pix', 'Por favor, digite o pix', setPix)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('tipoConta')}>
+            <Legend>Tipo conta:</Legend>
+            <Select
+              $error={!!getErrorMessageByFieldName('tipoConta')}
+              value={tipoConta}
+              disabled={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'tipoConta', 'Por favor, selecione uma situação', setTipoConta)
+              }
+            >
+              <option value={''}>Selecione uma opção</option>
+              <option value={'1'}>Corrente</option>
+              <option value={'2'}>Poupança</option>
+            </Select>
+          </FormGroup>
+        </Form>
+        <ButtonContainer>
+          <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateFornecedor}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
+        </ButtonContainer>
+      </Container>
+    </GlobalContainer>
+  )
+}
+
+export default Infos

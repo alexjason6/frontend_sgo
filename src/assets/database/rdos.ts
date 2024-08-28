@@ -4,8 +4,8 @@ export const rdosDb = [
     data_criacao: '1721837802',
     data_alteracao: '1721838194',
     orcamento: 1,
-    obra: 1,
-    id_cliente: 1,
+    obra: 6,
+    id_cliente: 2,
     status: 1
   },
   {

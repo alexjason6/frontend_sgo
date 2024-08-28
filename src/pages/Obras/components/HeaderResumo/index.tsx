@@ -11,22 +11,20 @@ import dateFormat from '../../../../utils/dateFormat'
 import { Content, Dados, DadosContainer, Name } from './styles'
 
 import { type TypeHeaderResumoObra } from '../../../../interfaces/globalInterfaces'
-import ClientesContext from '../../../../contexts/clientesContext'
 import OrcamentosContext from '../../../../contexts/orcamentosContext'
 
-const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento }) => {
+const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, cliente }) => {
   const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
-  const { clientes } = useContext(ClientesContext)
   const { tiposOrcamentos } = useContext(OrcamentosContext)
-  const [cliente] = clientes.filter((item) => item.id === obra.id_cliente)
   const [modeloOrcamento] = tiposOrcamentos.filter((modelo) => modelo.id === obra.tipo)
 
-  const handleOpenDetalhamento = (cliente: string, clienteId: number) => {
+  console.log('header', cliente)
+  const handleOpenDetalhamento = (clienteId: number) => {
     navigate(`/obras/detalhamento/${obra.id}`, {
       state: {
-        cliente,
-        clienteId
+        clienteId,
+        cliente
       }
     })
     changeModal()
@@ -88,7 +86,7 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento }
         {new Intl.NumberFormat('pt-BR', { maximumSignificantDigits: 3 }).format(Number(obra.metragem))}m<sup>2</sup>
       </Dados>
     </DadosContainer>
-    {detalhamento && <Button $blue onClick={() => handleOpenDetalhamento(cliente.nome, cliente.id)}>Abrir detalhamento</Button>}
+    {detalhamento && <Button $blue onClick={() => handleOpenDetalhamento(cliente.id)}>Abrir detalhamento</Button>}
   </Content>
   )
 }

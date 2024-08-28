@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState, type Dispatch, type SetStateAct
 import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
 
-import { Legend } from '../../../../assets/styles/global'
+import { GlobalContainer, Legend } from '../../../../assets/styles/global'
 
 import ClientesContext from '../../../../contexts/clientesContext'
 import ModalContext from '../../../../contexts/modalContext'
@@ -17,9 +17,11 @@ import Select from '../../../../components/Select'
 import Button from '../../../../components/Button'
 import FormGroup from '../../../../components/FormGroup'
 import Header from '../../../../components/Header'
+import Menu from '../../../../components/Menu'
 
 import dateFormat from '../../../../utils/dateFormat'
 import cepFormat from '../../../../utils/cepFormat'
+import Toast from '../../../../utils/toast'
 
 import CepServices from '../../../../services/cep/CepServices'
 import ObrasServices from '../../../../services/sgo/ObrasServices'
@@ -63,6 +65,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
   const [dataEntrega, setDataEntrega] = useState(data?.data_entrega ?? null)
   const [tipo, setTipo] = useState(data?.tipo ?? '1')
   const [status, setStatus] = useState(data?.status ?? '1')
+  const menu = document.getElementsByClassName('menu')[0]
 
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
   const formIsValid = nome && idCliente && logradouro && tipo && status && errors.length === 0
@@ -149,7 +152,14 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
       if (isOpen) {
         changeModal()
       }
+
+      if (!isOpen) {
+        navigate('/obras')
+      }
+
+      Toast({ type: 'success', text: 'Obra cadastrada com sucesso.', duration: 5000 })
     } catch (error) {
+      Toast({ type: 'danger', text: 'Erro ao criar/atualizar obra.', duration: 5000 })
       console.error('Erro ao criar/atualizar usuário:', error)
     } finally {
       changeLoading(false)
@@ -192,274 +202,278 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
   }, [])
 
   return (
-    <Container>
-      {data && <Edit>
-        <Button $green onClick={handleNavigateDetalhamento}>Detalhamento</Button>
-        <Button $alert={!edit} $danger={edit} onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</Button>
-      </Edit>}
-      {!data && <Header title='Cadastrar nova obra' subHeader modal />}
-      {data && <Header title={`Editar obra - ${nome}`} modal />}
-      <Form $create={isOpen}>
-        <FormGroup $error={getErrorMessageByFieldName('cliente')}>
-          <Legend>Cliente:</Legend>
-          <Select
-            $error={!!getErrorMessageByFieldName('cliente')}
-            disabled={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'cliente', 'Por favor, digite o cliente do usuário', setIdCliente)
-            }>
-              {cliente ? <option value={idCliente}>{cliente?.nome}</option> : <option>Selecione um cliente</option>}
-              <option value='0'>Criar novo cliente</option>
-              {clientes.map((item) => (
-                <option key={item.id} value={String(item.id)}>{item.nome}</option>
-              ))}
-          </Select>
-        </FormGroup>
+    <GlobalContainer>
+      {!data && !isOpen && <Menu className />}
+      <Container>
+        {data && <Edit>
+          <Button $green onClick={handleNavigateDetalhamento}>Detalhamento</Button>
+          <Button $alert={!edit} $danger={edit} onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</Button>
+        </Edit>}
+        {!data && <Header title='Cadastrar nova obra' subHeader={isOpen} modal />}
+        {data && <Header title={`Editar obra - ${nome}`} modal />}
+        <Form $create={isOpen || !!menu}>
+          <FormGroup $error={getErrorMessageByFieldName('cliente')}>
+            <Legend>Cliente:</Legend>
+            <Select
+              $error={!!getErrorMessageByFieldName('cliente')}
+              disabled={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'cliente', 'Por favor, digite o cliente do usuário', setIdCliente)
+              }>
+                {cliente ? <option value={idCliente}>{cliente?.nome}</option> : <option>Selecione um cliente</option>}
+                <option value='0'>Criar novo cliente</option>
+                {clientes.map((item) => (
+                  <option key={item.id} value={String(item.id)}>{item.nome}</option>
+                ))}
+            </Select>
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('nome')}>
-          <Legend>Nome:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('nome')}
-            value={nome}
-            placeholder='Ex.: Betim Flex'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'nome', 'Por favor, digite o nome da obra', setNome)
-            }
-          />
-        </FormGroup>
-
-        <FormGroup $error={getErrorMessageByFieldName('alvara')}>
-          <Legend>Alvará:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('alvara')}
-            value={alvara}
-            placeholder='Ex.: 1235521887'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'alvara', 'Por favor, digite o alvara da obra', setAlvara)
-            }
-          />
-        </FormGroup>
-
-        <FormGroup $error={getErrorMessageByFieldName('cnd')}>
-          <Legend>CND:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('cnd')}
-            value={cnd}
-            placeholder='Ex.: 1235521887'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'cnd', 'Por favor, digite o numero da CND da obra', setCnd)
-            }
-          />
-        </FormGroup>
-
-        <FormGroup $error={getErrorMessageByFieldName('dataInicio')}>
-          <Legend>Data início:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('dataInicio')}
-            value={data ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
-            disabled={!edit}
-            $listData={!edit}
-            type='date'
-            onChange={async (event) =>
-              handleChangeItem(event, 'dataInicio', 'Por favor, digite a data de início da obra', setDataInicio)
-            }
-          />
-        </FormGroup>
-
-        <FormGroup $error={getErrorMessageByFieldName('tipo')}>
-          <Legend>Tipo:</Legend>
-          <Select
-            $error={!!getErrorMessageByFieldName('tipo')}
-            disabled={!edit}
-            defaultValue={tipo}
-            onChange={async (event) =>
-              handleChangeItem(event, 'tipo', 'Por favor, digite o tipo da obra', setTipo)
-            }
-          >
-            <option value={'1'}>Flex</option>
-            <option value={'2'}>Reforma galpão</option>
-            <option value={'3'}>Galpão novo</option>
-            <option value={'4'}>MeLoca</option>
-          </Select>
-        </FormGroup>
-
-        <FormGroup $error={getErrorMessageByFieldName('previsaoEntrega')}>
-          <Legend>Previsão de entrega:</Legend>
+          <FormGroup $error={getErrorMessageByFieldName('nome')}>
+            <Legend>Nome:</Legend>
             <Input
-            $error={!!getErrorMessageByFieldName('previsaoEntrega')}
-            value={data ? dateFormat(previsaoEntrega, false, 'reverse') : previsaoEntrega}
-            disabled={!edit}
-            $listData={!edit}
-            type='date'
-            onChange={async (event) =>
-              handleChangeItem(event, 'previsaoEntrega', 'Por favor, digite a previsão de entrega da obra', setPrevisaoEntrega)
-            }
-          />
-        </FormGroup>
+              $error={!!getErrorMessageByFieldName('nome')}
+              value={nome}
+              placeholder='Ex.: Betim Flex'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'nome', 'Por favor, digite o nome da obra', setNome)
+              }
+            />
+          </FormGroup>
 
-        {status === 4 && (
-          <FormGroup $error={getErrorMessageByFieldName('dataEntrega')}>
-            <Legend>Data entrega:</Legend>
+          <FormGroup $error={getErrorMessageByFieldName('alvara')}>
+            <Legend>Alvará:</Legend>
             <Input
-              $error={!!getErrorMessageByFieldName('dataEntrega')}
-              value={dateFormat(dataEntrega!, false, 'reverse')}
+              $error={!!getErrorMessageByFieldName('alvara')}
+              value={alvara}
+              placeholder='Ex.: 1235521887'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'alvara', 'Por favor, digite o alvara da obra', setAlvara)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('cnd')}>
+            <Legend>CND:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('cnd')}
+              value={cnd}
+              placeholder='Ex.: 1235521887'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'cnd', 'Por favor, digite o numero da CND da obra', setCnd)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('dataInicio')}>
+            <Legend>Data início:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('dataInicio')}
+              value={data ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
               disabled={!edit}
               $listData={!edit}
               type='date'
               onChange={async (event) =>
-                handleChangeItem(event, 'dataEntrega', 'Por favor, digite o dataEntrega da obra', setDataEntrega)
+                handleChangeItem(event, 'dataInicio', 'Por favor, digite a data de início da obra', setDataInicio)
               }
             />
           </FormGroup>
-        )}
 
-        <FormGroup $error={getErrorMessageByFieldName('engenheiro')}>
-          <Legend>Engenheiro:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('engenheiro')}
-            value={engenheiro}
-            placeholder='Ex.: João Pedro'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'engenheiro', 'Por favor, digite o engenheiro da obra', setEngenheiro)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('tipo')}>
+            <Legend>Tipo:</Legend>
+            <Select
+              $error={!!getErrorMessageByFieldName('tipo')}
+              disabled={!edit}
+              defaultValue={tipo}
+              onChange={async (event) =>
+                handleChangeItem(event, 'tipo', 'Por favor, digite o tipo da obra', setTipo)
+              }
+            >
+              <option value={'1'}>Flex</option>
+              <option value={'2'}>Reforma galpão</option>
+              <option value={'3'}>Galpão novo</option>
+              <option value={'4'}>MeLoca</option>
+            </Select>
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('cep')}>
-          <Legend>CEP:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('cep')}
-            value={cepFormat(cep)}
-            maxLength={9}
-            type='tel'
-            placeholder='Ex.: 32321-321'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'cep', 'Por favor, digite o cep da obra', setCep)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('previsaoEntrega')}>
+            <Legend>Previsão de entrega:</Legend>
+              <Input
+              $error={!!getErrorMessageByFieldName('previsaoEntrega')}
+              value={data ? dateFormat(previsaoEntrega, false, 'reverse') : previsaoEntrega}
+              disabled={!edit}
+              $listData={!edit}
+              type='date'
+              onChange={async (event) =>
+                handleChangeItem(event, 'previsaoEntrega', 'Por favor, digite a previsão de entrega da obra', setPrevisaoEntrega)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('logradouro')}>
-          <Legend>Logradouro:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('logradouro')}
-            value={logradouro}
-            placeholder='Ex.: Rua Jupira'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'logradouro', 'Por favor, digite o logradouro da obra', setLogradouro)
-            }
-          />
-        </FormGroup>
+          {status === 4 && (
+            <FormGroup $error={getErrorMessageByFieldName('dataEntrega')}>
+              <Legend>Data entrega:</Legend>
+              <Input
+                $error={!!getErrorMessageByFieldName('dataEntrega')}
+                value={dateFormat(dataEntrega!, false, 'reverse')}
+                disabled={!edit}
+                $listData={!edit}
+                type='date'
+                onChange={async (event) =>
+                  handleChangeItem(event, 'dataEntrega', 'Por favor, digite o dataEntrega da obra', setDataEntrega)
+                }
+              />
+            </FormGroup>
+          )}
 
-        <FormGroup $error={getErrorMessageByFieldName('numero')}>
-          <Legend>Número:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('numero')}
-            value={numero}
-            placeholder='Ex.: 1355'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'numero', 'Por favor, digite o numero do logradouro', setNumero)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('engenheiro')}>
+            <Legend>Engenheiro:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('engenheiro')}
+              value={engenheiro}
+              placeholder='Ex.: João Pedro'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'engenheiro', 'Por favor, digite o engenheiro da obra', setEngenheiro)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('telecomplementofone')}>
-          <Legend>Complemento:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('complemento')}
-            value={complemento}
-            placeholder='Ex.: Galpão 3'
-            type='text'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'complemento', 'Por favor, digite o complemento da obra', setComplemento)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('cep')}>
+            <Legend>CEP:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('cep')}
+              value={cepFormat(cep)}
+              maxLength={9}
+              type='tel'
+              placeholder='Ex.: 32321-321'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'cep', 'Por favor, digite o cep da obra', setCep)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('bairro')}>
-          <Legend>Bairro:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('bairro')}
-            value={bairro}
-            placeholder='Ex.: Paraíso'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'bairro', 'Por favor, digite o bairro', setBairro)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('logradouro')}>
+            <Legend>Logradouro:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('logradouro')}
+              value={logradouro}
+              placeholder='Ex.: Rua Jupira'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'logradouro', 'Por favor, digite o logradouro da obra', setLogradouro)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('cidade')}>
-          <Legend>Cidade:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('cidade')}
-            value={cidade}
-            placeholder='Ex.: Betim'
-            disabled={!edit}
-            $listData={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'cidade', 'Por favor, digite a cidade da obra', setCidade)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('numero')}>
+            <Legend>Número:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('numero')}
+              value={numero}
+              placeholder='Ex.: 1355'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'numero', 'Por favor, digite o numero do logradouro', setNumero)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('uf')}>
-          <Legend>UF:</Legend>
-          <Input
-            $error={!!getErrorMessageByFieldName('uf')}
-            value={uf}
-            placeholder='Ex.: MG'
-            disabled={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'uf', 'Por favor, digite aUF da obra', setUf)
-            }
-          />
-        </FormGroup>
+          <FormGroup $error={getErrorMessageByFieldName('telecomplementofone')}>
+            <Legend>Complemento:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('complemento')}
+              value={complemento}
+              placeholder='Ex.: Galpão 3'
+              type='text'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'complemento', 'Por favor, digite o complemento da obra', setComplemento)
+              }
+            />
+          </FormGroup>
 
-        <FormGroup $error={getErrorMessageByFieldName('status')}>
-          <Legend>Situação:</Legend>
-          <Select
-            $error={!!getErrorMessageByFieldName('status')}
-            value={status}
-            disabled={!edit}
-            onChange={async (event) =>
-              handleChangeItem(event, 'status', 'Por favor, digite o status da obra', setStatus)
-            }
-          >
-            <option value={'1'}>Ativo</option>
-            <option value={'2'}>Inativo</option>
-            <option value={'3'}>Cancelado</option>
-            <option value={'4'}>Entregue</option>
-          </Select>
-        </FormGroup>
-      </Form>
-      <ButtonContainer>
-        <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateObra}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
-      </ButtonContainer>
-    </Container>
+          <FormGroup $error={getErrorMessageByFieldName('bairro')}>
+            <Legend>Bairro:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('bairro')}
+              value={bairro}
+              placeholder='Ex.: Paraíso'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'bairro', 'Por favor, digite o bairro', setBairro)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('cidade')}>
+            <Legend>Cidade:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('cidade')}
+              value={cidade}
+              placeholder='Ex.: Betim'
+              disabled={!edit}
+              $listData={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'cidade', 'Por favor, digite a cidade da obra', setCidade)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('uf')}>
+            <Legend>UF:</Legend>
+            <Input
+              $error={!!getErrorMessageByFieldName('uf')}
+              value={uf}
+              $listData={!edit}
+              placeholder='Ex.: MG'
+              disabled={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'uf', 'Por favor, digite aUF da obra', setUf)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('status')}>
+            <Legend>Situação:</Legend>
+            <Select
+              $error={!!getErrorMessageByFieldName('status')}
+              value={status}
+              disabled={!edit}
+              onChange={async (event) =>
+                handleChangeItem(event, 'status', 'Por favor, digite o status da obra', setStatus)
+              }
+            >
+              <option value={'1'}>Ativo</option>
+              <option value={'2'}>Inativo</option>
+              <option value={'3'}>Cancelado</option>
+              <option value={'4'}>Entregue</option>
+            </Select>
+          </FormGroup>
+        </Form>
+        <ButtonContainer>
+          <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateObra}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
+        </ButtonContainer>
+      </Container>
+    </GlobalContainer>
   )
 }
 

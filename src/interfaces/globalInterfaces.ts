@@ -15,7 +15,7 @@ export interface TypesOpenedMenu {
 
 export interface TypeHeader {
   title: string
-  cliente?: string
+  cliente?: Cliente
   subHeader?: boolean
   goBack?: boolean
   modal?: boolean
@@ -48,7 +48,7 @@ export interface User {
   bairro: string
   cidade: string
   uf: string
-  permissoes?: string[]
+  permissoes: string[]
   data_cadastro: string
   data_alteracao?: string
   status: any
@@ -157,7 +157,7 @@ export interface Orcamento {
   nome: string
   data_criacao: string
   data_alteracao: string | null
-  status: number
+  status: any
   modelo: number
   id_cliente: number
   obra: number
@@ -193,6 +193,7 @@ export interface TiposOrcamentos {
 export interface TypeHeaderResumoObra {
   obra: Obra
   detalhamento?: boolean
+  cliente: Cliente
 }
 
 export interface LancamentoRdoRda {
@@ -245,11 +246,11 @@ export interface Fornecedores {
   data_cadastro: string
   data_alteracao: string | null
   ultimo_login: string | null
-  status: number
+  status: any
   banco: string
   agencia: string
   conta: string
-  tipo_conta: number
+  tipo_conta: string
   pix: string
 }
 

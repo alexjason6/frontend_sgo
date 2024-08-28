@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 
 import { GlobalContainer } from '../../../assets/styles/global'
 
@@ -14,6 +14,9 @@ import { Content } from './styles'
 
 import { type Obra } from '../../../interfaces/globalInterfaces'
 import { calculaPerCentValue } from '../../../utils/calculateInfosObras'
+import ClientesContext from '../../../contexts/clientesContext'
+import AuthContext from '../../../contexts/authContext'
+import LoadingContext from '../../../contexts/loadingContext'
 
 interface TypeObra {
   obra: Obra
@@ -22,13 +25,39 @@ interface TypeObra {
   executado?: string | number
   comprometido?: string | number
   valorM2?: string
+  clienteName?: string
 }
 
-const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, comprometido, obra, valorM2 }) => {
+const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, comprometido, obra, valorM2, clienteName }) => {
+  const { clientes, listClientes } = useContext(ClientesContext)
+  const { token } = useContext(AuthContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const [dataCliente] = clientes.filter((item) => item.nome === clienteName)
+
+  const getData = async () => {
+    changeLoading(true, 'Buscando dados do cliente...')
+    await listClientes({ token })
+  }
+
+  useEffect(() => {
+    changeLoading(true, 'Buscando dados...')
+    if (!obra) {
+      void getData()
+    }
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [])
+
   return (
     <GlobalContainer $modal>
       <Header title='Resumo de obra' modal/>
-      <HeaderResumoObra obra={obra} detalhamento />
+      <HeaderResumoObra obra={obra} detalhamento cliente={dataCliente} />
 
       <Header title='Documentos' modal subHeader/>
       <Content>

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/promise-function-async */
 import React, { useContext, type ChangeEvent, useState, type Dispatch, type SetStateAction } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { GlobalContainer, Legend } from '../../../assets/styles/global'
 
 import ModalContext from '../../../contexts/modalContext'
 import AuthContext from '../../../contexts/authContext'
 import ClientesContext from '../../../contexts/clientesContext'
+import LoadingContext from '../../../contexts/loadingContext'
 
 import Menu from '../../../components/Menu'
 import Header from '../../../components/Header'
@@ -21,15 +23,16 @@ import isEmailValid from '../../../utils/isEmailValid'
 import cpfCnpjFormat from '../../../utils/cpfCnpjFormat'
 import phoneFormat from '../../../utils/phoneFormat'
 import cepFormat from '../../../utils/cepFormat'
+import Toast from '../../../utils/toast'
 
 import ClienteMapper from '../../../services/mappers/ClienteMapper'
 import ClientesServices from '../../../services/sgo/ClientesServices'
 import CepServices from '../../../services/cep/CepServices'
 
 import { ButtonContainer, Content, Form, FormContent } from './styles'
-import LoadingContext from '../../../contexts/loadingContext'
 
 const CreateCliente: React.FC = () => {
+  const navigate = useNavigate()
   const { isOpen, changeModal } = useContext(ModalContext)
   const { token } = useContext(AuthContext)
   const { listClientes } = useContext(ClientesContext)
@@ -63,14 +66,21 @@ const CreateCliente: React.FC = () => {
 
     setState(value)
 
-    if (setState === setCep && value.length > 7) {
+    if (setState === setCep) {
       const cepValue = value.replace('-', '')
-      const cepResponse = await CepServices.buscaCep(cepValue)
 
-      setLogradouro(cepResponse.data.logradouro)
-      setBairro(cepResponse.data.bairro)
-      setCidade(cepResponse.data.localidade)
-      setUf(cepResponse.data.uf)
+      if (cepValue.length === 8) {
+        const cepResponse = await CepServices.buscaCep(cepValue)
+
+        if (cepResponse.data.erro) {
+          Toast({ type: 'danger', text: 'Erro ao buscar o CEP.', duration: 5000 })
+        }
+
+        setLogradouro(cepResponse.data.logradouro)
+        setBairro(cepResponse.data.bairro)
+        setCidade(cepResponse.data.localidade)
+        setUf(cepResponse.data.uf)
+      }
     }
 
     if (!value) {
@@ -139,7 +149,13 @@ const CreateCliente: React.FC = () => {
       changeModal()
     }
 
+    if (!isOpen) {
+      navigate(-1)
+    }
+
     changeLoading(false)
+
+    Toast({ type: 'success', text: 'Cliente cadastrado com sucesso.', duration: 5000 })
   }
 
   return (

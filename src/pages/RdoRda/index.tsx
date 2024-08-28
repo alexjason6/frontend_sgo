@@ -17,6 +17,7 @@ import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
 import Input from '../../components/Input'
 import ModalContext from '../../contexts/modalContext'
 import CreateLancamento from './CreateLancamento'
+import FornecedoresContext from '../../contexts/fornecedoresContext'
 
 const RdoRda: React.FC = () => {
   const params = useParams()
@@ -24,6 +25,7 @@ const RdoRda: React.FC = () => {
   const { type, id } = params
   const { obra, cliente, clienteId } = location.state
   const { changeLoading } = useContext(LoadingContext)
+  const { fornecedores } = useContext(FornecedoresContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
   const { changeModal } = useContext(ModalContext)
   const [data, setData] = useState<LancamentoRdoRda[]>([])
@@ -81,7 +83,7 @@ const RdoRda: React.FC = () => {
               onChange={(event) => handleChangeFilteredData(event)}
             />
           </div>
-          <TableInfos infos={filteredData} />
+          <TableInfos infos={filteredData} fornecedores={fornecedores} />
         </Infos>
       </Content>
     </GlobalContainer>

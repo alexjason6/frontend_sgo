@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, type ReactNode, 
 import { type User } from '../interfaces/globalInterfaces'
 import AuthServices from '../services/sgo/AuthServices'
 import LoadingContext from './loadingContext'
+import Toast from '../utils/toast'
 
 interface AuthContextType {
   user?: User | null
@@ -67,10 +68,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await AuthServices.signIn({ email, password })
       setToken(response.token)
+
       localStorage.setItem('@SGO:token', response.token)
+
       await getUser({ id: response.id_user, hash: response.token })
-    } catch (error) {
-      console.error('Erro ao realizar login:', error)
+    } catch {
+      Toast({ type: 'danger', text: 'Falha na autenticação. Por favor, verifique suas credenciais.' })
     } finally {
       changeLoading(false)
     }

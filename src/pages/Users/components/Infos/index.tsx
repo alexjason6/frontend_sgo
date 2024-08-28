@@ -19,6 +19,7 @@ import phoneFormat from '../../../../utils/phoneFormat'
 import cepFormat from '../../../../utils/cepFormat'
 import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 import isEmailValid from '../../../../utils/isEmailValid'
+import Toast from '../../../../utils/toast'
 
 import UserServices from '../../../../services/sgo/UsersServices'
 import CepServices from '../../../../services/cep/CepServices'
@@ -68,7 +69,6 @@ const Infos: React.FC<Data> = ({ data }) => {
 
     setState(value)
 
-    // Lidar com campos específicos de forma separada
     if (setState === setCep && value.length >= 8) {
       void fetchCep(value)
     }
@@ -83,14 +83,16 @@ const Infos: React.FC<Data> = ({ data }) => {
   }
 
   const fetchCep = async (cepValue: string) => {
-    const cepResponse = await CepServices.buscaCep(cepValue.replace('-', ''))
+    const cepResponse = await CepServices.buscaCep(cepValue)
 
-    if (cepResponse) {
-      setLogradouro(cepResponse.data.logradouro)
-      setBairro(cepResponse.data.bairro)
-      setCidade(cepResponse.data.localidade)
-      setUf(cepResponse.data.uf)
+    if (cepResponse.data.erro) {
+      Toast({ type: 'danger', text: 'Erro ao buscar o CEP.', duration: 5000 })
     }
+
+    setLogradouro(cepResponse.data.logradouro)
+    setBairro(cepResponse.data.bairro)
+    setCidade(cepResponse.data.localidade)
+    setUf(cepResponse.data.uf)
   }
 
   const handleChangePermissions = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -133,8 +135,11 @@ const Infos: React.FC<Data> = ({ data }) => {
       if (isOpen) {
         changeModal()
       }
+
+      Toast({ type: 'success', text: 'Usuário cadastrado com sucesso.', duration: 5000 })
     } catch (error) {
-      console.error('Erro ao criar/atualizar usuário:', error)
+      console.error('Erro ao criar/atualizar fornecedor:', error)
+      Toast({ type: 'danger', text: 'Erro ao criar/atualizar usuário.', duration: 5000 })
     } finally {
       changeLoading(false)
     }
@@ -357,8 +362,8 @@ const Infos: React.FC<Data> = ({ data }) => {
             onChange={(event) => handleChangePermissions(event)}
           >
             <option value={'superAdmin'}>Super admin</option>
-            <option value={'superAdmin'}>Financeiro</option>
-            <option value={'superAdmin'}>Lançamentos</option>
+            <option value={'financeiro'}>Financeiro</option>
+            <option value={'lancamentos'}>Lançamentos</option>
           </Select>
         </FormGroup>
 

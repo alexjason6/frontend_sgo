@@ -24,7 +24,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -52,7 +52,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -80,7 +80,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -108,7 +108,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -136,7 +136,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -164,7 +164,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -192,7 +192,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   },
   {
@@ -220,7 +220,7 @@ export const fornecedoresDb = [
     banco: 'Inter',
     agencia: '0001',
     conta: '12231173-6',
-    tipo_conta: 1,
+    tipo_conta: '1',
     pix: '24904630000159'
   }
 ]

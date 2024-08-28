@@ -20,15 +20,17 @@ import { Content, ContentPage, ButtonContainer } from './styles'
 
 const ListUsers: React.FC = () => {
   const { users, listUsers } = useContext(UsersContext)
-  const { token } = useContext(AuthContext)
+  const { token, user } = useContext(AuthContext)
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
+
+  console.log(user?.permissoes[0])
 
   const handleCreateUser = () => {
     changeModal(<CreateUser />)
   }
 
-  const getClientes = async () => {
+  const getData = async () => {
     await listUsers({ token })
 
     changeLoading(false)
@@ -37,7 +39,7 @@ const ListUsers: React.FC = () => {
   useEffect(() => {
     changeLoading(true, 'Buscando usuários...')
     if (!users || users.length === 0) {
-      void getClientes()
+      void getData()
     }
 
     const timeout = setTimeout(() => {
@@ -58,9 +60,11 @@ const ListUsers: React.FC = () => {
           ? (<NoItemListed component={<CreateUser />} text='Não foram encontrados usuários cadastrados.' />)
           : (
               <ContentPage>
-                <ButtonContainer>
-                  <Button $blue onClick={handleCreateUser}>Adicionar usuário</Button>
-                </ButtonContainer>
+                {(user?.permissoes[0] === 'superAdmin' || user?.permissoes[0] === 'gestao') && (
+                  <ButtonContainer>
+                    <Button $blue onClick={handleCreateUser}>Adicionar usuário</Button>
+                  </ButtonContainer>
+                )}
                 <UsersTable users={users} />
               </ContentPage>
             )}

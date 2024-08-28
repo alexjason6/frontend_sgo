@@ -20,28 +20,32 @@ import Button from '../../../components/Button'
 import { calculaPerCentValue, comprometidoValue, executadoValue, orcamentoValue, saldoValue } from '../../../utils/calculateInfosObras'
 
 import { Content, CardsInfos, Title, Infos, Bar, Var } from './styles'
+import AuthContext from '../../../contexts/authContext'
 
 const DetalhamentoObra: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { id } = useParams()
-  const { cliente, clienteId } = location.state
 
+  const { token } = useContext(AuthContext)
+  const { cliente, clienteId } = location.state
   const { changeLoading } = useContext(LoadingContext)
-  const { obras } = useContext(ObrasContext)
+  const { obras, listObras } = useContext(ObrasContext)
+
   const { lancamentosRdo, lancamentosRda, rdos, rdas } = useContext(RdoRdaContext)
-  const { fornecedores } = useContext(FornecedoresContext)
+  const { fornecedores, listFornecedores } = useContext(FornecedoresContext)
   const { itens } = useContext(OrcamentosContext)
-  const [obra] = useMemo(() => obras.filter((item) => item.id === Number(id)), [])
+
+  const [obra] = obras.filter((item) => item.id === Number(id))
   const bigestPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_pagamento) > Number(b.valor_pagamento) ? -1 : 1).slice(0, 5), [])
   const comprometidoPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_comprometido) > Number(b.valor_comprometido) ? -1 : 1).slice(0, 8), [])
-  const trataInicio = moment.unix(Number(obra.data_inicio))
+  const trataInicio = moment.unix(Number(obra?.data_inicio))
   const inicio = moment(trataInicio, 'YYYY-MM-DD').diff(moment().format('YYYY-MM-DD'), 'months')
   const sizeExecutado = Number(calculaPerCentValue(executadoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
   const sizeComprometido = Number(calculaPerCentValue(comprometidoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
   const sizeSaldo = Number(String(calculaPerCentValue(saldoValue(itens, lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure'))).split(',')[0])
-  const currentRdo = rdos.find((rdo) => rdo.obra === obra.id)
-  const currentRda = rdas.find((rda) => rda.obra === obra.id)
+  const currentRdo = rdos.find((rdo) => rdo.obra === obra?.id)
+  const currentRda = rdas.find((rda) => rda.obra === obra?.id)
   const [animate, setAnimate] = useState(false)
 
   const mediaGastosRDO = (days: number) => {
@@ -83,12 +87,35 @@ const DetalhamentoObra: React.FC = () => {
     })
   }
 
+  const getData = async () => {
+    changeLoading(true, 'Buscando fornecedores...')
+    await listFornecedores({ token })
+
+    changeLoading(true, 'Buscando dados da obra...')
+    await listObras({ token })
+  }
+
   useEffect(() => {
-    const timeout = setInterval(() => {
+    const timeout = setTimeout(() => {
       setAnimate(true)
     }, 0)
 
-    return () => clearInterval(timeout)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  useEffect(() => {
+    changeLoading(true, 'Buscando dados...')
+    if (!obras || obras.length === 0) {
+      void getData()
+    }
+
+    const timeout = setTimeout(() => {
+      changeLoading(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
   }, [])
 
   if (!obra) return <p>Obra não encontrada</p>
@@ -98,7 +125,7 @@ const DetalhamentoObra: React.FC = () => {
       <Menu />
       <Header title='Detalhamento geral de obra' goBack/>
       <Content>
-        <HeaderResumoObra obra={obra} />
+        <HeaderResumoObra obra={obra} cliente={cliente} />
         <Header title='RDO' subHeader fullwidth/>
         <CardsInfos $bars>
           <Title>Evolução dos pagamentos</Title>
@@ -174,7 +201,7 @@ const DetalhamentoObra: React.FC = () => {
               return (
               <BoxInfos
                 key={payment.id}
-                legend={fornecedor.nome}
+                legend={fornecedor?.nome}
                 color='alert'
                 opacityColor={verificaOpacidade(index, fornecedores.length)}
                 info={Intl.NumberFormat('pt-BR', {
@@ -211,7 +238,7 @@ const DetalhamentoObra: React.FC = () => {
 
         <CardsInfos $fullWidth>
             <Title>Últimos lançamentos</Title>
-            <TableInfos infos={lancamentosRdo} />
+            <TableInfos infos={lancamentosRdo} fornecedores={fornecedores} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
               <Button $blue onClick={() => handleOpenLancamentoRDORDA('rdo', currentRdo?.id)}>Abrir RDO</Button>
             </div>
@@ -220,7 +247,7 @@ const DetalhamentoObra: React.FC = () => {
         <Header title='RDA' subHeader fullwidth/>
         <CardsInfos $fullWidth>
             <Title>Últimos lançamentos</Title>
-            <TableInfos infos={lancamentosRda} />
+            <TableInfos infos={lancamentosRda} fornecedores={fornecedores} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
               <Button $blue onClick={() => handleOpenLancamentoRDORDA('rda', currentRda?.id)}>Abrir RDA</Button>
             </div>

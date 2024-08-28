@@ -50,7 +50,7 @@ const ListObras: React.FC = () => {
   <GlobalContainer>
     <Menu />
     <Header title='Obras' goBack/>
-    <Content $obras={obras.length > 0}>
+    <Content $itens={obras.length > 0}>
       {!obras || obras.length === 0
         ? <NoItemListed component={<CreateObra />} text='Não foram encontradas obras cadastradas.' />
         : (

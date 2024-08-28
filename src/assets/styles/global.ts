@@ -9,7 +9,7 @@ const legendMobileStyles = css`
 
 interface PropStyle {
   $modal?: boolean
-  $obras?: boolean
+  $itens?: boolean
 }
 
 export default createGlobalStyle`
@@ -59,7 +59,7 @@ export const Content = styled.section<PropStyle>`
   margin-left: 50px;
   display: flex;
   justify-content: center;
-  align-items: ${({ $obras }) => !$obras ? 'center' : 'flex-start'};
+  align-items: ${({ $itens }) => !$itens ? 'center' : 'flex-start'};
 `
 
 export const Legend = styled.legend`
