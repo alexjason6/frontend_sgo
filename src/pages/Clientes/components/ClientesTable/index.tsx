@@ -5,7 +5,7 @@ import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 import phoneFormat from '../../../../utils/phoneFormat'
 import checkStatus from '../../../../utils/checkStatus'
 
-import Infos from '../Infos'
+import Create from '../../../../components/CreateItem/Itens/Clientes'
 
 import { Table, Tr, Td } from './styles'
 
@@ -56,7 +56,7 @@ const ClientesTable: React.FC<ClientTableProps> = ({ clientes }) => {
                 <Td>{checkStatus(cliente.status)}</Td>
               </Tr>
               {open === cliente.id && (
-                <Infos cliente={cliente} />
+                <Create cliente={cliente} />
               )}
             </React.Fragment>
           )

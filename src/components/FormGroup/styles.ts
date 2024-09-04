@@ -5,7 +5,7 @@ interface PropStyles {
   $oneOfFour?: boolean
   $oneOfFive?: boolean
   passwordChange?: boolean
-
+  $square?: boolean
 }
 
 export const Container = styled.div<PropStyles>`
@@ -42,6 +42,10 @@ export const Container = styled.div<PropStyles>`
       margin-right: auto;
       margin-left: 20px;
     } */
+  `};
+
+  ${({ $square }) => $square && css`
+    max-width: 70px;
   `};
 
   ${({ passwordChange }) => passwordChange && css`

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useState, type ReactNode, useCallback, useMemo } from 'react'
+import React, { createContext, useState, type ReactNode, useCallback, useMemo, useEffect, useContext } from 'react'
 
 import ObrasServices from '../services/sgo/ObrasServices'
 
 import { type Obra } from '../interfaces/globalInterfaces'
+import AuthContext from './authContext'
 
 interface ObraData {
   id?: number
@@ -27,6 +28,7 @@ const initialContextValue: ObrasContextType = {
 const ObrasContext = createContext<ObrasContextType>(initialContextValue)
 
 export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
+  const { token } = useContext(AuthContext)
   const [obras, setObras] = useState([])
 
   const listObras = useCallback(async ({ token }: ObraData) => {
@@ -41,6 +43,16 @@ export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Erro ao realizar listagem de obras:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
+    }
+  }, [])
+
+  const getInitialData = async () => {
+    await listObras({ token })
+  }
+
+  useEffect(() => {
+    if (token) {
+      void getInitialData()
     }
   }, [])
 

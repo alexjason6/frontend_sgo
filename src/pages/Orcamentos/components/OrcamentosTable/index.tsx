@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import checkStatus from '../../../../utils/checkStatus'
 import dateFormat from '../../../../utils/dateFormat'

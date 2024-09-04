@@ -1,7 +1,22 @@
 import React from 'react'
 
+import { GlobalContainer } from '../../../assets/styles/global'
+
+import Menu from '../../../components/Menu'
+import Header from '../../../components/Header'
+
+import { Container } from './styles'
+
 const CreateModelo: React.FC = () => {
-  return <h1>Criar modelo</h1>
+  return (
+    <GlobalContainer>
+      <Menu />
+      <Header title='Criar orçamento' />
+      <Container>
+        <p>Oi</p>
+      </Container>
+    </GlobalContainer>
+  )
 }
 
 export default CreateModelo

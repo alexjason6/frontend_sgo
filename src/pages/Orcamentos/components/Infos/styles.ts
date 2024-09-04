@@ -5,6 +5,9 @@ import { device } from '../../../../assets/styles/themes/devices'
 
 interface PropStyle {
   $create?: boolean
+  $items?: boolean
+  $total?: boolean
+  $fullwidth?: boolean
 }
 
 const mobileStyles = css`
@@ -38,20 +41,50 @@ export const Container = styled.div`
   ${mobileStyles}
 `
 
-export const Form = styled.form<PropStyle>`
+export const Content = styled.section<PropStyle>`
+  width: ${({ $fullwidth }) => !$fullwidth ? 'calc(100% - 50px)' : '100%'};
+  margin-left: ${({ $fullwidth }) => !$fullwidth && '50px'};
+`
+
+export const Form = styled.form`
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  flex-wrap: wrap;
   gap: 10px;
-  padding: 10px;
-
-  ${({ $create }) => $create && css`
-    padding-left: 40px !important;
-  `}
-
   ${formContainerMobileStyles}
   ${formContainerTablesStyles}
 `
+
+export const FormContent = styled.section<PropStyle>`
+  margin: 0px 30px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  ${({ $items, theme }) => $items && css`
+    padding: 0;
+    border-bottom: 1px solid ${theme.colors.grays.lighter};
+  `}
+
+  ${({ $total }) => $total && css`
+    justify-content: flex-end;
+  `}
+
+  p {
+    text-align: left;
+  }
+`
+
+export const Title = styled.span`
+  width: calc(100% - 50px);
+  margin: 30px;
+  color: ${({ theme }) => theme.colors.grays.light};
+  padding-bottom: 10px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.grays.light};
+`
+
 export const Edit = styled.div`
   width: 100%;
   padding-bottom: 20px;
@@ -81,4 +114,38 @@ export const EditIcon = styled(FiEdit)`
 export const ButtonContainer = styled.div`
   width: 100%;
   text-align: right;
+`
+export const AddItem = styled.span`
+  width: fit-content;
+  text-align: right;
+  padding: 0px 30px;
+
+  p {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+`
+
+export const AddSubitem = styled.span`
+  width: fit-content;
+  text-align: left;
+  padding: 0px 30px;
+
+  p {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+`
+
+export const Divisor = styled.hr`
+  width: 100%;
+  height: 0px;
+  margin-top: 20px;
+  border-top: 1px solid ${({ theme }) => theme.colors.grays.lighter} !important;
 `

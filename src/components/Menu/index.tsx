@@ -7,12 +7,13 @@ import { FiUsers, FiUser, FiList, FiPlus } from 'react-icons/fi'
 import { LuConstruction } from 'react-icons/lu'
 import { FaFileInvoiceDollar, FaHandHoldingUsd, FaStar } from 'react-icons/fa'
 
+import AuthContext from '../../contexts/authContext'
+
 import logoCliente from '../../assets/images/cliente.svg'
 
 import { Container, Item, Submenu, SubmenuItem, LogoCliente } from './styles'
 
 import { type TypesItemActive } from '../../interfaces/globalInterfaces'
-import AuthContext from '../../contexts/authContext'
 
 interface TypeMenu {
   className?: boolean
@@ -54,7 +55,7 @@ const Menu: React.FC<TypeMenu> = ({ className }) => {
 
   return (
     <Container className={className ? 'menu' : 'noMenu'} $open={open}>
-      <Item $open={open} $active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
+      <Item $open={open} $menu $active={itemActive.name === 'menu'} onClick={handleChangeMenu}>
         {open ? <MdClose size={25} /> : <MdMenu size={25} />}
           {open && <span>Menu</span>}
       </Item>

@@ -49,7 +49,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
 
   const [edit, setEdit] = useState(!data)
   const [nome, setNome] = useState(data?.nome ?? '')
-  const [cnd, setCnd] = useState(data?.cnd ?? '')
+  const [cno, setCno] = useState(data?.cno ?? '')
   const [alvara, setAlvara] = useState(data?.alvara ?? '')
   const [engenheiro, setEngenheiro] = useState(data?.engenheiro ?? '')
   const [cep, setCep] = useState(data?.cep ?? '')
@@ -119,7 +119,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
 
       const dataUser = {
         nome,
-        cnd,
+        cno,
         alvara,
         engenheiro,
         cep,
@@ -182,7 +182,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
     setStatus('1')
     setAlvara('')
     setEngenheiro('')
-    setCnd('')
+    setCno('')
     setCep('')
     setLogradouro('')
     setNumero('')
@@ -258,17 +258,17 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
             />
           </FormGroup>
 
-          <FormGroup $error={getErrorMessageByFieldName('cnd')}>
-            <Legend>CND:</Legend>
+          <FormGroup $error={getErrorMessageByFieldName('cno')}>
+            <Legend>CNO:</Legend>
             <Input
-              $error={!!getErrorMessageByFieldName('cnd')}
-              value={cnd}
+              $error={!!getErrorMessageByFieldName('cno')}
+              value={cno}
               placeholder='Ex.: 1235521887'
               type='text'
               disabled={!edit}
               $listData={!edit}
               onChange={async (event) =>
-                handleChangeItem(event, 'cnd', 'Por favor, digite o numero da CND da obra', setCnd)
+                handleChangeItem(event, 'cno', 'Por favor, digite o numero CNO da obra', setCno)
               }
             />
           </FormGroup>

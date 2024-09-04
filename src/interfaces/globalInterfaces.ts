@@ -28,6 +28,7 @@ export interface TypesInputs {
   oneOftree?: boolean
   oneOfFour?: boolean
   oneOfFive?: boolean
+  square?: boolean
   passwordChange?: boolean
 }
 
@@ -61,7 +62,7 @@ export interface Obra {
   id: number
   alvara: string
   nome: string
-  cnd: string
+  cno: string
   cep: string
   logradouro: string
   numero: string

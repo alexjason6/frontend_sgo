@@ -14,6 +14,7 @@ const Users = lazy(async () => await import('../pages/Users'))
 const Fornecedores = lazy(async () => await import('../pages/Fornecedores'))
 const CreateFornecedores = lazy(async () => await import('../pages/Fornecedores/CreateFornecedores'))
 const Orcamentos = lazy(async () => await import('../pages/Orcamentos'))
+const CreateOrcamentos = lazy(async () => await import('../pages/Orcamentos/CreateOrcamento'))
 const ModelosOrcamentos = lazy(async () => await import('../pages/Orcamentos/Modelos'))
 const NotFound = lazy(async () => await import('../pages/NotFound'))
 
@@ -33,6 +34,7 @@ const AppRouter = () => (
       <Route path="/fornecedores" element={<Fornecedores />} />
       <Route path="/fornecedores/novo" element={<CreateFornecedores />} />
       <Route path="/orcamentos" element={<Orcamentos />} />
+      <Route path="/orcamentos/novo" element={<CreateOrcamentos />} />
       <Route path="/orcamentos/modelos" element={<ModelosOrcamentos />} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path='/*' element={<Navigate to="/not-found" replace />} />

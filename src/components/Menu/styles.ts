@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 interface PropStyles {
   $active?: boolean
   $open?: boolean
+  $menu?: boolean
 }
 
 export const Container = styled.nav<PropStyles>`
@@ -36,6 +37,10 @@ export const Item = styled.div<PropStyles>`
     padding-left: 20px;
     color: ${theme.colors.oranges.primary};
     justify-content: flex-start !important;
+  `}
+
+  ${({ $menu, theme, $open }) => $menu && css`
+    background: ${$open && theme.colors.grays.primary};
   `}
 
   p {

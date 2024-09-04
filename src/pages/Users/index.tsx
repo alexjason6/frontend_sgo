@@ -24,8 +24,6 @@ const ListUsers: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
 
-  console.log(user?.permissoes[0])
-
   const handleCreateUser = () => {
     changeModal(<CreateUser />)
   }

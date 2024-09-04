@@ -16,10 +16,12 @@ import ObrasTable from './components/ObrasTable'
 
 import { ButtonContainer, ContentPage } from './styles'
 import NoItemListed from '../../components/NoItemListed'
+import ClientesContext from '../../contexts/clientesContext'
 
 const ListObras: React.FC = () => {
   const { obras, listObras } = useContext(ObrasContext)
   const { token } = useContext(AuthContext)
+  const { clientes, listClientes } = useContext(ClientesContext)
   const { changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
 
@@ -27,14 +29,17 @@ const ListObras: React.FC = () => {
     changeModal(<CreateObra />)
   }
 
-  const getObras = async () => {
+  const getData = async () => {
     await listObras({ token })
+
+    changeLoading(true, 'Buscando obras...')
+    await listClientes({ token })
   }
 
   useEffect(() => {
     changeLoading(true, 'Buscando obras...')
     if (!obras || obras.length === 0) {
-      void getObras()
+      void getData()
     }
 
     const timeout = setTimeout(() => {
@@ -58,7 +63,7 @@ const ListObras: React.FC = () => {
             <ButtonContainer>
               <Button $blue onClick={handleCreateObra}>Adicionar obra</Button>
             </ButtonContainer>
-            <ObrasTable obras={obras} />
+            <ObrasTable obras={obras} clientes={clientes} />
           </ContentPage>
           )}
     </Content>

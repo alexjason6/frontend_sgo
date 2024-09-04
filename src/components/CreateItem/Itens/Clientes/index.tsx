@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 
-import Input from '../../../../components/Input'
-import Select from '../../../../components/Select'
-import Button from '../../../../components/Button'
-import FormGroup from '../../../../components/FormGroup'
+import Input from '../../../Input'
+import Select from '../../../Select'
+import Button from '../../../Button'
+import FormGroup from '../../../FormGroup'
 
 import phoneFormat from '../../../../utils/phoneFormat'
 import cepFormat from '../../../../utils/cepFormat'
@@ -18,7 +18,7 @@ interface typeCliente {
   cliente: Cliente
 }
 
-const Infos: React.FC<typeCliente> = ({ cliente }) => {
+const Create: React.FC<typeCliente> = ({ cliente }) => {
   const [edit, setEdit] = useState(false)
   const [razao_social, setRazao_social] = useState(cliente.razao_social)
   const [nome, setNome] = useState(cliente.nome)
@@ -243,4 +243,4 @@ const Infos: React.FC<typeCliente> = ({ cliente }) => {
   )
 }
 
-export default Infos
+export default Create

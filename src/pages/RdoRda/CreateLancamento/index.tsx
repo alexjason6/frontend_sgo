@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useContext, useState, useMemo, type Dispatch, type SetStateAction, type ChangeEvent } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { FiPlus, FiX } from 'react-icons/fi'
 
 import { GlobalContainer, Legend } from '../../../assets/styles/global'
@@ -21,26 +22,43 @@ import { currencyFormat } from '../../../utils/currencyFormat'
 import { AddItem, ButtonContainer, Content, Divisor, Form, FormContent } from './styles'
 
 import { type TypeNewLancamento } from '../../../interfaces/globalInterfaces'
+import moment from 'moment'
+import FornecedoresContext from '../../../contexts/fornecedoresContext'
+import AuthContext from '../../../contexts/authContext'
+import LoadingContext from '../../../contexts/loadingContext'
+import Toast from '../../../utils/toast'
+import RdoRdaServices from '../../../services/sgo/RdoRdaServices'
+import RdoRdaMapper from '../../../services/mappers/RdoRdaMapper'
 
 const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameCliente, obraId, cliente_id }) => {
   const { type } = useParams()
+  const navigate = useNavigate()
   const { obra, clienteId, cliente } = useLocation().state
-  const { isOpen } = useContext(ModalContext)
+  const { isOpen, changeModal } = useContext(ModalContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { token, user } = useContext(AuthContext)
+  const { fornecedores, listFornecedores } = useContext(FornecedoresContext)
   const typeDocument = tipo?.toUpperCase() ?? type?.toUpperCase()
-  const [parcelamento, setParcelamento] = useState(false)
+  const [parcelamento, setParcelamento] = useState<boolean>(false)
   const [groupItems, setGroupItems] = useState([{ id: 1 }])
+  const [diasVencimento, setDiasVencimento] = useState<number>(28)
+  const [dataVencimento, setDataVencimento] = useState<string>('')
+  const [dataLancamento, setDataLancamento] = useState<string>('')
+  const [nf, setNf] = useState<number>()
+  const [dataNf, setDataNf] = useState<string>('')
+  const [valorComprometido, setValorComprometido] = useState<string>()
+  const [valorPagamento, setValorPagamento] = useState<string>()
+  const [fornecedor, setFornecedor] = useState<number>()
+  const [contratoExists, setContratoExists] = useState<number>(0)
+  const [contrato, setContrato] = useState<number>()
   const [itens, setItens] = useState<Array<{ id: number, etapa: number | null, subetapa: number | null, valor: string }>>([
     { id: 1, etapa: null, subetapa: null, valor: '' }
   ])
-  const [parcelas, setParcelas] = useState<Array<{ id: number, vencimento: string | null, valor: string }>>([
+  const [parcelas, setParcelas] = useState<Array<{ id: number, vencimento: string, valor: string }>>([
     { id: 1, vencimento: '', valor: '' }
   ])
   const [numeroParcelas, setNumeroParcelas] = useState(1)
-  const totalLancamentoValue = useMemo(() => {
-    return itens.reduce<number>((acc, item) => acc + Number(item.valor || 0), 0)
-  }, [itens])
-
-  console.log(obra, clienteId, rdoRda, obraId, cliente_id)
+  const [valorTotal, setValorTotal] = useState<number>(0)
 
   const handleAddItem = () => {
     const newId = groupItems.length + 1
@@ -55,9 +73,35 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
     setItens((prevstate) => prevstate.filter((item) => item.id !== id))
   }
 
-  const handleChangeItemAndparcelaPrice = (id: number, field: string, value: string, setItem: Dispatch<SetStateAction<any[]>>) => {
-    const trataValue = value.includes('R$') ? value.replace('R$ ', '').replaceAll('.', '').replace(',', '.') : value
-    setItem((prevstate) => prevstate.map((item) => (item.id === id ? { ...item, [field]: trataValue } : item)))
+  const calculaDataParcelas = (parcela: number) => {
+    const days = parcela * diasVencimento
+
+    const date = moment(dataVencimento).add(days, 'days').calendar(null, {
+      sameElse: 'YYYY-MM-DD'
+    })
+    return date
+  }
+
+  const handleChangeItemAndParcelaPrice = (id: number, field: string, value: string, setItem: Dispatch<SetStateAction<any[]>>) => {
+    const cleanedValue = value.replace(/\D/g, '')
+
+    let integerPart = cleanedValue.slice(0, -2)
+    let decimalPart = cleanedValue.slice(-2)
+
+    if (decimalPart.length > 2) {
+      integerPart += decimalPart.slice(0, -2)
+      decimalPart = decimalPart.slice(-2)
+    }
+
+    const formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + decimalPart
+
+    const trataValue = field === 'valor'
+      ? formattedValue.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()
+      : value
+
+    setItem((prevstate) => prevstate.map((item) => (item.id === id
+      ? { ...item, [field]: field === 'vencimento' ? calculaDataParcelas(id) : trataValue }
+      : item)))
   }
 
   const handleNumeroParcelasChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +121,83 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
     setParcelamento(!parcelamento)
   }
 
+  const handleChangeDataVencimento = (value: string) => {
+    setDiasVencimento(Number(value))
+    const date = moment().add(value, 'days').calendar(null, {
+      sameElse: 'YYYY-MM-DD'
+    })
+
+    setDataVencimento(date)
+  }
+
+  const handleSubmitLancamento = async () => {
+    const [fornecedorSelecionado] = fornecedores.filter((item) => item.id === fornecedor)
+    const { banco, agencia, conta, tipo_conta, pix } = fornecedorSelecionado
+    const infos = {
+      rdo: Number(rdoRda),
+      dataLancamento: String(moment(dataLancamento).unix()),
+      nf,
+      dataNf,
+      valorComprometido,
+      valorPagamento,
+      dataPagamento: dataVencimento,
+      usuario: user?.id,
+      observacao: '',
+      parcela: String(parcelas.length),
+      obra: obra || obraId,
+      situacao: 1,
+      banco,
+      agencia,
+      conta,
+      tipo_conta,
+      pix
+    }
+
+    console.log(infos)
+
+    try {
+      changeLoading(true, 'Enviando os dados...')
+      const mapperLancamento = RdoRdaMapper.toPersistence(infos)
+      const create = await RdoRdaServices.createRdo({ token, mapperLancamento })
+
+      console.log(create)
+
+      changeLoading(true, 'atualizando lista de obras...')
+      // await listObras({ token })
+
+      if (isOpen) {
+        changeModal()
+      }
+
+      if (!isOpen) {
+        navigate(-1)
+      }
+
+      Toast({ type: 'success', text: 'Obra cadastrada com sucesso.', duration: 5000 })
+    } catch (error) {
+      Toast({ type: 'danger', text: 'Erro ao criar/atualizar obra.', duration: 5000 })
+      console.error('Erro ao criar/atualizar usuário:', error)
+    } finally {
+      changeLoading(false)
+    }
+  }
+
+  const getData = async () => {
+    await listFornecedores({ token })
+  }
+
+  useEffect(() => {
+    if (!fornecedores || fornecedores.length === 0) {
+      void getData()
+    }
+  }, [fornecedores])
+
+  useEffect(() => {
+    const totalLancamentoValue = itens.reduce<number>((acc, item) => acc + Number(item.valor), 0)
+
+    setValorTotal(totalLancamentoValue)
+  }, [itens])
+
   return (
     <GlobalContainer $modal>
       {!isOpen && <Menu />}
@@ -84,34 +205,52 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
       <Content $fullwidth={!!isOpen}>
         <Form>
           <FormContent>
-            <FormGroup oneOftree>
+            <FormGroup oneOfFour>
               <Legend>Cliente:</Legend>
-              <Input type='text' placeholder='Digite o nome do cliente' />
+              <Input value={cliente.nome} readOnly />
             </FormGroup>
 
             <FormGroup oneOfFour>
-              <Legend>Fornecedor:</Legend>
-              <Input type='text' placeholder='Digite o nome do fornecedor' />
+                <Legend>Fornecedor:</Legend>
+                  <Select onChange={(e) => setFornecedor(Number(e.target.value))}>
+                    <option selected>Selecione um fornecedor</option>
+                    <option>Cadastrar novo fornecedor</option>
+                    <option disabled>________________________________</option>
+                    {fornecedores.map((item) => (
+                      <option key={item.id} value={item.id}>{item.nome}</option>
+                    ))}
+                  </Select>
+                </FormGroup>
+
+            <FormGroup oneOfFive>
+              <Legend>É contrato?</Legend>
+              <Select onChange={(event) => setContratoExists(Number((event.target as HTMLSelectElement).value))}>
+                <option value={1}>Sim</option>
+                <option value={0} selected>Não</option>
+              </Select>
             </FormGroup>
 
-            <FormGroup oneOfFour>
-              <Legend>Contrato:</Legend>
-              <Input type='text' placeholder='Digite o nome de um fornecedor' />
-            </FormGroup>
+            {contratoExists === 1 && <FormGroup oneOfFive>
+              <Legend >Abater do contrato:</Legend>
+              <Select onChange={(event) => setContrato(Number((event.target as HTMLSelectElement).value))}>
+                <option selected>Selecione o contrato</option>
+                <option value={1}>27/08/20204 - Contrato documentação da obra - R$ 5.000,00</option>
+              </Select>
+            </FormGroup>}
 
             <FormGroup oneOfFive>
               <Legend>Data lançamento:</Legend>
-              <Input type='date' />
+              <Input type='date' onChange={(event) => setDataLancamento(event?.target.value)} />
             </FormGroup>
 
             <FormGroup oneOfFive>
               <Legend>Nº da NF:</Legend>
-              <Input type='tel' placeholder='Ex.: 123456' />
+              <Input type='tel' placeholder='Ex.: 123456' value={nf} onChange={(event) => setNf(Number(event.target.value))} />
             </FormGroup>
 
             <FormGroup oneOfFive>
               <Legend>Data emissão NF:</Legend>
-              <Input type='date' />
+              <Input type='date' onChange={(event) => setDataNf(event.target.value)} />
             </FormGroup>
           </FormContent>
 
@@ -124,14 +263,14 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
               <FormContent key={groupItem.id} $items>
                 <FormGroup oneOfFive>
                   <Legend>Etapa:</Legend>
-                  <Select onChange={(e) => handleChangeItemAndparcelaPrice(groupItem.id, 'etapa', e.target.value, setItens)}>
+                  <Select onChange={(e) => handleChangeItemAndParcelaPrice(groupItem.id, 'etapa', e.target.value, setItens)}>
                     <option value="">Selecione uma etapa</option>
                   </Select>
                 </FormGroup>
 
                 <FormGroup oneOfFive>
                   <Legend>Subetapa:</Legend>
-                  <Select onChange={(e) => handleChangeItemAndparcelaPrice(groupItem.id, 'subetapa', e.target.value, setItens)}>
+                  <Select onChange={(e) => handleChangeItemAndParcelaPrice(groupItem.id, 'subetapa', e.target.value, setItens)}>
                     <option value="">Selecione uma subetapa</option>
                   </Select>
                 </FormGroup>
@@ -143,7 +282,7 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
 
                 <FormGroup oneOfFive>
                   <Legend>Valor:</Legend>
-                  <Input type='text' value={currencyFormat(value)} placeholder='Ex.: R$5.022,53' onChange={(e) => handleChangeItemAndparcelaPrice(groupItem.id, 'valor', e.target.value, setItens)} />
+                  <Input type='text' value={currencyFormat(value)} placeholder='Ex.: R$5.022,53' onChange={(e) => handleChangeItemAndParcelaPrice(groupItem.id, 'valor', e.target.value, setItens)} />
                 </FormGroup>
               <p style={{ cursor: 'pointer' }} onClick={() => handleRemoveItem(groupItem.id)}><FiX color='red' size={23} /></p>
             </FormContent>
@@ -155,22 +294,42 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
 
           <FormContent $total>
             <Divisor />
-            <FormGroup oneOfFive>
-              <Legend>Valor total {itens.length > 1 ? 'dos itens' : 'do item'}:</Legend>
-              <Input placeholder='Valor total itens' value={currencyFormat(String(totalLancamentoValue))} readOnly />
+            {!contratoExists
+              ? (
+              <FormGroup oneOfFive>
+                <Legend>Valor total {itens.length > 1 ? 'dos itens' : 'do item'}:</Legend>
+                <Input placeholder='Valor total itens'
+                  value={Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  }).format(valorTotal)} readOnly />
+              </FormGroup>
+                )
+              : (
+              <FormGroup oneOfFive>
+              <Legend>Valor comprometido:</Legend>
+              <Input placeholder='Valor total itens'
+                value={Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(valorTotal)}
+                readOnly
+                onChange={(event) => setValorComprometido(event.target.value)}
+              />
             </FormGroup>
+                )}
           </FormContent>
 
           <Header title='Condições de pagamento' subHeader fullwidth/>
           <FormContent $items>
             <FormGroup oneOfFive>
               <Legend>Nº de dias para {parcelamento ? 'o 1º' : 'o'} pagamento:</Legend>
-              <Input placeholder='Ex.: 28' type='number' />
+              <Input placeholder='Ex.: 28' value={diasVencimento} type='number' onChange={(event) => handleChangeDataVencimento(event.target.value)} />
             </FormGroup>
 
             <FormGroup oneOfFive>
               <Legend>Vencimento:</Legend>
-              <Input placeholder='Ex.: 28' type='date' />
+              <Input placeholder='Ex.: 28' value={dataVencimento} type='date' onChange={(event) => setDataVencimento(event?.target.value)} />
             </FormGroup>
           </FormContent>
           <FormContent>
@@ -197,24 +356,32 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
               {parcelas.map((parcela, index) => {
                 return (
                   <FormContent key={parcela.id} $items>
-                    <FormGroup oneOfFive>
-                      <Legend>Número parcela:</Legend>
-                      <Input type='number' value={index + 1} readOnly />
+                    <FormGroup square>
+                      <Legend>Parcela:</Legend>
+                      <Input type='number' value={index + 1} readOnly $square/>
                     </FormGroup>
 
                     <FormGroup oneOfFive>
                       <Legend>Valor:</Legend>
                       <Input
                         type='text'
-                        value={currencyFormat(String(Number(totalLancamentoValue) / 2))}
+                        value={Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL'
+                        }).format(Number(valorTotal) / parcelas.length)}
                         placeholder='Ex.: R$5.022,53'
-                        onChange={(e) => handleChangeItemAndparcelaPrice(parcela.id, 'valor', e.target.value, setParcelas)}
+                        onChange={(e) => handleChangeItemAndParcelaPrice(parcela.id, 'valor', e.target.value, setParcelas)}
                       />
                     </FormGroup>
 
                     <FormGroup oneOfFive>
                       <Legend>Vencimento:</Legend>
-                      <Input type='date' />
+                      <Input
+                        type='date'
+                        value={parcela.vencimento}
+                        onFocus={() => handleChangeItemAndParcelaPrice(parcela.id, 'vencimento', calculaDataParcelas(parcela.id), setParcelas)}
+                        onChange={(e) => handleChangeItemAndParcelaPrice(parcela.id, 'vencimento', e.target.value, setParcelas)}
+                      />
                     </FormGroup>
                   </FormContent>
                 )
@@ -241,11 +408,11 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
               />
             </FormGroup>
           </FormContent>
-
-          <ButtonContainer>
-          <Button $green>Gravar lançamento</Button>
-        </ButtonContainer>
         </Form>
+
+        <ButtonContainer>
+          <Button $green onClick={handleSubmitLancamento}>Gravar lançamento</Button>
+        </ButtonContainer>
       </Content>
     </GlobalContainer>
   )

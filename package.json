@@ -1,6 +1,6 @@
 {
   "name": "frontend_sgo",
-  "version": "0.1.0",
+  "version": "0.1.01",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -15,6 +15,7 @@
     "moment-timezone": "^0.5.45",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",

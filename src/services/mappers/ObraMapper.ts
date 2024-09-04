@@ -1,6 +1,6 @@
 interface ObrarDomain {
   nome: string
-  cnd: string
+  cno: string
   alvara: string
   engenheiro: string
   cep: string
@@ -22,7 +22,7 @@ class UserMapper {
   toPersistence (domainUser: ObrarDomain) {
     return {
       nome: domainUser.nome,
-      cnd: domainUser.cnd,
+      cno: domainUser.cno,
       alvara: domainUser.alvara,
       engenheiro: domainUser.engenheiro,
       cep: domainUser.cep,
@@ -44,7 +44,7 @@ class UserMapper {
 /*   toDomain (persistenceUser: ObrarDomain) {
     return {
       nome: persistenceUser.nome,
-      cnd: persistenceUser.cnd,
+      cno: persistenceUser.cno,
       alvara: persistenceUser.alvara,
       engenheiro: persistenceUser.engenheiro,
       cep: persistenceUser.cep,

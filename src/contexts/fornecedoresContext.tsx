@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState, type ReactNode }
 
 import { type Fornecedores } from '../interfaces/globalInterfaces'
 import FornecedoresServices from '../services/sgo/FornecedoresServices'
+import AuthContext from './authContext'
 
 interface TokenParams {
   token: string
@@ -25,6 +26,7 @@ const initialContextValue: FornecedoresContextType = {
 const FornecedoresContext = createContext<FornecedoresContextType>(initialContextValue)
 
 export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ children }) => {
+  const { token } = useContext(AuthContext)
   const [fornecedores, setFornecedores] = useState<Fornecedores[]>([])
 
   const listFornecedores = async ({ token }: TokenParams) => {
@@ -41,6 +43,16 @@ export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ chil
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
     }
   }
+
+  const getInitialData = async () => {
+    await listFornecedores({ token })
+  }
+
+  useEffect(() => {
+    if (token) {
+      void getInitialData()
+    }
+  }, [])
 
   return (
     <FornecedoresContext.Provider

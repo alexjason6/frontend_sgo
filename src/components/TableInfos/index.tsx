@@ -19,7 +19,7 @@ interface TypeInfos {
 const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
   const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
   const lastLancamentos = sortLancamentos.slice(-15)
-  const { itens } = useContext(OrcamentosContext)
+  const { itens, servicos } = useContext(OrcamentosContext)
 
   const formatValue = (value?: string | null) => {
     if (!value) {
@@ -62,7 +62,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
       {lastLancamentos.map((lancamento) => {
         const [fornecedor] = fornecedores.filter((item) => item.id === lancamento.fornecedor)
         const [etapa] = itens.filter((item) => item.id === Number(lancamento.etapa))
-
+        const [subetapa] = servicos.filter((item) => item.etapa === etapa.id)
         return (
           <React.Fragment key={lancamento.id}>
             <Tr>
@@ -71,7 +71,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
               <Td>{dateFormat(lancamento.data_nf)}</Td>
               <Td $large>{lancamento.descricao}</Td>
               <Td $medium>{etapa.nome}</Td>
-              <Td $medium>{lancamento.subetapa}</Td>
+              <Td $medium>{subetapa.nome}</Td>
               <Td>{formatValue(lancamento.valor_comprometido)}</Td>
               <Td $large>{fornecedor?.nome}</Td>
               <Td>{dateFormat(lancamento.data_pagamento)}</Td>

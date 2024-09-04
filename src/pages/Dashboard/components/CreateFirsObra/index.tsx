@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Button from '../../../../components/Button'
+// import Button from '../../../../components/Button'
 
 import { Container, Content } from './styles'
 
@@ -9,7 +9,7 @@ const CreateFirstObra: React.FC = () => {
     <Container>
       <Content>
         <p>Não há obras cadastradas.</p>
-        <Button $blue>Iniciar</Button>
+        {/* <Button $blue>Iniciar</Button> */}
       </Content>
     </Container>
   )

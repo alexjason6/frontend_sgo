@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 interface PropStyles {
   $error?: boolean
   $listData?: boolean
+  $square?: boolean
 }
 
 export default styled.input<PropStyles>`
@@ -49,5 +50,10 @@ export default styled.input<PropStyles>`
     &:hover {
       border-color: ${theme.colors.oranges.primary};
     }
+  `}
+
+  ${({ $square }) => $square && css`
+    width: 70px !important;
+    min-width: 70px;
   `}
 `

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 
-import ClientesContext from '../../../../contexts/clientesContext'
 import ModalContext from '../../../../contexts/modalContext'
 
 import checkStatus from '../../../../utils/checkStatus'
@@ -9,15 +8,15 @@ import Infos from '../Infos'
 
 import { Table, Tr, Th, Td } from './styles'
 
-import { type Obra } from '../../../../interfaces/globalInterfaces'
+import { type Cliente, type Obra } from '../../../../interfaces/globalInterfaces'
 
 interface ClientTableProps {
   obras: Obra[]
+  clientes: Cliente[]
 }
 
-const ObrasTable: React.FC<ClientTableProps> = ({ obras }) => {
+const ObrasTable: React.FC<ClientTableProps> = ({ obras, clientes }) => {
   const { changeModal } = useContext(ModalContext)
-  const { clientes } = useContext(ClientesContext)
 
   const handleOpenInfo = (id: number) => {
     const [obra] = obras?.filter((item) => item.id === id)
@@ -32,7 +31,7 @@ const ObrasTable: React.FC<ClientTableProps> = ({ obras }) => {
           <Th $index><b>Nome</b></Th>
           <Th $index><b>Cliente</b></Th>
           <Th $index><b>Alvará</b></Th>
-          <Th $index><b>CND</b></Th>
+          <Th $index><b>CNO</b></Th>
           <Th $index><b>Engenheiro</b></Th>
           <Th $index><b>Situação</b></Th>
         </Tr>
@@ -44,7 +43,7 @@ const ObrasTable: React.FC<ClientTableProps> = ({ obras }) => {
               <Td>{obra?.nome}</Td>
               <Td>{cliente?.nome}</Td>
               <Td>{obra?.alvara}</Td>
-              <Td>{obra?.cnd}</Td>
+              <Td>{obra?.cno}</Td>
               <Td>{obra?.engenheiro}</Td>
               <Td>{checkStatus(obra?.status)}</Td>
             </Tr>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useState, type ReactNode, useCallback } from 'react'
+import React, { createContext, useState, type ReactNode, useCallback, useContext, useEffect } from 'react'
 
 import OrcamentosServices from '../services/sgo/OrcamentosServices'
 import { itensOrcamentoDb } from '../assets/database/itensOrcamentos'
@@ -7,6 +7,7 @@ import { tipoOrcamentoDb } from '../assets/database/tipoOrcamento'
 import { servicosDb } from '../assets/database/servicos'
 
 import { type Orcamento, type Etapa, type Subetapa, type TiposOrcamentos } from '../interfaces/globalInterfaces'
+import AuthContext from './authContext'
 
 interface ObraData {
   id?: number
@@ -38,6 +39,7 @@ const initialContextValue: OrcamentosContextType = {
 const OrcamentosContext = createContext<OrcamentosContextType>(initialContextValue)
 
 export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children }) => {
+  const { token } = useContext(AuthContext)
   const [orcamentos, setOrcamentos] = useState([])
   const [tiposOrcamentos, setTiposOrcamentos] = useState(tipoOrcamentoDb)
   const [itens, setItens] = useState(itensOrcamentoDb)
@@ -70,6 +72,17 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     } catch (error) {
       console.error('Erro ao realizar listagem de obras:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
+    }
+  }, [])
+
+  const getInitialData = async () => {
+    await listOrcamentos({ token })
+    await listTiposOrcamentos({ token })
+  }
+
+  useEffect(() => {
+    if (token) {
+      void getInitialData()
     }
   }, [])
 
