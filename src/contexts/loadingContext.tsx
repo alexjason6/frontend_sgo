@@ -1,4 +1,4 @@
-import React, { createContext, useState, type ReactNode } from 'react'
+import React, { createContext, useCallback, useState, type ReactNode } from 'react'
 
 import Loading from '../components/Loading'
 
@@ -22,14 +22,14 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string | null | undefined>()
 
-  const changeLoading = (newValue: boolean, textValue?: string) => {
+  const changeLoading = useCallback((newValue: boolean, textValue?: string) => {
     if (newValue) {
       setLoading(newValue)
       setMessage(textValue)
     } else {
       setLoading(false)
     }
-  }
+  }, [])
 
   return (
     <LoadingContext.Provider

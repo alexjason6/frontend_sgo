@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-import { type Fornecedores } from '../interfaces/globalInterfaces'
-import FornecedoresServices from '../services/sgo/FornecedoresServices'
 import AuthContext from './authContext'
 
-interface TokenParams {
-  token: string
-}
+import FornecedoresServices from '../services/sgo/FornecedoresServices'
+
+import { type Fornecedores, type ContextData } from '../interfaces/globalInterfaces'
 
 interface FornecedoresContextType {
   fornecedores: Fornecedores[]
-  listFornecedores: ({ token }: TokenParams) => Promise<void>
+  listFornecedores: ({ token }: ContextData) => Promise<void>
 }
 
 interface FornecedoresProviderProps {
@@ -29,7 +27,7 @@ export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ chil
   const { token } = useContext(AuthContext)
   const [fornecedores, setFornecedores] = useState<Fornecedores[]>([])
 
-  const listFornecedores = async ({ token }: TokenParams) => {
+  const listFornecedores = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await FornecedoresServices.list({ token })
 
@@ -42,7 +40,7 @@ export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ chil
       console.error('Erro ao realizar listagem de fornecedores:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
     }
-  }
+  }, [])
 
   const getInitialData = async () => {
     await listFornecedores({ token })
@@ -52,7 +50,7 @@ export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ chil
     if (token) {
       void getInitialData()
     }
-  }, [])
+  }, [token])
 
   return (
     <FornecedoresContext.Provider

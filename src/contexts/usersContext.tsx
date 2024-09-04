@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useState, type ReactNode } from 'react'
+import React, { createContext, useCallback, useState, type ReactNode } from 'react'
 
 import { type User } from '../interfaces/globalInterfaces'
 import UsersServices from '../services/sgo/UsersServices'
@@ -27,7 +27,7 @@ const UsersContext = createContext<UsersContextType>(initialContextValue)
 export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
   const [users, setUsers] = useState([])
 
-  const listUsers = async ({ token }: TokenParams) => {
+  const listUsers = useCallback(async ({ token }: TokenParams) => {
     try {
       const response = await UsersServices.list({ token })
 
@@ -36,7 +36,7 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
       console.error('Erro ao realizar listagem de usuários:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
     }
-  }
+  }, [])
 
   return (
     <UsersContext.Provider

@@ -5,7 +5,7 @@ export const Container = styled.div`
   bottom: 20px;
   right: 20px;
   border-radius: 4px;
-  z-index: 999999999999999;
+  z-index: 9999999999999999;
 
   strong {
     margin-left: 8px;

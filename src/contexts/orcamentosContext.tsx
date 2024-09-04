@@ -1,26 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useState, type ReactNode, useCallback, useContext, useEffect } from 'react'
 
+import AuthContext from './authContext'
+
 import OrcamentosServices from '../services/sgo/OrcamentosServices'
 import { itensOrcamentoDb } from '../assets/database/itensOrcamentos'
 import { tipoOrcamentoDb } from '../assets/database/tipoOrcamento'
 import { servicosDb } from '../assets/database/servicos'
 
-import { type Orcamento, type Etapa, type Subetapa, type TiposOrcamentos } from '../interfaces/globalInterfaces'
-import AuthContext from './authContext'
-
-interface ObraData {
-  id?: number
-  token: string
-}
+import { type Orcamento, type Etapa, type Subetapa, type TiposOrcamentos, type ContextData } from '../interfaces/globalInterfaces'
 
 interface OrcamentosContextType {
   orcamentos: Orcamento[]
   itens: Etapa[]
   servicos: Subetapa[]
   tiposOrcamentos: TiposOrcamentos[]
-  listOrcamentos: ({ token }: ObraData) => Promise<void>
-  listTiposOrcamentos: ({ token }: ObraData) => Promise<void>
+  listOrcamentos: ({ token }: ContextData) => Promise<void>
+  listTiposOrcamentos: ({ token }: ContextData) => Promise<void>
 }
 
 interface OrcamentosProviderProps {
@@ -45,7 +41,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
   const [itens, setItens] = useState(itensOrcamentoDb)
   const [servicos, setServicos] = useState(servicosDb)
 
-  const listOrcamentos = useCallback(async ({ token }: ObraData) => {
+  const listOrcamentos = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await OrcamentosServices.list({ token })
 
@@ -60,7 +56,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     }
   }, [])
 
-  const listTiposOrcamentos = useCallback(async ({ token }: ObraData) => {
+  const listTiposOrcamentos = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await OrcamentosServices.listTipos({ token })
 
@@ -84,7 +80,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     if (token) {
       void getInitialData()
     }
-  }, [])
+  }, [token])
 
   return (
     <OrcamentosContext.Provider

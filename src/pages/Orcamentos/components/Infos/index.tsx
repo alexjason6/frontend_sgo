@@ -12,6 +12,7 @@ import ClientesContext from '../../../../contexts/clientesContext'
 import ObrasContext from '../../../../contexts/obrasContext'
 import OrcamentosContext from '../../../../contexts/orcamentosContext'
 import LoadingContext from '../../../../contexts/loadingContext'
+import AuthContext from '../../../../contexts/authContext'
 
 import Header from '../../../../components/Header'
 import Menu from '../../../../components/Menu'
@@ -32,30 +33,33 @@ import Toast from '../../../../utils/toast'
 import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title, AddSubitem } from './styles'
 
 import { type Obra } from '../../../../interfaces/globalInterfaces'
+import OrcamentoMapper from '../../../../services/mappers/OrcamentoMapper'
+import OrcamentosServices from '../../../../services/sgo/OrcamentosServices'
 
 const CreateOrcamento: React.FC = () => {
   const navigate = useNavigate()
+  const { token } = useContext(AuthContext)
   const { isOpen, changeModal } = useContext(ModalContext)
   const { clientes } = useContext(ClientesContext)
   const { changeLoading } = useContext(LoadingContext)
   const { obras } = useContext(ObrasContext)
-  const { itens, servicos } = useContext(OrcamentosContext)
+  const { itens, servicos, listOrcamentos } = useContext(OrcamentosContext)
   const [itensOrcamento, setItensOrcamento] = useState([{ id: 1, descricao: '', valor: '' }])
 
-  const [idCliente, setIdCliente] = useState()
-  const [nome, setNome] = useState()
+  const [idCliente, setIdCliente] = useState<number>(0)
+  const [nome, setNome] = useState<string>('')
   const [numero, setNumero] = useState()
-  const dataCriacao = moment().unix()
-  const [status, setStatus] = useState()
+  const dataCriacao = String(moment().unix())
+  const [status, setStatus] = useState<number>(1)
   const [modelo, setModelo] = useState()
-  const [obra, setObra] = useState()
+  const [obra, setObra] = useState<number>(0)
   const [etapas, setEtapas] = useState([
     {
       id: 1,
       nome: '',
-      valorTotal: 0,
-      subitens: [
-        { id: 1, nome: '', unidade: '', quantidade: 1, valor: 0, valorTotal: 0 }
+      valorTotal: '',
+      subetapas: [
+        { id: 1, nome: '', unidade: '', quantidade: 1, valor: 0, valorTotal: '' }
       ]
     }
   ])
@@ -74,8 +78,8 @@ const CreateOrcamento: React.FC = () => {
       {
         id: prevState.length + 1,
         nome: '',
-        valorTotal: 0,
-        subitens: [
+        valorTotal: '',
+        subetapas: [
           {
             id: 1,
             nome: '',
@@ -83,7 +87,7 @@ const CreateOrcamento: React.FC = () => {
             quantidade: 1,
             valor: 0,
             fornecedor: '',
-            valorTotal: 0
+            valorTotal: ''
           }]
       }
     ])
@@ -101,16 +105,16 @@ const CreateOrcamento: React.FC = () => {
         etapa.id === etapaId
           ? {
               ...etapa,
-              subitens: [
-                ...etapa.subitens,
+              subetapas: [
+                ...etapa.subetapas,
                 {
-                  id: etapa.subitens.length + 1,
+                  id: etapa.subetapas.length + 1,
                   nome: '',
                   unidade: '',
                   quantidade: 1,
                   valor: 0,
                   fornecedor: '',
-                  valorTotal: 0
+                  valorTotal: ''
                 }
               ]
             }
@@ -119,20 +123,20 @@ const CreateOrcamento: React.FC = () => {
     )
   }
 
-  const handleRemoveSubitem = (etapaId: number, subitemId: number) => {
+  const handleRemoveSubitem = (etapaId: number, subetapaId: number) => {
     setEtapas(prevState =>
       prevState.map(etapa =>
         etapa.id === etapaId
           ? {
               ...etapa,
-              subitens: etapa.subitens.filter(subitem => subitem.id !== subitemId)
+              subetapas: etapa.subetapas.filter(subetapa => subetapa.id !== subetapaId)
             }
           : etapa
       )
     )
   }
 
-  const handleChangeSubitem = (etapaId: number, subitemId: number, field: string, value: string) => {
+  const handleChangeSubitem = (etapaId: number, subetapaId: number, field: string, value: string) => {
     const cleanedValue = value.replace(/\D/g, '')
 
     let integerPart = cleanedValue.slice(0, -2)
@@ -154,14 +158,14 @@ const CreateOrcamento: React.FC = () => {
         etapa.id === etapaId
           ? {
               ...etapa,
-              subitens: etapa.subitens.map(subitem =>
-                subitem.id === subitemId
+              subetapas: etapa.subetapas.map(subetapa =>
+                subetapa.id === subetapaId
                   ? {
-                      ...subitem,
+                      ...subetapa,
                       [field]: field === 'valor' || field === 'valorTotal' ? trataValue : value,
-                      valorTotal: field === 'valor' || field === 'quantidade' ? subitem.quantidade * Number(trataValue) : 0
+                      valorTotal: field === 'valor' || field === 'quantidade' ? String(subetapa.quantidade * Number(trataValue)) : String(0)
                     }
-                  : subitem
+                  : subetapa
               )
             }
           : etapa
@@ -192,12 +196,12 @@ const CreateOrcamento: React.FC = () => {
     message: string,
     setState: Dispatch<SetStateAction<any>>
   ) => {
-    const value = fieldName === 'email' ||
-     fieldName === 'emailFinanceiro'
-      ? event.target.value.toLowerCase()
-      : event.target.value.split(' ')
-        ?.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        ?.join(' ')
+    console.log(fieldName)
+    const value = event.target.value.toLowerCase()
+
+    /*     if (fieldName === 'etapa') {
+
+    } */
 
     if (fieldName === 'cliente' && event.target.value === '0') {
       changeModal(<CreateCliente />)
@@ -225,29 +229,26 @@ const CreateOrcamento: React.FC = () => {
   console.log(etapas)
 
   const handleCreateitem = async () => {
+    const dataOrcamento = {
+      nome,
+      dataCriacao,
+      status,
+      modelo,
+      numero,
+      idCliente,
+      obra,
+      etapas
+    }
     try {
       changeLoading(true, 'Enviando os dados...')
 
-      const dataOrcamento = {
-        nome,
-        dataCriacao,
-        status,
-        modelo,
-        idCliente,
-        obra,
-        etapas,
-        subitem: etapas.filter((etapa) => etapa)
-      }
-
-      console.log({ dataOrcamento })
-
-      /*       const mapperObra = ObraMapper.toPersistence(dataOrcamento)
+      const mapperOrcamento = OrcamentoMapper.toPersistence(dataOrcamento)
       const create = !dataOrcamento
-        ? await ObrasServices.create({ token, mapperObra })
-        : await ObrasServices.update({ token, mapperObra })
- */
+        ? await OrcamentosServices.create({ token, mapperOrcamento })
+        : await OrcamentosServices.update({ token, mapperOrcamento })
+
       changeLoading(true, 'atualizando lista de obras...')
-      // await listObras({ token })
+      await listOrcamentos({ token })
 
       /*       if (isOpen) {
         changeModal()
@@ -258,12 +259,15 @@ const CreateOrcamento: React.FC = () => {
       } */
 
       Toast({ type: 'success', text: 'Obra cadastrada com sucesso.', duration: 5000 })
+      console.log({ dataOrcamento })
     } catch (error) {
       Toast({ type: 'danger', text: 'Erro ao criar/atualizar obra.', duration: 5000 })
       console.error('Erro ao criar/atualizar usuário:', error)
     } finally {
       changeLoading(false)
     }
+
+    console.log({ dataOrcamento })
   }
 
   return (
@@ -330,7 +334,7 @@ const CreateOrcamento: React.FC = () => {
                 </p>
               </FormContent>
 
-                {item.subitens.map((subitem, index) => {
+                {item.subetapas.map((subitem, index) => {
                   const valorTotal = subitem.valor * subitem.quantidade
 
                   return (
@@ -343,6 +347,7 @@ const CreateOrcamento: React.FC = () => {
                     >
                       <option>Selecione a subetapa</option>
                       <option>Cadastrar nova subetapa</option>
+                      <option disabled>________________________________</option>
                       {servicos.map((servico) => (
                         <option key={servico.id} value={servico.id}>{servico.nome}</option>
                       ))

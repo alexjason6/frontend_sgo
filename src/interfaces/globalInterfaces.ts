@@ -1,5 +1,10 @@
 import { type ReactNode } from 'react'
 
+export interface ContextData {
+  id?: number
+  token: string
+}
+
 export interface TypeErrors {
   field: string
   message: string
@@ -162,6 +167,14 @@ export interface Orcamento {
   modelo: number
   id_cliente: number
   obra: number
+  etapas: [{
+    id: number
+    nome: string
+    valorTotal: string
+    subetapas: [
+      { id: number, nome: string, unidade: string, quantidade: number, valor: number, valorTotal: string }
+    ]
+  }]
 }
 
 export interface Etapa {

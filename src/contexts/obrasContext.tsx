@@ -1,19 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useState, type ReactNode, useCallback, useMemo, useEffect, useContext } from 'react'
+import React, { createContext, useState, type ReactNode, useCallback, useEffect, useContext } from 'react'
+
+import AuthContext from './authContext'
 
 import ObrasServices from '../services/sgo/ObrasServices'
 
-import { type Obra } from '../interfaces/globalInterfaces'
-import AuthContext from './authContext'
-
-interface ObraData {
-  id?: number
-  token: string
-}
+import { type Obra, type ContextData } from '../interfaces/globalInterfaces'
 
 interface ObrasContextType {
   obras: Obra[]
-  listObras: ({ token }: ObraData) => Promise<void>
+  listObras: ({ token }: ContextData) => Promise<void>
 }
 
 interface ObrasProviderProps {
@@ -31,7 +27,7 @@ export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext)
   const [obras, setObras] = useState([])
 
-  const listObras = useCallback(async ({ token }: ObraData) => {
+  const listObras = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await ObrasServices.list({ token })
 
@@ -54,7 +50,7 @@ export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
     if (token) {
       void getInitialData()
     }
-  }, [])
+  }, [token])
 
   return (
     <ObrasContext.Provider

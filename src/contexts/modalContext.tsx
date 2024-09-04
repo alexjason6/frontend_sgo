@@ -1,4 +1,4 @@
-import React, { createContext, useState, type ReactNode } from 'react'
+import React, { createContext, useCallback, useState, type ReactNode } from 'react'
 
 import Modal from '../components/Modal'
 
@@ -27,7 +27,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [isOpenConfirmacao, setIsOpenConfirmacao] = useState<boolean>(false)
   const [component, setComponent] = useState<ReactNode>()
 
-  const changeModal = (element?: ReactNode) => {
+  const changeModal = useCallback((element?: ReactNode) => {
     if (element) {
       setComponent(element)
       setIsOpen(true)
@@ -35,7 +35,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     }
 
     setIsOpen(!isOpen)
-  }
+  }, [])
 
   const changeModalConfirmacao = (element?: ReactNode) => {
     setIsOpenConfirmacao(!isOpenConfirmacao)

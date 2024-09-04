@@ -30,6 +30,8 @@ const Dashboard: React.FC = () => {
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
 
+  console.log(rdos, itensRdo)
+
   const resizeHandler = (sizeWindow: number) => {
     if (obras && rdos && rdas) {
       let size
@@ -151,7 +153,7 @@ const Dashboard: React.FC = () => {
         {!obras || obras.length === 0
           ? <CreateFirstObra />
           : (
-          <div>
+          <div style={{ paddingBottom: 20 }}>
             <Sections
               titleHeader='Obras'
               typeSection={'obra'}

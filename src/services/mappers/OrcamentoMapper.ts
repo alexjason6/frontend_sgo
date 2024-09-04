@@ -4,6 +4,19 @@ interface OrcamentoDomain {
   idCliente: number
   obra: number
   status: number
+  etapas: Array<{
+    id?: number
+    nome: string
+    valorTotal: string
+    subetapas: Array<{
+      id?: number
+      nome: string
+      unidade: string
+      quantidade: number
+      valor: number
+      valorTotal: string
+    }>
+  }>
 }
 
 class OrcamentoMapper {
@@ -13,7 +26,8 @@ class OrcamentoMapper {
       data_criacao: domainOrcamento.dataCriacao,
       id_cliente: domainOrcamento.idCliente,
       obra: domainOrcamento.obra,
-      status: domainOrcamento.status
+      status: domainOrcamento.status,
+      etapas: domainOrcamento.etapas
     }
   }
 
