@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { type ReactNode } from 'react'
 
 export interface ContextData {
@@ -167,14 +168,8 @@ export interface Orcamento {
   modelo: number
   id_cliente: number
   obra: number
-  etapas: [{
-    id: number
-    nome: string
-    valorTotal: string
-    subetapas: [
-      { id: number, nome: string, unidade: string, quantidade: number, valor: number, valorTotal: string }
-    ]
-  }]
+  item: number[]
+  subitem: number[]
 }
 
 export interface Etapa {
@@ -185,6 +180,7 @@ export interface Etapa {
   nome: string
   valor_total: string
   status: number
+  subetapas: Array<{}>
 }
 
 export interface Subetapa {

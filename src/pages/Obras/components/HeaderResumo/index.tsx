@@ -19,7 +19,6 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, 
   const { tiposOrcamentos } = useContext(OrcamentosContext)
   const [modeloOrcamento] = tiposOrcamentos.filter((modelo) => modelo.id === obra.tipo)
 
-  console.log('header', cliente)
   const handleOpenDetalhamento = (clienteId: number) => {
     navigate(`/obras/detalhamento/${obra.id}`, {
       state: {
@@ -32,7 +31,7 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, 
 
   return (
     <Content>
-    <Name>{obra.nome}<p> - {modeloOrcamento.nome}</p></Name>
+    <Name>{obra.nome}<p> - {modeloOrcamento?.nome}</p></Name>
     <DadosContainer>
       <Dados>
         <span>Cliente:</span>

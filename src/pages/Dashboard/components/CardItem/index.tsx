@@ -15,10 +15,12 @@ import { comprometidoValue, executadoValue, m2ValueTotalOrcamento, orcamentoValu
 import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
 import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
+import LoadingContext from '../../../../contexts/loadingContext'
 
 const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => {
   const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
+  const { changeLoading } = useContext(LoadingContext)
   const { itens } = useContext(OrcamentosContext)
   const { rdos, lancamentosRdo } = useContext(RdoRdaContext)
   const { obras } = useContext(ObrasContext)
@@ -26,6 +28,8 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
   const lancamentos = lancamentosRdo.filter((lancamento) => lancamento.obra === rdo?.id)
 
   const handleClickCard = () => {
+    changeLoading(true, 'Carregando dados da obra...')
+
     changeModal(
       <ResumoObra
         saldo={saldoValue(itens, lancamentos)}

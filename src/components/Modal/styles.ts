@@ -11,7 +11,7 @@ export const Container = styled.main`
   position: fixed;
   inset: 0;
   transition: visibility 800ms ease-in;
-  z-index: 999999999999;
+  z-index: 999997;
 `
 
 export const Content = styled.section`

@@ -9,6 +9,7 @@ import { Content, Itens, More, Chevron } from './styles'
 
 import { type Obra, type RdoRda } from '../../../../interfaces/globalInterfaces'
 import ClientesContext from '../../../../contexts/clientesContext'
+import Button from '../../../../components/Button'
 
 interface PropsSections {
   titleHeader: string
@@ -41,6 +42,8 @@ const Sections: React.FC<PropsSections> = ({
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}
     <Content $obras={items.length > 0}>
+      {typeSection === 'rdo' && itemDb.length === 0 && <Button>Cadastrar RDO</Button>}
+      {typeSection === 'rda' && itemDb.length === 0 && <Button>Cadastrar RDA</Button>}
       <Itens $obras={typeSection === 'obra'} >
         {items.map((item) => {
           const cliente = clientes.find((cliente) => cliente.id === item.id_cliente)

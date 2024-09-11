@@ -35,7 +35,9 @@ export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ chil
         return
       }
 
-      setFornecedores(response)
+      if (response.length >= 1) {
+        setFornecedores(response)
+      }
     } catch (error) {
       console.error('Erro ao realizar listagem de fornecedores:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário

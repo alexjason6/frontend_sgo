@@ -4,37 +4,34 @@ import Loading from '../components/Loading'
 
 const Dashboard = lazy(async () => await import('../pages/Dashboard'))
 const Clientes = lazy(async () => await import('../pages/Clientes'))
-const CreateClientes = lazy(async () => await import('../pages/Clientes/CreateCliente'))
 const Obras = lazy(async () => await import('../pages/Obras'))
-const CreateObra = lazy(async () => await import('../pages/Obras/CreateObra'))
 const DetalhamentoObra = lazy(async () => await import('../pages/Obras/Detalhamento'))
 const RdoRda = lazy(async () => await import('../pages/RdoRda'))
 const CreateLancamento = lazy(async () => await import('../pages/RdoRda/CreateLancamento'))
 const Users = lazy(async () => await import('../pages/Users'))
 const Fornecedores = lazy(async () => await import('../pages/Fornecedores'))
-const CreateFornecedores = lazy(async () => await import('../pages/Fornecedores/CreateFornecedores'))
 const Orcamentos = lazy(async () => await import('../pages/Orcamentos'))
-const CreateOrcamentos = lazy(async () => await import('../pages/Orcamentos/CreateOrcamento'))
 const ModelosOrcamentos = lazy(async () => await import('../pages/Orcamentos/Modelos'))
+const CreateItem = lazy(async () => await import('../components/CreateItem'))
 const NotFound = lazy(async () => await import('../pages/NotFound'))
 
 const AppRouter = () => (
-  <Suspense fallback={<Loading message={'Carregando...'} />}>
+  <Suspense fallback={<Loading message={'Verificando autenticação...'} />}>
     <Routes>
       <Route path='/' element={<Navigate to='/dashboard' replace />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/clientes" element={<Clientes />} />
-      <Route path="/clientes/novo" element={<CreateClientes />} />
+      <Route path="/clientes/novo" element={<CreateItem type='cliente' />} />
       <Route path="/obras" element={<Obras />} />
-      <Route path="/obras/novo" element={<CreateObra />} />
+      <Route path="/obras/novo" element={<CreateItem type='obra' />} />
       <Route path="/obras/detalhamento/:id" element={<DetalhamentoObra />} />
       <Route path="/obras/lancamentos/:type/:id" element={<RdoRda />} />
       <Route path="/obras/lancamentos/:type/:id/novo" element={<CreateLancamento />} />
       <Route path="/usuarios" element={<Users />} />
       <Route path="/fornecedores" element={<Fornecedores />} />
-      <Route path="/fornecedores/novo" element={<CreateFornecedores />} />
+      <Route path="/fornecedores/novo" element={<CreateItem type='fornecedor' />} />
       <Route path="/orcamentos" element={<Orcamentos />} />
-      <Route path="/orcamentos/novo" element={<CreateOrcamentos />} />
+      <Route path="/orcamentos/novo" element={<CreateItem type='orcamento' />} />
       <Route path="/orcamentos/modelos" element={<ModelosOrcamentos />} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path='/*' element={<Navigate to="/not-found" replace />} />

@@ -30,8 +30,6 @@ const Dashboard: React.FC = () => {
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
 
-  console.log(rdos, itensRdo)
-
   const resizeHandler = (sizeWindow: number) => {
     if (obras && rdos && rdas) {
       let size

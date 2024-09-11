@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/naming-convention */
 import React, { useContext, useEffect, useState, type Dispatch, type SetStateAction, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
@@ -29,17 +28,17 @@ import ObraMapper from '../../../../services/mappers/ObraMapper'
 
 import useErrors from '../../../../hooks/useErrors'
 
-import CreateCliente from '../../../Clientes/CreateCliente'
+import CreateCliente from '../Clientes'
 
 import { Container, Edit, ButtonContainer, Form } from './styles'
 
 import { type Obra } from '../../../../interfaces/globalInterfaces'
 
-interface typeCliente {
-  data?: Obra
+interface Data {
+  obra?: Obra
 }
 
-const Infos: React.FC<typeCliente> = ({ data }) => {
+const CreateObra: React.FC<Data> = ({ obra }) => {
   const navigate = useNavigate()
   const { token } = useContext(AuthContext)
   const { clientes, listClientes } = useContext(ClientesContext)
@@ -47,30 +46,29 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
   const { changeLoading } = useContext(LoadingContext)
   const { listObras } = useContext(ObrasContext)
 
-  const [edit, setEdit] = useState(!data)
-  const [nome, setNome] = useState(data?.nome ?? '')
-  const [cno, setCno] = useState(data?.cno ?? '')
-  const [alvara, setAlvara] = useState(data?.alvara ?? '')
-  const [engenheiro, setEngenheiro] = useState(data?.engenheiro ?? '')
-  const [cep, setCep] = useState(data?.cep ?? '')
-  const [logradouro, setLogradouro] = useState(data?.logradouro ?? '')
-  const [numero, setNumero] = useState(data?.numero ?? '')
-  const [complemento, setComplemento] = useState(data?.complemento ?? '')
-  const [bairro, setBairro] = useState(data?.bairro ?? '')
-  const [cidade, setCidade] = useState(data?.cidade ?? '')
-  const [uf, setUf] = useState(data?.uf ?? '')
-  const [idCliente, setIdCliente] = useState(data?.id_cliente ?? '')
-  const [dataInicio, setDataInicio] = useState(data?.data_inicio ?? '')
-  const [previsaoEntrega, setPrevisaoEntrega] = useState(data?.previsao_entrega ?? '')
-  const [dataEntrega, setDataEntrega] = useState(data?.data_entrega ?? null)
-  const [tipo, setTipo] = useState(data?.tipo ?? '1')
-  const [status, setStatus] = useState(data?.status ?? '1')
-  const menu = document.getElementsByClassName('menu')[0]
+  const [edit, setEdit] = useState(!obra)
+  const [nome, setNome] = useState(obra?.nome ?? '')
+  const [cno, setCno] = useState(obra?.cno ?? '')
+  const [alvara, setAlvara] = useState(obra?.alvara ?? '')
+  const [engenheiro, setEngenheiro] = useState(obra?.engenheiro ?? '')
+  const [cep, setCep] = useState(obra?.cep ?? '')
+  const [logradouro, setLogradouro] = useState(obra?.logradouro ?? '')
+  const [numero, setNumero] = useState(obra?.numero ?? '')
+  const [complemento, setComplemento] = useState(obra?.complemento ?? '')
+  const [bairro, setBairro] = useState(obra?.bairro ?? '')
+  const [cidade, setCidade] = useState(obra?.cidade ?? '')
+  const [uf, setUf] = useState(obra?.uf ?? '')
+  const [idCliente, setIdCliente] = useState(obra?.id_cliente ?? '')
+  const [dataInicio, setDataInicio] = useState(obra?.data_inicio ?? '')
+  const [previsaoEntrega, setPrevisaoEntrega] = useState(obra?.previsao_entrega ?? '')
+  const [dataEntrega, setDataEntrega] = useState(obra?.data_entrega ?? null)
+  const [tipo, setTipo] = useState(obra?.tipo ?? '1')
+  const [status, setStatus] = useState(obra?.status ?? '1')
 
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
   const formIsValid = nome && idCliente && logradouro && tipo && status && errors.length === 0
 
-  const [cliente] = clientes.filter((item) => item.id === data?.id_cliente)
+  const [cliente] = clientes.filter((item) => item.id === obra?.id_cliente)
 
   const handleEditInfos = () => {
     setEdit(!edit)
@@ -138,7 +136,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
       }
 
       const mapperObra = ObraMapper.toPersistence(dataUser)
-      const create = !data
+      const create = !obra
         ? await ObrasServices.create({ token, mapperObra })
         : await ObrasServices.update({ token, mapperObra })
 
@@ -167,9 +165,9 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
   }
 
   const handleNavigateDetalhamento = () => {
-    navigate(`/obras/detalhamento/${data?.id}`, {
+    navigate(`/obras/detalhamento/${obra?.id}`, {
       state: {
-        obra: data?.id,
+        obra: obra?.id,
         clienteId: cliente?.id,
         cliente: cliente?.nome
       }
@@ -203,15 +201,15 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
 
   return (
     <GlobalContainer>
-      {!data && !isOpen && <Menu className />}
+      {!obra && !isOpen && <Menu className />}
       <Container>
-        {data && <Edit>
+        {obra && <Edit>
           <Button $green onClick={handleNavigateDetalhamento}>Detalhamento</Button>
           <Button $alert={!edit} $danger={edit} onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</Button>
         </Edit>}
-        {!data && <Header title='Cadastrar nova obra' subHeader={isOpen} modal />}
-        {data && <Header title={`Editar obra - ${nome}`} modal />}
-        <Form $create={isOpen || !!menu}>
+        {!obra && <Header title='Cadastrar nova obra' subHeader={isOpen} modal />}
+        {obra && <Header title={`Editar obra - ${nome}`} modal />}
+        <Form>
           <FormGroup $error={getErrorMessageByFieldName('cliente')}>
             <Legend>Cliente:</Legend>
             <Select
@@ -277,7 +275,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
             <Legend>Data início:</Legend>
             <Input
               $error={!!getErrorMessageByFieldName('dataInicio')}
-              value={data ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
+              value={obra ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
               disabled={!edit}
               $listData={!edit}
               type='date'
@@ -308,7 +306,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
             <Legend>Previsão de entrega:</Legend>
               <Input
               $error={!!getErrorMessageByFieldName('previsaoEntrega')}
-              value={data ? dateFormat(previsaoEntrega, false, 'reverse') : previsaoEntrega}
+              value={obra ? dateFormat(previsaoEntrega, false, 'reverse') : previsaoEntrega}
               disabled={!edit}
               $listData={!edit}
               type='date'
@@ -470,11 +468,11 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
           </FormGroup>
         </Form>
         <ButtonContainer>
-          <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateObra}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
+          <Button disabled={!obra ? !formIsValid : !edit} $green onClick={handleCreateObra}>{!obra ? 'Cadastrar' : 'Salvar'}</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>
   )
 }
 
-export default Infos
+export default CreateObra

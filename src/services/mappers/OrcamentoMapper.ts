@@ -1,22 +1,21 @@
 interface OrcamentoDomain {
+  id?: number
   nome: string
   dataCriacao: string
   idCliente: number
   obra: number
   status: number
-  etapas: Array<{
-    id?: number
-    nome: string
-    valorTotal: string
-    subetapas: Array<{
-      id?: number
-      nome: string
-      unidade: string
-      quantidade: number
-      valor: number
-      valorTotal: string
-    }>
-  }>
+  item: number[] | any
+  subitem: number | any
+  modelo: number
+}
+
+interface ItemsDomain {
+  nome: string
+  dataCriacao: string
+  status: number
+  numero: number
+  valorTotal: string
 }
 
 class OrcamentoMapper {
@@ -27,7 +26,19 @@ class OrcamentoMapper {
       id_cliente: domainOrcamento.idCliente,
       obra: domainOrcamento.obra,
       status: domainOrcamento.status,
-      etapas: domainOrcamento.etapas
+      item: domainOrcamento.item,
+      subitem: domainOrcamento.subitem,
+      modelo: domainOrcamento.modelo
+    }
+  }
+
+  itemToPersistence (domainItem: ItemsDomain) {
+    return {
+      nome: domainItem.nome,
+      data_criacao: domainItem.dataCriacao,
+      status: domainItem.status,
+      numero: domainItem.numero,
+      valor_total: domainItem.valorTotal
     }
   }
 

@@ -35,6 +35,7 @@ const Toast: React.FC = () => {
       toastEventManager.removeListener('addtoast', handleAddToast)
     }
   }, [])
+
   return (
     <ReactPortal containerId='toastMessage'>
       <Container>

@@ -6,17 +6,17 @@ import ObrasContext from '../../contexts/obrasContext'
 import ModalContext from '../../contexts/modalContext'
 import LoadingContext from '../../contexts/loadingContext'
 import AuthContext from '../../contexts/authContext'
+import ClientesContext from '../../contexts/clientesContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import Button from '../../components/Button'
 
-import CreateObra from './CreateObra'
 import ObrasTable from './components/ObrasTable'
 
 import { ButtonContainer, ContentPage } from './styles'
 import NoItemListed from '../../components/NoItemListed'
-import ClientesContext from '../../contexts/clientesContext'
+import CreateObra from '../../components/CreateItem/Itens/Obras'
 
 const ListObras: React.FC = () => {
   const { obras, listObras } = useContext(ObrasContext)

@@ -39,7 +39,7 @@ export const Container = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999999999999;
+  z-index: 999999;
   color: ${({ theme }) => theme.colors.white};
 `
 

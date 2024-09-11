@@ -43,19 +43,31 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext)
   const [rdos, setRdos] = useState([])
   const [rdas, setRdas] = useState([])
-  const [lancamentosRdo, setLancamentosRdo] = useState(lancamentosRdoDb)
-  const [lancamentosRda, setLancamentosRda] = useState(lancamentosRdaDb)
+  const [lancamentosRdo, setLancamentosRdo] = useState([])
+  const [lancamentosRda, setLancamentosRda] = useState([])
 
   const listRdos = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listRdo({ token })
 
-    setRdos(response)
+    if (response.message) {
+      return
+    }
+
+    if (response.length >= 1) {
+      setRdos(response)
+    }
   }, [])
 
   const listRdas = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listRda({ token })
 
-    setRdas(response)
+    if (response.message) {
+      return
+    }
+
+    if (response.length >= 1) {
+      setRdas(response)
+    }
   }, [])
 
   const getInitialData = async () => {

@@ -13,6 +13,7 @@ import Button from '../../../../components/Button'
 import FormGroup from '../../../../components/FormGroup'
 import Header from '../../../../components/Header'
 import Select from '../../../../components/Select'
+import Menu from '../../../../components/Menu'
 
 import phoneFormat from '../../../../utils/phoneFormat'
 import cepFormat from '../../../../utils/cepFormat'
@@ -29,42 +30,40 @@ import useErrors from '../../../../hooks/useErrors'
 import { Container, Edit, EditIcon, ButtonContainer, Form } from './styles'
 
 import { type Fornecedores } from '../../../../interfaces/globalInterfaces'
-import Menu from '../../../../components/Menu'
 
-interface typeCliente {
-  data?: Fornecedores
+interface Data {
+  fornecedor?: Fornecedores
 }
 
-const Infos: React.FC<typeCliente> = ({ data }) => {
+const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
   const { token } = useContext(AuthContext)
   const { changeLoading } = useContext(LoadingContext)
   const { isOpen, changeModal } = useContext(ModalContext)
   const { listFornecedores } = useContext(FornecedoresContext)
 
-  const [edit, setEdit] = useState(!data)
-  const [razaoSocial, setRazaoSocial] = useState(data?.razao_social ?? '')
-  const [nome, setNome] = useState(data?.nome ?? '')
-  const [cpfCnpj, setCpfCnpj] = useState(data?.cpf_cnpj ?? '')
-  const [responsavel, setResponsavel] = useState(data?.responsavel ?? '')
-  const [telefone, setTelefone] = useState(data?.telefone ?? '')
-  const [email, setEmail] = useState(data?.email ?? '')
-  const [responsavelFinanceiro, setResponsavelFinanceiro] = useState(data?.responsavel_financeiro ?? '')
-  const [telefoneFinanceiro, setTelefoneFinanceiro] = useState(data?.telefone_financeiro ?? '')
-  const [emailFinanceiro, setEmailFinanceiro] = useState(data?.email_financeiro ?? '')
-  const [cep, setCep] = useState(data?.cep ?? '')
-  const [logradouro, setLogradouro] = useState(data?.logradouro ?? '')
-  const [numero, setNumero] = useState(data?.numero ?? '')
-  const [complemento, setComplemento] = useState(data?.complemento ?? '')
-  const [bairro, setBairro] = useState(data?.bairro ?? '')
-  const [cidade, setCidade] = useState(data?.cidade ?? '')
-  const [status, setStatus] = useState(data?.status ?? '1')
-  const [banco, setBanco] = useState(data?.banco ?? '')
-  const [agencia, setAgencia] = useState(data?.agencia ?? '')
-  const [conta, setConta] = useState(data?.conta ?? '')
-  const [tipoConta, setTipoConta] = useState(data?.tipo_conta ?? '')
-  const [pix, setPix] = useState(data?.pix ?? '')
-  const [uf, setUf] = useState(data?.uf ?? '')
-  const menu = document.getElementsByClassName('menu')[0]
+  const [edit, setEdit] = useState(!fornecedor)
+  const [razaoSocial, setRazaoSocial] = useState(fornecedor?.razao_social ?? '')
+  const [nome, setNome] = useState(fornecedor?.nome ?? '')
+  const [cpfCnpj, setCpfCnpj] = useState(fornecedor?.cpf_cnpj ?? '')
+  const [responsavel, setResponsavel] = useState(fornecedor?.responsavel ?? '')
+  const [telefone, setTelefone] = useState(fornecedor?.telefone ?? '')
+  const [email, setEmail] = useState(fornecedor?.email ?? '')
+  const [responsavelFinanceiro, setResponsavelFinanceiro] = useState(fornecedor?.responsavel_financeiro ?? '')
+  const [telefoneFinanceiro, setTelefoneFinanceiro] = useState(fornecedor?.telefone_financeiro ?? '')
+  const [emailFinanceiro, setEmailFinanceiro] = useState(fornecedor?.email_financeiro ?? '')
+  const [cep, setCep] = useState(fornecedor?.cep ?? '')
+  const [logradouro, setLogradouro] = useState(fornecedor?.logradouro ?? '')
+  const [numero, setNumero] = useState(fornecedor?.numero ?? '')
+  const [complemento, setComplemento] = useState(fornecedor?.complemento ?? '')
+  const [bairro, setBairro] = useState(fornecedor?.bairro ?? '')
+  const [cidade, setCidade] = useState(fornecedor?.cidade ?? '')
+  const [status, setStatus] = useState(fornecedor?.status ?? '1')
+  const [banco, setBanco] = useState(fornecedor?.banco ?? '')
+  const [agencia, setAgencia] = useState(fornecedor?.agencia ?? '')
+  const [conta, setConta] = useState(fornecedor?.conta ?? '')
+  const [tipoConta, setTipoConta] = useState(fornecedor?.tipo_conta ?? '')
+  const [pix, setPix] = useState(fornecedor?.pix ?? '')
+  const [uf, setUf] = useState(fornecedor?.uf ?? '')
 
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
   const formIsValid = isEmailValid(email) && telefone && nome && cpfCnpj && status && cep && errors.length === 0
@@ -139,7 +138,7 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
       }
 
       const mapperFornecedores = FornecedoresMapper.toPersistence(dataFornecedor)
-      const create = !data
+      const create = !fornecedor
         ? await FornecedoresServices.create({ token, mapperFornecedores })
         : await FornecedoresServices.update({ token, mapperFornecedores })
 
@@ -192,15 +191,15 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
     <GlobalContainer>
       {!isOpen && <Menu />}
       <Container>
-        {data && (
+        {fornecedor && (
           <Edit>
             <p onClick={handleEditInfos}>{!edit ? 'Editar dados' : 'Cancelar edição'}</p>
             <EditIcon onClick={handleEditInfos} />
           </Edit>
         )}
-        {!data && <Header title='Cadastrar novo fornecedor' subHeader={isOpen} modal />}
-        {data && <Header title={`Editar fornecedor - ${nome}`} modal />}
-        <Form $create={!isOpen || !!menu}>
+        {!fornecedor && <Header title='Cadastrar novo fornecedor' subHeader={isOpen} modal />}
+        {fornecedor && <Header title={`Editar fornecedor - ${nome}`} modal />}
+        <Form>
         <FormGroup $error={getErrorMessageByFieldName('nome')}>
             <Legend>Nome:<sup>*</sup></Legend>
             <Input
@@ -518,11 +517,11 @@ const Infos: React.FC<typeCliente> = ({ data }) => {
           </FormGroup>
         </Form>
         <ButtonContainer>
-          <Button disabled={!data ? !formIsValid : !edit} $green onClick={handleCreateFornecedor}>{!data ? 'Cadastrar' : 'Salvar'}</Button>
+          <Button disabled={!fornecedor ? !formIsValid : !edit} $green onClick={handleCreateFornecedor}>{!fornecedor ? 'Cadastrar' : 'Salvar'}</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>
   )
 }
 
-export default Infos
+export default CreateFornecedor

@@ -36,7 +36,7 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
   const navigate = useNavigate()
   const { clientes, listClientes } = useContext(ClientesContext)
   const { token } = useContext(AuthContext)
-  const { rdos } = useContext(RdoRdaContext)
+  const { rdos, rdas } = useContext(RdoRdaContext)
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
   const [dataCliente] = clientes.filter((item) => item.nome === clienteName)
@@ -87,11 +87,11 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
       <HeaderResumoObra obra={obra} detalhamento cliente={dataCliente} />
 
       <Header title='Documentos' modal subHeader/>
-      <Content>
-        <div style={{ cursor: 'pointer' }} onClick={() => handleOpenLancamentoRDORDA('rdo', rdo.id)}><BoxInfos info='RDO' color='grays' /></div>
-        <BoxInfos info='RDA' color='grays' />
-        <BoxInfos info='Relatórios' color='blues' opacityColor={1} />
-      </Content>
+        <Content>
+          {rdos.length > 0 ? <div style={{ cursor: 'pointer' }} onClick={() => handleOpenLancamentoRDORDA('rdo', rdo.id)}><BoxInfos info='RDO' color='grays' /></div> : <Button>Cadastrar RDO</Button>}
+          {rdos.length > 0 ? <BoxInfos info='RDA' color='grays' /> : <Button>Cadastrar RDA</Button>}
+          {/* <BoxInfos info='Relatórios' color='blues' opacityColor={1} /> */}
+        </Content>
 
       <Header title='Informações de orçamento' modal subHeader/>
       <Content>

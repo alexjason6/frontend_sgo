@@ -2,9 +2,9 @@ import React, { useContext } from 'react'
 
 import ModalContext from '../../../../contexts/modalContext'
 
-import checkStatus from '../../../../utils/checkStatus'
+import CreateObra from '../../../../components/CreateItem/Itens/Obras'
 
-import Infos from '../Infos'
+import checkStatus from '../../../../utils/checkStatus'
 
 import { Table, Tr, Th, Td } from './styles'
 
@@ -21,7 +21,7 @@ const ObrasTable: React.FC<ClientTableProps> = ({ obras, clientes }) => {
   const handleOpenInfo = (id: number) => {
     const [obra] = obras?.filter((item) => item.id === id)
 
-    changeModal(<Infos data={obra} />)
+    changeModal(<CreateObra obra={obra} />)
   }
 
   return (

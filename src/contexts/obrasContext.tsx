@@ -35,7 +35,9 @@ export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
         return
       }
 
-      setObras(await response)
+      if (response.length >= 1) {
+        setObras(await response)
+      }
     } catch (error) {
       console.error('Erro ao realizar listagem de obras:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário

@@ -12,7 +12,7 @@ const Loading: React.FC<TypeLoading> = ({ message }) => {
     <ReactPortal containerId='loading-root'>
       <Container>
         <Loader />
-        <Message>{message}</Message>
+        <Message>{message ?? 'Aguarde...'}</Message>
       </Container>
     </ReactPortal>
   )

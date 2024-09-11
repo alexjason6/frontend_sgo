@@ -13,7 +13,7 @@ export const Container = styled.nav<PropStyles>`
   display: flex;
   flex-direction: column;
   position: fixed;
-  z-index: 999999;
+  z-index: 999996;
 
   ${({ $open }) => $open && css`
     width: 200px;

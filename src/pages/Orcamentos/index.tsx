@@ -12,7 +12,7 @@ import Header from '../../components/Header'
 import Button from '../../components/Button'
 import NoItemListed from '../../components/NoItemListed'
 
-import CreateOrcamento from './CreateOrcamento'
+import CreateItem from '../../components/CreateItem/'
 import OrcamentosTable from './components/OrcamentosTable'
 
 import { ButtonContainer, ContentPage } from './styles'
@@ -29,8 +29,8 @@ const ListOrcamentos: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
   const valorOrcamento = orcamentoValue(itens)
 
-  const handleCreateObra = () => {
-    changeModal(<CreateOrcamento />)
+  const handleCreateOrcamento = () => {
+    changeModal(<CreateItem type='orcamento' />)
   }
 
   const getData = useCallback(async () => {
@@ -64,11 +64,11 @@ const ListOrcamentos: React.FC = () => {
     <Header title='Cadastro de orçamentos' goBack/>
     <Content $itens={orcamentos.length > 0}>
       {!orcamentos || orcamentos.length === 0
-        ? <NoItemListed component={<CreateOrcamento />} text='Não foram encontradas orçamentos cadastrados.' />
+        ? <NoItemListed component={<CreateItem type='orcamento' />} text='Não foram encontradas orçamentos cadastrados.' />
         : (
           <ContentPage>
             <ButtonContainer>
-              <Button $blue onClick={handleCreateObra}>Criar orçamento</Button>
+              <Button $blue onClick={handleCreateOrcamento}>Criar orçamento</Button>
             </ButtonContainer>
             <OrcamentosTable
               orcamentos={orcamentos}

@@ -114,6 +114,24 @@ export const EditIcon = styled(FiEdit)`
 export const ButtonContainer = styled.div`
   width: 100%;
   text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid ${({ theme }) => theme.colors.grays.lighter};
+  margin-top: 20px;
+
+  span {
+    font-size: 14px;
+    text-align: left;
+    font-weight: 400;
+    color: ${({ theme }) => theme.colors.grays.light};
+  }
+
+  p {
+    font-size: 18px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.danger.primary};
+  }
 `
 export const AddItem = styled.span`
   width: fit-content;

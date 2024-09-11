@@ -240,7 +240,7 @@ const DetalhamentoObra: React.FC = () => {
             <Title>Últimos lançamentos</Title>
             <TableInfos infos={lancamentosRdo} fornecedores={fornecedores} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button $blue onClick={() => handleOpenLancamentoRDORDA('rdo', currentRdo?.id)}>Abrir RDO</Button>
+              {rdos.length > 0 && <Button $blue onClick={() => handleOpenLancamentoRDORDA('rdo', currentRdo?.id)}>Abrir RDO</Button>}
             </div>
         </CardsInfos>
 
@@ -249,7 +249,7 @@ const DetalhamentoObra: React.FC = () => {
             <Title>Últimos lançamentos</Title>
             <TableInfos infos={lancamentosRda} fornecedores={fornecedores} />
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button $blue onClick={() => handleOpenLancamentoRDORDA('rda', currentRda?.id)}>Abrir RDA</Button>
+              {rdas.length > 0 && <Button $blue onClick={() => handleOpenLancamentoRDORDA('rda', currentRda?.id)}>Abrir RDA</Button>}
             </div>
         </CardsInfos>
       </Content>

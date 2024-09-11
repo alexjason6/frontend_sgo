@@ -54,7 +54,7 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, valorTotal, tip
               <Tr $open={open === orcamento.id} onClick={() => handleOpenInfo(orcamento.id)}>
                 <Td>{orcamento.nome}</Td>
                 <Td>{dateFormat(orcamento.data_criacao)}</Td>
-                <Td>{tipoOrcamento.nome}</Td>
+                <Td>{tipoOrcamento?.nome ?? 'Avulso'}</Td>
                 <Td>{obra?.nome}</Td>
                 <Td>{cliente?.nome}</Td>
                 <Td>{valorTotal}</Td>

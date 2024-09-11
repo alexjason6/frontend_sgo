@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react'
 
+import CreateItem from '../../../../components/CreateItem'
+
 import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 import phoneFormat from '../../../../utils/phoneFormat'
 import checkStatus from '../../../../utils/checkStatus'
-
-import Infos from '../Infos'
 
 import { Table, Tr, Td } from './styles'
 
@@ -56,7 +56,7 @@ const FornecedoresTable: React.FC<ClientTableProps> = ({ fornecedores }) => {
                 <Td>{checkStatus(fornecedor.status)}</Td>
               </Tr>
               {open === fornecedor.id && (
-                <Infos data={fornecedor} />
+                <CreateItem type='fornecedor' data={fornecedor} />
               )}
             </React.Fragment>
           )

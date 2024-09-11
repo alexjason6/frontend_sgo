@@ -10,11 +10,10 @@ import LoadingContext from '../../contexts/loadingContext'
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import Button from '../../components/Button'
+import CreateItem from '../../components/CreateItem'
 
 import NoItemListed from '../../components/NoItemListed'
 import FornecedoresTable from './components/FornecedoresTable'
-
-import CreateFornecedores from './CreateFornecedores'
 
 import { Content, ContentPage, ButtonContainer } from './styles'
 
@@ -25,7 +24,7 @@ const ListFornecedores: React.FC = () => {
   const { changeModal } = useContext(ModalContext)
 
   const handleCreateUser = () => {
-    changeModal(<CreateFornecedores />)
+    changeModal(<CreateItem type='fornecedor' />)
   }
 
   const getFornecedores = async () => {
@@ -55,7 +54,7 @@ const ListFornecedores: React.FC = () => {
       <Header title='Fornecedores' goBack/>
       <Content $data={fornecedores.length > 0}>
         {!fornecedores || fornecedores.length === 0
-          ? (<NoItemListed component={<CreateFornecedores />} text='Não foram encontrados fornecedores cadastrados.' />)
+          ? (<NoItemListed component={<CreateItem type='fornecedor' />} text='Não foram encontrados fornecedores cadastrados.' />)
           : (
               <ContentPage>
                 <ButtonContainer>

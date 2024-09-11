@@ -4,16 +4,14 @@ import React, { createContext, useState, type ReactNode, useCallback, useContext
 import AuthContext from './authContext'
 
 import OrcamentosServices from '../services/sgo/OrcamentosServices'
-import { itensOrcamentoDb } from '../assets/database/itensOrcamentos'
 import { tipoOrcamentoDb } from '../assets/database/tipoOrcamento'
-import { servicosDb } from '../assets/database/servicos'
 
 import { type Orcamento, type Etapa, type Subetapa, type TiposOrcamentos, type ContextData } from '../interfaces/globalInterfaces'
 
 interface OrcamentosContextType {
   orcamentos: Orcamento[]
   itens: Etapa[]
-  servicos: Subetapa[]
+  subitens: Subetapa[]
   tiposOrcamentos: TiposOrcamentos[]
   listOrcamentos: ({ token }: ContextData) => Promise<void>
   listTiposOrcamentos: ({ token }: ContextData) => Promise<void>
@@ -26,7 +24,7 @@ interface OrcamentosProviderProps {
 const initialContextValue: OrcamentosContextType = {
   orcamentos: [],
   itens: [],
-  servicos: [],
+  subitens: [],
   tiposOrcamentos: [],
   listOrcamentos: async () => {},
   listTiposOrcamentos: async () => {}
@@ -38,8 +36,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
   const { token } = useContext(AuthContext)
   const [orcamentos, setOrcamentos] = useState([])
   const [tiposOrcamentos, setTiposOrcamentos] = useState(tipoOrcamentoDb)
-  const [itens, setItens] = useState(itensOrcamentoDb)
-  const [servicos, setServicos] = useState(servicosDb)
+  const [itens, setItens] = useState([])
+  const [subitens, setSubitens] = useState([])
 
   const listOrcamentos = useCallback(async ({ token }: ContextData) => {
     try {
@@ -49,9 +47,11 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
         return
       }
 
-      setOrcamentos(await response)
+      if (response.length >= 1) {
+        setOrcamentos(response)
+      }
     } catch (error) {
-      console.error('Erro ao realizar listagem de obras:', error)
+      console.error('Erro ao realizar listagem de orçamento:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
     }
   }, [])
@@ -64,9 +64,45 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
         return
       }
 
-      setOrcamentos(await response)
+      if (response.length >= 1) {
+        setTiposOrcamentos(response)
+      }
     } catch (error) {
-      console.error('Erro ao realizar listagem de obras:', error)
+      console.error('Erro ao realizar listagem de tipos de orçamento:', error)
+      // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
+    }
+  }, [])
+
+  const listItens = useCallback(async ({ token }: ContextData) => {
+    try {
+      const response = await OrcamentosServices.listItens({ token })
+
+      if (response.message) {
+        return
+      }
+
+      if (response.length >= 1) {
+        setItens(response)
+      }
+    } catch (error) {
+      console.error('Erro ao realizar listagem de itens do orçamento:', error)
+      // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
+    }
+  }, [])
+
+  const listSubitens = useCallback(async ({ token }: ContextData) => {
+    try {
+      const response = await OrcamentosServices.listSubitens({ token })
+
+      if (response.message) {
+        return
+      }
+
+      if (response.length >= 1) {
+        setSubitens(response)
+      }
+    } catch (error) {
+      console.error('Erro ao realizar listagem de subitens do orçamento:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário
     }
   }, [])
@@ -74,6 +110,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
   const getInitialData = async () => {
     await listOrcamentos({ token })
     await listTiposOrcamentos({ token })
+    await listItens({ token })
+    await listSubitens({ token })
   }
 
   useEffect(() => {
@@ -87,7 +125,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
       value={{
         orcamentos,
         itens,
-        servicos,
+        subitens,
         tiposOrcamentos,
         listOrcamentos,
         listTiposOrcamentos

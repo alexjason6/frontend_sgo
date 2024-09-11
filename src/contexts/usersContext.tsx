@@ -31,7 +31,13 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
     try {
       const response = await UsersServices.list({ token })
 
-      setUsers(response)
+      if (response.message) {
+        return
+      }
+
+      if (response.length >= 1) {
+        setUsers(response)
+      }
     } catch (error) {
       console.error('Erro ao realizar listagem de usuários:', error)
       // Adicionar lógica de tratamento de erro, como exibir mensagens de erro para o usuário

@@ -15,6 +15,7 @@ import { OrcamentosProvider } from '../contexts/orcamentosContext'
 import { RdoRdaProvider } from '../contexts/rdoRdaContext'
 import { FornecedoresProvider } from '../contexts/fornecedoresContext'
 import { UsersProvider } from '../contexts/usersContext'
+import { EtapasProvider } from '../contexts/etapasContext'
 
 import Toast from '../components/Toast/ToastContainer'
 
@@ -29,15 +30,17 @@ const App: React.FC = () => {
             <UsersProvider>
               <ClientesProvider>
                 <FornecedoresProvider>
-                  <ObrasProvider>
-                    <OrcamentosProvider>
-                      <RdoRdaProvider>
-                        <ModalProvider>
-                          <Router />
-                        </ModalProvider>
-                      </RdoRdaProvider>
-                    </OrcamentosProvider>
-                  </ObrasProvider>
+                    <ObrasProvider>
+                      <OrcamentosProvider>
+                        <RdoRdaProvider>
+                          <ModalProvider>
+                            <EtapasProvider>
+                              <Router />
+                            </EtapasProvider>
+                          </ModalProvider>
+                        </RdoRdaProvider>
+                      </OrcamentosProvider>
+                    </ObrasProvider>
                 </FornecedoresProvider>
               </ClientesProvider>
             </UsersProvider>
