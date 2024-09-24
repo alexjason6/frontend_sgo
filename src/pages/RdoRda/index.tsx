@@ -28,6 +28,7 @@ const RdoRda: React.FC = () => {
   const { fornecedores } = useContext(FornecedoresContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
   const { changeModal } = useContext(ModalContext)
+
   const [data, setData] = useState<LancamentoRdoRda[]>([])
   const [filteredData, setFilteredData] = useState<LancamentoRdoRda[]>([])
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -38,15 +39,14 @@ const RdoRda: React.FC = () => {
 
     if (value.length > 2) {
       const filter = data.filter(
-        (data) => data.descricao.toLowerCase().includes(value.toLowerCase()) ||
+        (data) =>
+          data.descricao.toLowerCase().includes(value.toLowerCase()) ||
           data.nf.toString().toLowerCase().includes(value.toLowerCase()) ||
           data.valor_pagamento.toLowerCase().includes(value.toLowerCase())
       )
 
       setFilteredData(filter.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
-    }
-
-    if (value.length <= 2) {
+    } else {
       setFilteredData(data.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
     }
   }
@@ -56,16 +56,29 @@ const RdoRda: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!data || data.length === 0) {
-      const [document] = type === 'rdo' ? rdos.filter((document) => document.id === Number(id)) : rdas.filter((document) => document.id === Number(id))
-      const lancamentos = type === 'rdo' ? lancamentosRdo.filter((lancamento) => lancamento.rdo === document.id) : lancamentosRda.filter((lancamento) => lancamento.rdo === document.id)
+    console.log({ rdos, rdas, lancamentosRdo, lancamentosRda }) // Log para depuração dos dados
 
-      setData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
-      setFilteredData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
+    if (!data || data.length === 0) {
+      const [document] = type === 'rdo'
+        ? rdos.filter((document) => document.id === Number(id))
+        : rdas.filter((document) => document.id === Number(id))
+
+      console.log({ document }) // Log do documento selecionado
+
+      if (document) {
+        const lancamentos = type === 'rdo'
+          ? lancamentosRdo.filter((lancamento) => lancamento.rdo === document.id)
+          : lancamentosRda.filter((lancamento) => lancamento.rdo === document.id)
+
+        console.log({ lancamentos }) // Log dos lançamentos
+
+        setData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
+        setFilteredData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
+      }
 
       changeLoading(false, '')
     }
-  }, [])
+  }, [rdos, rdas, lancamentosRdo, lancamentosRda, type, id, data])
 
   return (
     <GlobalContainer>
@@ -80,7 +93,7 @@ const RdoRda: React.FC = () => {
             <Input
               placeholder='Digite a descrição, valor, fornecedor ou Nº da NF'
               value={searchTerm}
-              onChange={(event) => handleChangeFilteredData(event)}
+              onChange={handleChangeFilteredData}
             />
           </div>
           <TableInfos infos={filteredData} fornecedores={fornecedores} />

@@ -21,7 +21,7 @@ export interface TypesOpenedMenu {
 
 export interface TypeHeader {
   title: string
-  cliente?: Cliente
+  cliente?: any
   subHeader?: boolean
   goBack?: boolean
   modal?: boolean
@@ -117,7 +117,7 @@ export interface RdoRda {
 }
 
 export interface Cliente {
-  id: number
+  id?: number
   nome: string
   razao_social: string
   cpf_cnpj: string
@@ -180,6 +180,7 @@ export interface Etapa {
   nome: string
   valor_total: string
   status: number
+  orcamento: number
   subetapas: Array<{}>
 }
 
@@ -189,6 +190,7 @@ export interface Subetapa {
   etapa: number
   nome: string
   status: number
+  orcamento: number
 }
 
 export interface TiposOrcamentos {

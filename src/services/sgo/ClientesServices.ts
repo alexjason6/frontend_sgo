@@ -1,30 +1,10 @@
+import { type Cliente } from '../../interfaces/globalInterfaces'
 import HttpClientSgo from '../utils/HttpCliente'
 import { url } from '../utils/urlServices'
 
 interface ValidateCreateClienteParams {
   token: string
-  mapperCliente: {
-    id?: number
-    nome: string
-    razao_social: string
-    cpf_cnpj: string
-    telefone: string
-    email: string
-    cep: string
-    logradouro: string
-    numero: string
-    complemento?: string
-    bairro: string
-    cidade: string
-    uf: string
-    inscricao_municipal?: string
-    inscricao_estadual?: string
-    responsavel: string
-    responsavel_financeiro: string
-    telefone_financeiro: string
-    email_financeiro: string
-    status: number
-  }
+  mapperCliente: Cliente
 }
 
 interface ListClientesParams {
@@ -65,6 +45,22 @@ class ClientesServices {
     } catch (error) {
       console.error('Erro ao criar cliente', error)
       throw new Error('Falha na criação de cliente.')
+    }
+  }
+
+  async update ({ token, mapperCliente }: ValidateCreateClienteParams) {
+    try {
+      const response = await this.httpClient.post(`api/clientes/update/${mapperCliente.id}`, {
+        headers: {
+          Authorization: token
+        },
+        data: mapperCliente
+      })
+
+      return response
+    } catch (error) {
+      console.error('Erro ao editar cliente', error)
+      throw new Error('Falha na edição de cliente.')
     }
   }
 }

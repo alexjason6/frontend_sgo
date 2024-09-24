@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
   const { token } = useContext(AuthContext)
   const { clientes, listClientes } = useContext(ClientesContext)
   const { obras, listObras } = useContext(ObrasContext)
-  const { rdos, rdas } = useContext(RdoRdaContext)
+  const { rdos, rdas, listRdas, listRdos } = useContext(RdoRdaContext)
 
   const [itensObras, setItensObras] = useState<Obra[]>([])
   const [itensRdo, setItensRdos] = useState(rdos)
@@ -100,21 +100,18 @@ const Dashboard: React.FC = () => {
     }
   }, [])
 
-  const getClientes = async () => {
+  const getData = async () => {
     changeLoading(true, 'Carregando clientes...')
+    await listClientes({ token })
 
-    if (token) {
-      await listClientes({ token })
-      await getObras()
-    }
-  }
-
-  const getObras = async () => {
     changeLoading(true, 'Carregando obras...')
+    await listObras({ token })
 
-    if (clientes && token) {
-      await listObras({ token })
-    }
+    changeLoading(true, 'Carregando RDOS...')
+    await listRdos({ token })
+
+    changeLoading(true, 'Carregando RDAS...')
+    await listRdas({ token })
   }
 
   useEffect(() => {
@@ -128,7 +125,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!clientes || clientes.length === 0) {
-      void getClientes()
+      void getData()
     }
 
     if (obras.length > 0) {

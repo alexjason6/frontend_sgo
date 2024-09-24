@@ -44,9 +44,11 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
   }
 
   const handleOpenDocument = () => {
+    const obra = rdo?.obra
+
     navigate(`/obras/lancamentos/${type}/${id}`, {
       state: {
-        obra: item?.id,
+        obra,
         cliente,
         clienteId: item?.id_cliente
       }
@@ -54,11 +56,15 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
   }
 
   const handleOpenNewEntry = () => {
+    const [obra] = obras.filter((item) => item.nome === nome)
+
     navigate(`/obras/lancamentos/${type}/${id}/novo`, {
       state: {
-        obra: item?.id,
+        obra: obra.id,
         cliente,
-        clienteId: item?.id_cliente
+        clienteId: item?.id_cliente,
+        type,
+        id
       }
     })
   }

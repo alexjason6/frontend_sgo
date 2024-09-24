@@ -21,8 +21,6 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
   const lastLancamentos = sortLancamentos.slice(-15)
   const { itens, subitens } = useContext(OrcamentosContext)
 
-  console.log({ itens }, { subitens }, { infos }, { fornecedores })
-
   const formatValue = (value?: string | null) => {
     if (!value) {
       return '-'

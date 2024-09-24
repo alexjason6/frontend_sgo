@@ -41,6 +41,7 @@ const Infos: React.FC<Data> = ({ data }) => {
   const { isOpen, changeModal } = useContext(ModalContext)
   const { listUsers } = useContext(UsersContext)
 
+  const id = data?.id
   const [edit, setEdit] = useState(!data)
   const [nome, setNome] = useState(data?.nome ?? '')
   const [cpf, setCpf] = useState(data?.cpf ?? '')
@@ -104,6 +105,7 @@ const Infos: React.FC<Data> = ({ data }) => {
       changeLoading(true, 'enviando dados...')
 
       const dataUser = {
+        id,
         nome,
         cpf,
         telefone,

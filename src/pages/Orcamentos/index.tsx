@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useCallback } from 'react'
 import { GlobalContainer, Content } from '../../assets/styles/global'
 
 import OrcamentosContext from '../../contexts/orcamentosContext'
-import ModalContext from '../../contexts/modalContext'
 import LoadingContext from '../../contexts/loadingContext'
 import AuthContext from '../../contexts/authContext'
 
@@ -16,21 +15,24 @@ import CreateItem from '../../components/CreateItem/'
 import OrcamentosTable from './components/OrcamentosTable'
 
 import { ButtonContainer, ContentPage } from './styles'
-import { orcamentoValue } from '../../utils/calculateInfosObras'
+// import { orcamentoValue } from '../../utils/calculateInfosObras'
 import ClientesContext from '../../contexts/clientesContext'
 import ObrasContext from '../../contexts/obrasContext'
+import { useNavigate } from 'react-router-dom'
 
 const ListOrcamentos: React.FC = () => {
-  const { orcamentos, itens, tiposOrcamentos, listOrcamentos } = useContext(OrcamentosContext)
+  const navigate = useNavigate()
+  const { orcamentos, itens, modelos, listOrcamentos } = useContext(OrcamentosContext)
   const { token } = useContext(AuthContext)
   const { clientes, listClientes } = useContext(ClientesContext)
   const { obras, listObras } = useContext(ObrasContext)
-  const { changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
-  const valorOrcamento = orcamentoValue(itens)
+  // const valorOrcamento = orcamentoValue(itens)
+
+  console.log({ itens }, { orcamentos })
 
   const handleCreateOrcamento = () => {
-    changeModal(<CreateItem type='orcamento' />)
+    navigate('/orcamentos/novo')
   }
 
   const getData = useCallback(async () => {
@@ -72,8 +74,7 @@ const ListOrcamentos: React.FC = () => {
             </ButtonContainer>
             <OrcamentosTable
               orcamentos={orcamentos}
-              valorTotal={valorOrcamento}
-              tipo={tiposOrcamentos}
+              tipo={modelos}
               clientes={clientes}
               obras={obras}
             />

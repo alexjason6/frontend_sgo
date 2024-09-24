@@ -3,7 +3,9 @@ import { url } from '../utils/urlServices'
 
 interface ValidateCreateRdoRdaParams {
   token: string
-  mapperLancamento: any
+  type?: string
+  mapperLancamento?: any
+  mapperRdoRda?: any
 }
 
 interface ListRdoRdaParams {
@@ -45,13 +47,13 @@ class RdoRdaServices {
     }
   }
 
-  async createRdo ({ token, mapperLancamento }: ValidateCreateRdoRdaParams) {
+  async createRdoRda ({ token, mapperRdoRda, type }: ValidateCreateRdoRdaParams) {
     try {
-      const response = await this.httpClient.post('/api/rdo/lancamentos/create', {
+      const response = await this.httpClient.post(`/api/${type}/create`, {
         headers: {
           Authorization: token
         },
-        data: mapperLancamento
+        data: mapperRdoRda
       })
 
       return response
@@ -61,9 +63,9 @@ class RdoRdaServices {
     }
   }
 
-  async updateRdo ({ token, mapperLancamento }: ValidateCreateRdoRdaParams) {
+  async createLancamentoRdoRda ({ token, mapperLancamento, type }: ValidateCreateRdoRdaParams) {
     try {
-      const response = await this.httpClient.post('/api/rdo/create', {
+      const response = await this.httpClient.post(`/api/${type}/lancamentos/create`, {
         headers: {
           Authorization: token
         },
@@ -72,8 +74,24 @@ class RdoRdaServices {
 
       return response
     } catch (error) {
-      console.error('Erro ao editar lançamento', error)
-      throw new Error('Falha na edição de lançamento.')
+      console.error('Erro ao criar documento', error)
+      throw new Error('Falha na criação de documento.')
+    }
+  }
+
+  async updateRdoRda ({ token, mapperRdoRda, type }: ValidateCreateRdoRdaParams) {
+    try {
+      const response = await this.httpClient.post(`/api/${type}/edit`, {
+        headers: {
+          Authorization: token
+        },
+        data: mapperRdoRda
+      })
+
+      return response
+    } catch (error) {
+      console.error('Erro ao editar documento', error)
+      throw new Error('Falha na edição de documento.')
     }
   }
 
@@ -102,38 +120,6 @@ class RdoRdaServices {
     } catch (error) {
       console.error('Erro ao listar lançamentos:', error)
       throw new Error('Falha na listagem de lançamentos.')
-    }
-  }
-
-  async createRda ({ token, mapperLancamento }: ValidateCreateRdoRdaParams) {
-    try {
-      const response = await this.httpClient.post('/api/rda/lancamentos/create', {
-        headers: {
-          Authorization: token
-        },
-        data: mapperLancamento
-      })
-
-      return response
-    } catch (error) {
-      console.error('Erro ao criar lançamento', error)
-      throw new Error('Falha na criação de lançamento.')
-    }
-  }
-
-  async updateRda ({ token, mapperLancamento }: ValidateCreateRdoRdaParams) {
-    try {
-      const response = await this.httpClient.post('/api/rda/create', {
-        headers: {
-          Authorization: token
-        },
-        data: mapperLancamento
-      })
-
-      return response
-    } catch (error) {
-      console.error('Erro ao editar lançamento', error)
-      throw new Error('Falha na edição de lançamento.')
     }
   }
 }

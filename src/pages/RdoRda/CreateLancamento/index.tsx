@@ -4,10 +4,18 @@
 import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { FiPlus, FiX } from 'react-icons/fi'
+import moment from 'moment'
 
 import { GlobalContainer, Legend } from '../../../assets/styles/global'
 
 import ModalContext from '../../../contexts/modalContext'
+// import ClientesContext from '../../../contexts/clientesContext'
+import FornecedoresContext from '../../../contexts/fornecedoresContext'
+import AuthContext from '../../../contexts/authContext'
+import LoadingContext from '../../../contexts/loadingContext'
+
+import RdoRdaServices from '../../../services/sgo/RdoRdaServices'
+import RdoRdaMapper from '../../../services/mappers/RdoRdaMapper'
 
 import Header from '../../../components/Header'
 import Menu from '../../../components/Menu'
@@ -16,28 +24,27 @@ import Input from '../../../components/Input'
 import Select from '../../../components/Select'
 import Button from '../../../components/Button'
 import ToggleSwitch from '../../../components/ToggleSwitch'
+import Toast from '../../../utils/toast'
 
 import { currencyFormat } from '../../../utils/currencyFormat'
 
 import { AddItem, ButtonContainer, Content, Divisor, Form, FormContent } from './styles'
 
 import { type TypeNewLancamento } from '../../../interfaces/globalInterfaces'
-import moment from 'moment'
-import FornecedoresContext from '../../../contexts/fornecedoresContext'
-import AuthContext from '../../../contexts/authContext'
-import LoadingContext from '../../../contexts/loadingContext'
-import Toast from '../../../utils/toast'
-import RdoRdaServices from '../../../services/sgo/RdoRdaServices'
-import RdoRdaMapper from '../../../services/mappers/RdoRdaMapper'
+import EtapasContext from '../../../contexts/etapasContext'
+import OrcamentosContext from '../../../contexts/orcamentosContext'
 
 const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameCliente, obraId, cliente_id }) => {
-  const { type } = useParams()
+  const { type, id } = useParams()
   const navigate = useNavigate()
   const { obra, clienteId, cliente } = useLocation().state
   const { isOpen, changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
   const { token, user } = useContext(AuthContext)
   const { fornecedores, listFornecedores } = useContext(FornecedoresContext)
+  const { etapas, subetapas, listEtapas, listSubetapas } = useContext(EtapasContext)
+  const { orcamentos, listOrcamentos } = useContext(OrcamentosContext)
+  // const { clientes, listClientes } = useContext(ClientesContext)
   const typeDocument = tipo?.toUpperCase() ?? type?.toUpperCase()
   const [parcelamento, setParcelamento] = useState<boolean>(false)
   const [groupItems, setGroupItems] = useState([{ id: 1 }])
@@ -51,6 +58,11 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
   const [fornecedor, setFornecedor] = useState<number>()
   const [contratoExists, setContratoExists] = useState<number>(0)
   const [contrato, setContrato] = useState<number>()
+  const [observacao, setObservacao] = useState<string>('')
+  const [orcamentoSelected] = orcamentos.filter((item) => Number(item.obra) === Number(obra) || Number(item.obra === Number(obraId)))
+  const etapasOrcamento = etapas.filter((etapa) => orcamentoSelected?.item.some((item) => item === etapa.id))
+  const subetapasOrcamento = subetapas.filter((subetapa) => etapasOrcamento.some((etapa) => subetapa.etapa === etapa.numero) && orcamentoSelected?.subitem.some((item) => item === subetapa.id)
+  )
   const [itens, setItens] = useState<Array<{ id: number, etapa: number | null, subetapa: number | null, valor: string }>>([
     { id: 1, etapa: null, subetapa: null, valor: '' }
   ])
@@ -130,60 +142,70 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
     setDataVencimento(date)
   }
 
+  console.log(etapas)
+
   const handleSubmitLancamento = async () => {
-    const [fornecedorSelecionado] = fornecedores.filter((item) => item.id === fornecedor)
-    const { banco, agencia, conta, tipo_conta, pix } = fornecedorSelecionado
-    const infos = {
-      rdo: Number(rdoRda),
-      dataLancamento: String(moment(dataLancamento).unix()),
-      nf,
-      dataNf,
-      valorComprometido,
-      valorPagamento,
-      dataPagamento: dataVencimento,
-      usuario: user?.id,
-      observacao: '',
-      parcela: String(parcelas.length),
-      obra: obra || obraId,
-      situacao: 1,
-      banco,
-      agencia,
-      conta,
-      tipo_conta,
-      pix
-    }
-
-    console.log(infos)
-
     try {
-      changeLoading(true, 'Enviando os dados...')
-      const mapperLancamento = RdoRdaMapper.toPersistence(infos)
-      const create = await RdoRdaServices.createRdo({ token, mapperLancamento })
+      changeLoading(true, 'Iniciando lançamentos...')
 
-      console.log(create)
+      const [fornecedorSelecionado] = fornecedores.filter((item) => item.id === fornecedor)
+      const { banco, agencia, conta, tipo_conta, pix } = fornecedorSelecionado
 
-      changeLoading(true, 'atualizando lista de obras...')
-      // await listObras({ token })
+      for (const item of itens) {
+        const infos = {
+          rdo: Number(rdoRda) || Number(id),
+          dataLancamento: String(moment(dataLancamento).unix()),
+          nf,
+          dataNf,
+          valorComprometido,
+          valorPagamento: item.valor,
+          dataPagamento: dataVencimento,
+          usuario: user?.id,
+          observacao,
+          descricao: ' - ',
+          parcela: String(parcelas.length),
+          obra: obra || obraId,
+          situacao: 1,
+          banco,
+          agencia,
+          conta,
+          tipo_conta,
+          pix,
+          etapa: item.etapa, // Atribuímos o valor correto da etapa
+          subetapa: item.subetapa, // Atribuímos o valor correto da subetapa
+          fornecedor,
+          boletos: [],
+          status: 1
+        }
 
-      if (isOpen) {
-        changeModal()
+        try {
+          changeLoading(true, `Enviando dados da etapa ${item.etapa}...`)
+
+          const mapperLancamento = RdoRdaMapper.toPersistence(infos)
+          const create = await RdoRdaServices.createLancamentoRdoRda({ token, mapperLancamento, type })
+
+          console.log(`Lançamento da etapa ${item.etapa} criado com sucesso:`, create)
+
+          Toast({ type: 'success', text: `Lançamento da etapa ${item.etapa} cadastrado com sucesso.`, duration: 5000 })
+        } catch (error) {
+          console.error(`Erro ao criar/atualizar lançamento da etapa ${item.etapa}:`, error)
+          Toast({ type: 'danger', text: `Erro ao criar/atualizar lançamento da etapa ${item.etapa}.`, duration: 5000 })
+        }
       }
-
-      if (!isOpen) {
-        navigate(-1)
-      }
-
-      Toast({ type: 'success', text: 'Obra cadastrada com sucesso.', duration: 5000 })
     } catch (error) {
-      Toast({ type: 'danger', text: 'Erro ao criar/atualizar obra.', duration: 5000 })
-      console.error('Erro ao criar/atualizar usuário:', error)
+      console.error('Erro ao realizar o lançamento:', error)
+      Toast({ type: 'danger', text: 'Erro ao realizar os lançamentos.', duration: 5000 })
     } finally {
       changeLoading(false)
+      navigate(-1) // Navega de volta após os lançamentos
     }
   }
 
   const getData = async () => {
     await listFornecedores({ token })
+    await listOrcamentos({ token })
+    await listEtapas({ token })
+    await listSubetapas({ token })
   }
 
   useEffect(() => {
@@ -207,20 +229,20 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
           <FormContent>
             <FormGroup oneOfFour>
               <Legend>Cliente:</Legend>
-              <Input value={cliente.nome} readOnly />
+              <Input value={cliente ?? cliente.nome} readOnly />
             </FormGroup>
 
             <FormGroup oneOfFour>
-                <Legend>Fornecedor:</Legend>
-                  <Select onChange={(e) => setFornecedor(Number(e.target.value))}>
-                    <option selected>Selecione um fornecedor</option>
-                    <option>Cadastrar novo fornecedor</option>
-                    <option disabled>________________________________</option>
-                    {fornecedores.map((item) => (
-                      <option key={item.id} value={item.id}>{item.nome}</option>
-                    ))}
-                  </Select>
-                </FormGroup>
+              <Legend>Fornecedor:</Legend>
+              <Select onChange={(e) => setFornecedor(Number(e.target.value))}>
+                <option selected>Selecione um fornecedor</option>
+                <option>Cadastrar novo fornecedor</option>
+                <option disabled>________________________________</option>
+                {fornecedores.map((item) => (
+                  <option key={item.id} value={item.id}>{item.nome}</option>
+                ))}
+              </Select>
+            </FormGroup>
 
             <FormGroup oneOfFive>
               <Legend>É contrato?</Legend>
@@ -252,6 +274,11 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
               <Legend>Data emissão NF:</Legend>
               <Input type='date' onChange={(event) => setDataNf(event.target.value)} />
             </FormGroup>
+
+            <FormGroup oneOfFive>
+              <Legend>Descrição:</Legend>
+              <Input type='text' onChange={(event) => setObservacao(event.target.value)} placeholder='Ex.: Pagamento medição.' />
+            </FormGroup>
           </FormContent>
 
           <Header title='Itens do lançamento' subHeader modal={!!isOpen} fullwidth />
@@ -265,6 +292,11 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
                   <Legend>Etapa:</Legend>
                   <Select onChange={(e) => handleChangeItemAndParcelaPrice(groupItem.id, 'etapa', e.target.value, setItens)}>
                     <option value="">Selecione uma etapa</option>
+                    <option value='0'>Cadastrar nova etapa</option>
+                    <option disabled>________________________________</option>
+                    {etapasOrcamento.map((etapa) => (
+                      <option key={etapa.id}>{etapa.numero} - {etapa.nome}</option>
+                    ))}
                   </Select>
                 </FormGroup>
 
@@ -272,6 +304,11 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
                   <Legend>Subetapa:</Legend>
                   <Select onChange={(e) => handleChangeItemAndParcelaPrice(groupItem.id, 'subetapa', e.target.value, setItens)}>
                     <option value="">Selecione uma subetapa</option>
+                    <option value='0'>Cadastrar nova subetapa</option>
+                    <option disabled>________________________________</option>
+                    {subetapasOrcamento.map((subetapa) => (
+                      <option key={subetapa.id}>{subetapa.numero} - {subetapa.nome}</option>
+                    ))}
                   </Select>
                 </FormGroup>
 

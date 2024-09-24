@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-import { rdosDb } from '../assets/database/rdos'
-import { rdasDb } from '../assets/database/rdas'
-import { lancamentosRdoDb } from '../assets/database/lancamentosRdo'
-import { lancamentosRdaDb } from '../assets/database/lancamentosRda'
-
 import { type RdoRda, type LancamentoRdoRda } from '../interfaces/globalInterfaces'
 import AuthContext from './authContext'
 import RdoRdaServices from '../services/sgo/RdoRdaServices'
@@ -22,6 +17,7 @@ interface RdoRdaContextType {
 interface Data {
   id?: number
   token: string
+  type?: string
 }
 
 interface RdoRdaProviderProps {
@@ -70,9 +66,35 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
     }
   }, [])
 
+  const listLancamentosRdo = useCallback(async ({ token }: Data) => {
+    const response = await RdoRdaServices.listLancamentosRdo({ token })
+
+    if (response.message) {
+      return
+    }
+
+    if (response.length >= 1) {
+      setLancamentosRdo(response)
+    }
+  }, [])
+
+  const listLancamentosRda = useCallback(async ({ token }: Data) => {
+    const response = await RdoRdaServices.listLancamentosRda({ token })
+
+    if (response.message) {
+      return
+    }
+
+    if (response.length >= 1) {
+      setLancamentosRda(response)
+    }
+  }, [])
+
   const getInitialData = async () => {
     await listRdos({ token })
     await listRdas({ token })
+    await listLancamentosRdo({ token })
+    await listLancamentosRda({ token })
   }
 
   useEffect(() => {

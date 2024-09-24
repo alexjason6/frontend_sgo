@@ -19,7 +19,7 @@ const ToastMessage: React.FC<TypeToastMessage> = ({ message, id, type = 'default
   useEffect(() => {
     const timeout = setTimeout(() => {
       onRemoveMessage(id)
-    }, duration ?? 7000)
+    }, duration ?? 5000)
 
     return () => {
       clearTimeout(timeout)

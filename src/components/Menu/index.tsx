@@ -95,21 +95,6 @@ const Menu: React.FC<TypeMenu> = ({ className }) => {
         )}
       </div>
 
-      <div onMouseEnter={() => handleMouseEnter('fornecedores')} onMouseLeave={handleMouseLeave}>
-        <Link to="/fornecedores" onClick={() => handleSelectItem('/fornecedores')}>
-          <Item $open={open} $active={itemActive.name === '/fornecedores'} onClick={() => handleSelectItem('/fornecedores')}>
-            <FaHandHoldingUsd size={20} />
-            {open && <p>Fornecedores</p>}
-          </Item>
-        </Link>
-        {submenuActive === 'fornecedores' && (
-          <Submenu $open={open}>
-            <SubmenuItem><FiList /><Link to="/fornecedores">Listar fornecedores</Link></SubmenuItem>
-            <SubmenuItem><FiPlus /><Link to="/fornecedores/novo">Criar fornecedor</Link></SubmenuItem>
-          </Submenu>
-        )}
-      </div>
-
       <div onMouseEnter={() => handleMouseEnter('orcamentos')} onMouseLeave={handleMouseLeave}>
         <Link to="/orcamentos" onClick={() => handleSelectItem('/orcamentos')}>
           <Item $open={open} $active={itemActive.name.includes('/orcamentos')}>
@@ -122,6 +107,21 @@ const Menu: React.FC<TypeMenu> = ({ className }) => {
             <SubmenuItem><FiList /><Link to="/orcamentos">Listar orcamentos</Link></SubmenuItem>
             <SubmenuItem><FiPlus /><Link to="/orcamentos/novo">Criar orcamento</Link></SubmenuItem>
             <SubmenuItem><FaStar /><Link to="/orcamentos/modelos">Modelos orcamento</Link></SubmenuItem>
+          </Submenu>
+        )}
+      </div>
+
+      <div onMouseEnter={() => handleMouseEnter('fornecedores')} onMouseLeave={handleMouseLeave}>
+        <Link to="/fornecedores" onClick={() => handleSelectItem('/fornecedores')}>
+          <Item $open={open} $active={itemActive.name === '/fornecedores'} onClick={() => handleSelectItem('/fornecedores')}>
+            <FaHandHoldingUsd size={20} />
+            {open && <p>Fornecedores</p>}
+          </Item>
+        </Link>
+        {submenuActive === 'fornecedores' && (
+          <Submenu $open={open}>
+            <SubmenuItem><FiList /><Link to="/fornecedores">Listar fornecedores</Link></SubmenuItem>
+            <SubmenuItem><FiPlus /><Link to="/fornecedores/novo">Criar fornecedor</Link></SubmenuItem>
           </Submenu>
         )}
       </div>

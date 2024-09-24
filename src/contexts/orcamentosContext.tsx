@@ -12,9 +12,9 @@ interface OrcamentosContextType {
   orcamentos: Orcamento[]
   itens: Etapa[]
   subitens: Subetapa[]
-  tiposOrcamentos: TiposOrcamentos[]
+  modelos: TiposOrcamentos[]
   listOrcamentos: ({ token }: ContextData) => Promise<void>
-  listTiposOrcamentos: ({ token }: ContextData) => Promise<void>
+  listModelos: ({ token }: ContextData) => Promise<void>
 }
 
 interface OrcamentosProviderProps {
@@ -25,9 +25,9 @@ const initialContextValue: OrcamentosContextType = {
   orcamentos: [],
   itens: [],
   subitens: [],
-  tiposOrcamentos: [],
+  modelos: [],
   listOrcamentos: async () => {},
-  listTiposOrcamentos: async () => {}
+  listModelos: async () => {}
 }
 
 const OrcamentosContext = createContext<OrcamentosContextType>(initialContextValue)
@@ -35,7 +35,7 @@ const OrcamentosContext = createContext<OrcamentosContextType>(initialContextVal
 export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext)
   const [orcamentos, setOrcamentos] = useState([])
-  const [tiposOrcamentos, setTiposOrcamentos] = useState(tipoOrcamentoDb)
+  const [modelos, setModelos] = useState(tipoOrcamentoDb)
   const [itens, setItens] = useState([])
   const [subitens, setSubitens] = useState([])
 
@@ -56,7 +56,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     }
   }, [])
 
-  const listTiposOrcamentos = useCallback(async ({ token }: ContextData) => {
+  const listModelos = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await OrcamentosServices.listTipos({ token })
 
@@ -65,7 +65,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
       }
 
       if (response.length >= 1) {
-        setTiposOrcamentos(response)
+        setModelos(response)
       }
     } catch (error) {
       console.error('Erro ao realizar listagem de tipos de orçamento:', error)
@@ -109,7 +109,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
 
   const getInitialData = async () => {
     await listOrcamentos({ token })
-    await listTiposOrcamentos({ token })
+    await listModelos({ token })
     await listItens({ token })
     await listSubitens({ token })
   }
@@ -126,9 +126,9 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
         orcamentos,
         itens,
         subitens,
-        tiposOrcamentos,
+        modelos,
         listOrcamentos,
-        listTiposOrcamentos
+        listModelos
       }}
     >
       {children}

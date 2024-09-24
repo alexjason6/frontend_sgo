@@ -3,13 +3,14 @@ import React, { useContext, type Dispatch, type SetStateAction } from 'react'
 import Header from '../../../../components/Header'
 import CardItem from '../CardItem'
 
-import { obrasDb } from '../../../../assets/database/obras'
-
 import { Content, Itens, More, Chevron } from './styles'
 
 import { type Obra, type RdoRda } from '../../../../interfaces/globalInterfaces'
 import ClientesContext from '../../../../contexts/clientesContext'
 import Button from '../../../../components/Button'
+import ModalContext from '../../../../contexts/modalContext'
+import CreateRdoRda from '../../../../components/CreateItem/Itens/RdaRdo'
+import ObrasContext from '../../../../contexts/obrasContext'
 
 interface PropsSections {
   titleHeader: string
@@ -37,17 +38,23 @@ const Sections: React.FC<PropsSections> = ({
   handleChangeMore
 }) => {
   const { clientes } = useContext(ClientesContext)
+  const { obras } = useContext(ObrasContext)
+  const { changeModal } = useContext(ModalContext)
+
+  const createRdoRda = (type: string) => {
+    changeModal(<CreateRdoRda type={type}/>)
+  }
 
   return (
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}
     <Content $obras={items.length > 0}>
-      {typeSection === 'rdo' && itemDb.length === 0 && <Button>Cadastrar RDO</Button>}
-      {typeSection === 'rda' && itemDb.length === 0 && <Button>Cadastrar RDA</Button>}
+      {typeSection === 'rdo' && itemDb.length === 0 && <Button onClick={() => createRdoRda('rdo')}>Cadastrar RDO</Button>}
+      {typeSection === 'rda' && itemDb.length === 0 && <Button onClick={() => createRdoRda('rda')}>Cadastrar RDA</Button>}
       <Itens $obras={typeSection === 'obra'} >
         {items.map((item) => {
           const cliente = clientes.find((cliente) => cliente.id === item.id_cliente)
-          const name = isObra(item) ? item.nome : obrasDb.find((obra) => obra.id === item.obra)?.nome
+          const [obra] = obras.filter((obra) => !isObra(item) && obra.id === item?.obra)
 
           return (
             <CardItem
@@ -56,7 +63,7 @@ const Sections: React.FC<PropsSections> = ({
               cliente={cliente?.nome ?? 'Cliente desconhecido'}
               item={item}
               id={item.id}
-              nome={name ?? 'Obra desconhecida'}
+              nome={obra?.nome ?? 'Obra desconhecida'}
             />
           )
         })}

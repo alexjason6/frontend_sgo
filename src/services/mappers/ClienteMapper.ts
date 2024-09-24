@@ -1,4 +1,5 @@
 interface ClienteDomain {
+  id?: number
   nome: string
   razaoSocial: string
   cpfCnpj: string
@@ -23,6 +24,7 @@ interface ClienteDomain {
 class ClienteMapper {
   toPersistence (domainCliente: ClienteDomain) {
     return {
+      id: domainCliente.id,
       nome: domainCliente.nome,
       cpf_cnpj: domainCliente.cpfCnpj,
       razao_social: domainCliente.razaoSocial,
@@ -45,8 +47,9 @@ class ClienteMapper {
     }
   }
 
-  toDomain (persistenceCliente: ClienteDomain) {
+  /* toDomain (persistenceCliente: ClienteDomain) {
     return {
+      id: persistenceCliente.id,
       nome: persistenceCliente.nome,
       cpfCnpj: persistenceCliente.cpfCnpj,
       razao_social: persistenceCliente.razaoSocial,
@@ -67,7 +70,7 @@ class ClienteMapper {
       cidade: persistenceCliente.cidade,
       uf: persistenceCliente.uf
     }
-  }
+  } */
 }
 
 export default new ClienteMapper()

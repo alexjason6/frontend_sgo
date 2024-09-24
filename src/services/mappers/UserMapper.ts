@@ -1,4 +1,5 @@
 interface UserDomain {
+  id?: number
   nome: string
   cpf: string
   telefone: string
@@ -18,6 +19,7 @@ interface UserDomain {
 class UserMapper {
   toPersistence (domainUser: UserDomain) {
     return {
+      id: domainUser.id ?? 0,
       nome: domainUser.nome,
       cpf: domainUser.cpf,
       telefone: domainUser.telefone,
@@ -37,6 +39,7 @@ class UserMapper {
 
   toDomain (persistenceUser: UserDomain) {
     return {
+      id: persistenceUser.id,
       nome: persistenceUser.nome,
       cpf: persistenceUser.cpf,
       telefone: persistenceUser.telefone,

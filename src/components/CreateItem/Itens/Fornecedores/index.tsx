@@ -90,6 +90,8 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
       setError({ field: fieldName, message })
     } else if (setState === setEmail && !isEmailValid(value)) {
       setError({ field: 'email', message: 'Digite um e-mail válido para entrar.' })
+    } else if (setState === setEmailFinanceiro && !isEmailValid(value)) {
+      setError({ field: 'emailFinanceiro', message: 'Digite um e-mail válido para entrar.' })
     } else {
       removeError(fieldName)
     }
@@ -189,7 +191,7 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
 
   return (
     <GlobalContainer>
-      {!isOpen && <Menu />}
+      {(!isOpen && !fornecedor) && <Menu />}
       <Container>
         {fornecedor && (
           <Edit>

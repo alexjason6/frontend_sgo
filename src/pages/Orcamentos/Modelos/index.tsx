@@ -14,26 +14,27 @@ import Button from '../../../components/Button'
 
 import { ButtonContainer, ContentPage } from '../styles'
 
-import CreateModelo from '../CreateModelos'
+import CreateModelo from '../../../components/CreateItem/Itens/Modelos'
+import ModelosTable from './components/ModelosTable'
 
 const ModelosOrcamento: React.FC = () => {
   const { token } = useContext(AuthContext)
   const { changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
-  const { tiposOrcamentos, listTiposOrcamentos } = useContext(OrcamentosContext)
+  const { modelos, listModelos } = useContext(OrcamentosContext)
 
   const handleCreateObra = () => {
     changeModal(<CreateModelo />)
   }
 
   const getData = useCallback(async () => {
-    await listTiposOrcamentos({ token })
+    await listModelos({ token })
     changeLoading(true, 'Buscando clientes...')
-  }, [listTiposOrcamentos])
+  }, [listModelos])
 
   useEffect(() => {
     changeLoading(true, 'Buscando modelos de orçamentos...')
-    if (!tiposOrcamentos || tiposOrcamentos.length === 0) {
+    if (!modelos || modelos.length === 0) {
       void getData()
     }
 
@@ -44,27 +45,23 @@ const ModelosOrcamento: React.FC = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [tiposOrcamentos])
+  }, [modelos])
 
   return (
     <GlobalContainer>
       <Menu />
       <Header title='Modelos de orçamentos' goBack/>
-      <Content $itens={tiposOrcamentos.length > 0}>
-      {!tiposOrcamentos || tiposOrcamentos.length === 0
+      <Content $itens={modelos.length > 0}>
+      {!modelos || modelos.length === 0
         ? <NoItemListed component={<CreateModelo />} text='Não foram encontradas orçamentos cadastrados.' />
         : (
           <ContentPage>
             <ButtonContainer>
               <Button $blue onClick={handleCreateObra}>Criar modelo</Button>
             </ButtonContainer>
-            {/* <ModelosTable
-              orcamentos={orcamentos}
-              valorTotal={valorOrcamento}
-              tipo={tiposOrcamentos}
-              clientes={clientes}
-              obras={obras}
-            /> */}
+            <ModelosTable
+              data={modelos}
+            />
           </ContentPage>
           )}
       </Content>

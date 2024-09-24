@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import ToastMessage from '../ToastMessage'
 
@@ -17,9 +17,9 @@ interface Message {
 const Toast: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
 
-  const handleRamoveMessage = (id: number) => {
+  const handleRamoveMessage = useCallback((id: number) => {
     setMessages((prevstate) => prevstate.filter((message) => message.id !== id))
-  }
+  }, [])
 
   useEffect(() => {
     const handleAddToast = ({ type, text, duration }: Message) => {
@@ -45,6 +45,7 @@ const Toast: React.FC = () => {
             key={message.id}
             id={message.id}
             message={message.text}
+            duration={message.duration}
             onRemoveMessage={handleRamoveMessage}
           />
         ))}

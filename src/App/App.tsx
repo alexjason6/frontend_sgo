@@ -30,17 +30,17 @@ const App: React.FC = () => {
             <UsersProvider>
               <ClientesProvider>
                 <FornecedoresProvider>
-                    <ObrasProvider>
-                      <OrcamentosProvider>
-                        <RdoRdaProvider>
+                  <ObrasProvider>
+                    <OrcamentosProvider>
+                      <RdoRdaProvider>
+                        <EtapasProvider>
                           <ModalProvider>
-                            <EtapasProvider>
-                              <Router />
-                            </EtapasProvider>
+                            <Router />
                           </ModalProvider>
-                        </RdoRdaProvider>
-                      </OrcamentosProvider>
-                    </ObrasProvider>
+                        </EtapasProvider>
+                      </RdoRdaProvider>
+                    </OrcamentosProvider>
+                  </ObrasProvider>
                 </FornecedoresProvider>
               </ClientesProvider>
             </UsersProvider>

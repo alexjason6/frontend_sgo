@@ -20,12 +20,13 @@ import Input from '../../../Input'
 
 import { ButtonContainer, Container, Form, FormContent, Title } from './styles'
 import { toastEventManager } from '../../../../utils/toast'
+import Select from '../../../Select'
 
 const CreateEtapa: React.FC = () => {
   const { isOpen, changeModal } = useContext(ModalContext)
   const { token } = useContext(AuthContext)
   const { changeLoading } = useContext(LoadingContext)
-  const { listEtapas } = useContext(EtapasContext)
+  const { etapas, listEtapas, listSubetapas } = useContext(EtapasContext)
 
   const [nomeEtapa, setNomeEtapa] = useState<string>()
   const [numeroEtapa, setNumeroEtapa] = useState<number>()
@@ -56,7 +57,7 @@ const CreateEtapa: React.FC = () => {
     setNumeroSubetapa(Number(event.target.value))
   }
 
-  const handleChangeEtapaParentNumber = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeEtapaParentNumber = (event: ChangeEvent<HTMLSelectElement>) => {
     setEtapaParent(Number(event.target.value))
   }
 
@@ -64,7 +65,7 @@ const CreateEtapa: React.FC = () => {
     event.preventDefault()
 
     try {
-      changeLoading(true, 'Enviando os dados...')
+      changeLoading(true, 'Criando etapa...')
 
       const data = {
         nome: nomeEtapa,
@@ -84,6 +85,8 @@ const CreateEtapa: React.FC = () => {
           duration: 5000
         })
       }
+
+      await listEtapas({ token })
     } catch (error) {
       toastEventManager.emit('addtoast', {
         type: 'danger',
@@ -100,7 +103,7 @@ const CreateEtapa: React.FC = () => {
     event.preventDefault()
 
     try {
-      changeLoading(true, 'Enviando os dados...')
+      changeLoading(true, 'Criando subetapa...')
 
       const data = {
         nome: nomeSubetapa,
@@ -121,6 +124,8 @@ const CreateEtapa: React.FC = () => {
           duration: 5000
         })
       }
+
+      await listSubetapas({ token })
     } catch (error) {
       toastEventManager.emit('addtoast', {
         type: 'danger',
@@ -167,7 +172,12 @@ const CreateEtapa: React.FC = () => {
 
             <FormGroup oneOfFour>
               <Legend>Número etapa:</Legend>
-              <Input type='number' placeholder='Ex.: 1' onChange={(event) => handleChangeEtapaParentNumber(event)} />
+              <Select onChange={handleChangeEtapaParentNumber}>
+                <option>Selecione uma etapa</option>
+                {etapas.map((etapa) => (
+                  <option key={etapa.id} value={etapa.id}>{etapa.numero} - {etapa.nome}</option>
+                ))}
+              </Select>
             </FormGroup>
 
             <FormGroup oneOfFour>

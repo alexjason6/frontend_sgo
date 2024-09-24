@@ -16,8 +16,8 @@ import OrcamentosContext from '../../../../contexts/orcamentosContext'
 const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, cliente }) => {
   const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
-  const { tiposOrcamentos } = useContext(OrcamentosContext)
-  const [modeloOrcamento] = tiposOrcamentos.filter((modelo) => modelo.id === obra.tipo)
+  const { modelos } = useContext(OrcamentosContext)
+  const [modeloOrcamento] = modelos.filter((modelo) => modelo.id === obra.tipo)
 
   const handleOpenDetalhamento = (clienteId: number) => {
     navigate(`/obras/detalhamento/${obra.id}`, {
@@ -85,7 +85,7 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, 
         {new Intl.NumberFormat('pt-BR', { maximumSignificantDigits: 3 }).format(Number(obra.metragem))}m<sup>2</sup>
       </Dados>
     </DadosContainer>
-    {detalhamento && <Button $blue onClick={() => handleOpenDetalhamento(cliente.id)}>Abrir detalhamento</Button>}
+    {detalhamento && <Button $blue onClick={() => handleOpenDetalhamento(cliente.id!)}>Abrir detalhamento</Button>}
   </Content>
   )
 }

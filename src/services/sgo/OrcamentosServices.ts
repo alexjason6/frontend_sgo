@@ -5,6 +5,8 @@ interface ValidateCreateOrcamentosParams {
   token: string
   mapperOrcamento?: any
   mapperItem?: any
+  mapperModelo?: any
+  mapperSubitem?: any
 }
 
 interface ListOrcamentosParams {
@@ -57,14 +59,14 @@ class OrcamentosServices {
 
       return response
     } catch (error) {
-      console.error('Erro ao criar orcçamento', error)
+      console.error('Erro ao criar orçamento', error)
       throw new Error('Falha na criação de orçamento.')
     }
   }
 
   async update ({ token, mapperOrcamento }: ValidateCreateOrcamentosParams) {
     try {
-      const response = await this.httpClient.post('/api/orcamentos/create', {
+      const response = await this.httpClient.put(`/api/orcamentos/edit/${mapperOrcamento.id}`, {
         headers: {
           Authorization: token
         },
@@ -120,6 +122,38 @@ class OrcamentosServices {
     } catch (error) {
       console.error('Erro ao criar item para o orçamento', error)
       throw new Error('Falha na criação de item de orçamento.')
+    }
+  }
+
+  async createSubitem ({ token, mapperSubitem }: ValidateCreateOrcamentosParams) {
+    try {
+      const response = await this.httpClient.post('/api/orcamentos/subitens/create', {
+        headers: {
+          Authorization: token
+        },
+        data: mapperSubitem
+      })
+
+      return response
+    } catch (error) {
+      console.error('Erro ao criar item para o orçamento', error)
+      throw new Error('Falha na criação de item de orçamento.')
+    }
+  }
+
+  async createModelo ({ token, mapperModelo }: ValidateCreateOrcamentosParams) {
+    try {
+      const response = await this.httpClient.post('/api/orcamentos/modelos/create', {
+        headers: {
+          Authorization: token
+        },
+        data: mapperModelo
+      })
+
+      return response
+    } catch (error) {
+      console.error('Erro ao criar modelo de orçamento', error)
+      throw new Error('Falha na edição de modelo de orçamento.')
     }
   }
 }

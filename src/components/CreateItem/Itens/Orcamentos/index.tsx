@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent } from 'react'
+import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
 import { FiPlus, FiX } from 'react-icons/fi'
 import moment from 'moment'
+import { useNavigate } from 'react-router-dom'
 
 import { GlobalContainer, Legend } from '../../../../assets/styles/global'
 
@@ -24,7 +26,7 @@ import OrcamentoMapper from '../../../../services/mappers/OrcamentoMapper'
 import OrcamentosServices from '../../../../services/sgo/OrcamentosServices'
 
 import CreateObra from '../Obras'
-
+import CreateEtapa from '../Etapas'
 import CreateCliente from '../Clientes'
 
 import useErrors from '../../../../hooks/useErrors'
@@ -35,22 +37,23 @@ import Toast from '../../../../utils/toast'
 import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title, AddSubitem } from './styles'
 
 import { type Obra } from '../../../../interfaces/globalInterfaces'
-import CreateEtapa from '../Etapas'
+import CreateModelo from '../Modelos'
+import EtapaMapper from '../../../../services/mappers/EtapaMapper'
 
 const CreateOrcamento: React.FC = () => {
+  const navigate = useNavigate()
   const { token } = useContext(AuthContext)
   const { isOpen, changeModal } = useContext(ModalContext)
   const { clientes } = useContext(ClientesContext)
   const { changeLoading } = useContext(LoadingContext)
   const { obras } = useContext(ObrasContext)
-  const { listOrcamentos } = useContext(OrcamentosContext)
-  const { etapas, subetapas } = useContext(EtapasContext)
-  const [, setNumeroEtapa] = useState()
+  const { modelos, listOrcamentos } = useContext(OrcamentosContext)
+  const { etapas, subetapas, listEtapas, listSubetapas } = useContext(EtapasContext)
   const [idCliente, setIdCliente] = useState<number>(0)
   const [nome, setNome] = useState<string>('')
   const dataCriacao = String(moment().unix())
   const [status] = useState<number>(1)
-  const [modelo] = useState(1)
+  const [modelo, setModelo] = useState(0)
   const [obra, setObra] = useState<number>(0)
   const [items, setItems] = useState([
     {
@@ -58,8 +61,9 @@ const CreateOrcamento: React.FC = () => {
       nome: '',
       valorTotal: '',
       numero: 0,
+      idEtapa: 0,
       subetapas: [
-        { id: 1, nome: '', unidade: '', numero: 0, quantidade: 1, valor: 0, valorTotal: '' }
+        { id: 1, nome: '', unidade: '', numero: 0, etapa: 0, idSubetapa: 0, quantidade: 1, valor: 0, valorTotal: '' }
       ]
     }
   ])
@@ -80,6 +84,7 @@ const CreateOrcamento: React.FC = () => {
         id: newEtapaId,
         nome: '',
         valorTotal: '',
+        idEtapa: 1,
         numero: 0,
         subetapas: [
           {
@@ -87,6 +92,8 @@ const CreateOrcamento: React.FC = () => {
             nome: '',
             unidade: '',
             numero: 0,
+            etapa: 0,
+            idSubetapa: 0,
             quantidade: 1,
             valor: 0,
             fornecedor: '',
@@ -117,6 +124,8 @@ const CreateOrcamento: React.FC = () => {
                   unidade: '',
                   numero: 0,
                   quantidade: 1,
+                  idSubetapa: 0,
+                  etapa: 0,
                   valor: 0,
                   fornecedor: '',
                   valorTotal: ''
@@ -141,9 +150,9 @@ const CreateOrcamento: React.FC = () => {
     )
   }
 
-  const handleChangeSubitem = (etapaId: number, subetapaId: number, field: string, value: string) => {
+  const handleChangeSubitem = (etapaId: number, subetapaId: number, field: string, value: string, e?: any) => {
     const cleanedValue = value.replace(/\D/g, '')
-    const subetapaSelected = subetapas.find(subetapa => subetapa.id === Number(subetapaId))
+    const subetapaSelected = subetapas.find(subetapa => subetapa.id === Number(value))
 
     let integerPart = cleanedValue.slice(0, -2)
     let decimalPart = cleanedValue.slice(-2)
@@ -161,6 +170,46 @@ const CreateOrcamento: React.FC = () => {
         ? value.replace(',', '.')
         : value
 
+    if (field === 'subetapa' && value === '0') {
+      changeModal(<CreateEtapa />)
+    }
+
+    // Atualizando o estado com os IDs de subetapas selecionadas
+
+    if (field === 'subetapa' && value !== '0') {
+      setItems(prevState =>
+        prevState.map(etapa => {
+          if (etapa.id === etapaId) {
+            const updatedSubetapas = etapa.subetapas.map(subetapa => {
+              if (subetapa.id === subetapaId) {
+                const [id, numero, nome] = value.split('|')
+
+                return {
+                  ...subetapa,
+                  [field]: trataValue,
+                  nome,
+                  id: subetapaId, // Setando o ID da subetapa selecionada
+                  idSubetapa: Number(id),
+                  etapa: Number(etapaId),
+                  numero: Number(numero)
+                }
+              }
+              return subetapa
+            })
+
+            const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
+
+            return {
+              ...etapa,
+              subetapas: updatedSubetapas,
+              valorTotal: etapaTotal.toFixed(2)
+            }
+          }
+          return etapa
+        })
+      )
+    }
+
     setItems(prevState =>
       prevState.map(etapa => {
         if (etapa.id === etapaId) {
@@ -173,7 +222,7 @@ const CreateOrcamento: React.FC = () => {
               return {
                 ...subetapa,
                 [field]: trataValue,
-                nome: subetapaSelected?.nome ?? subetapa.nome,
+                id: subetapaId, // Setando o ID da subetapa selecionada
                 valorTotal: field === 'valor'
                   ? (updatedValue * quantidade).toFixed(2)
                   : (valor * updatedValue).toFixed(2)
@@ -212,6 +261,10 @@ const CreateOrcamento: React.FC = () => {
       changeModal(<CreateObra />)
     }
 
+    if (fieldName === 'modelo' && value === '0') {
+      changeModal(<CreateModelo />)
+    }
+
     if (fieldName === 'cliente' && value !== '0') {
       const obraCliente = obras.filter((item) => item.id_cliente === Number(value))
       setObrasCliente(obraCliente)
@@ -222,12 +275,12 @@ const CreateOrcamento: React.FC = () => {
     }
 
     if (fieldName === 'etapa' && value !== '0' && etapaId) {
-      const etapaSelecionada = etapas.find(etapa => etapa.id === Number(value))
+      const etapaSelecionada = etapas?.find(etapa => etapa.id === Number(value))
       if (etapaSelecionada) {
         setItems(prevState =>
           prevState.map(item =>
             item.id === etapaId
-              ? { ...item, nome: etapaSelecionada.nome, numero: etapaSelecionada.numero }
+              ? { ...item, nome: etapaSelecionada.nome, numero: etapaSelecionada.numero, idEtapa: Number(value), id: etapaSelecionada.id }
               : item
           )
         )
@@ -243,44 +296,16 @@ const CreateOrcamento: React.FC = () => {
   }
 
   const handleCreateitem = async () => {
-    const itemsOrcamento = items.filter((itemOrcamento) => itemOrcamento.id)
-    const idsItemsOrcamento = itemsOrcamento.map(itemOrcamento => itemOrcamento.id)
-    const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento.id))
-    const idsSubitens = subitens.map(subitemOrcamento => subitemOrcamento.id)
+    changeLoading(true, 'Criando orçamento...')
+    // const itemsOrcamento = items.filter((itemOrcamento) => itemOrcamento.id)
+    const itemsOrcamento = items.filter((itemOrcamento) => itemOrcamento)
+    // const idsItemsOrcamento = itemsOrcamento.map(itemOrcamento => itemOrcamento.id)
+    const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento))
+    // const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento.id))
+    // const idsSubitens = subitens.map(subitemOrcamento => subitemOrcamento.id)
 
-    itemsOrcamento.forEach(async (item) => {
-      const dataItem = {
-        dataCriacao: String(moment().unix()),
-        numero: item.numero,
-        nome: item.nome,
-        valorTotal: item.valorTotal,
-        status: 1
-      }
-
-      const mapperItem = OrcamentoMapper.itemToPersistence(dataItem)
-      const createItem = await OrcamentosServices.createItem({ token, mapperItem })
-
-      return createItem
-    })
-
-    subitens.forEach(async (item) => {
-      const [itemId] = itemsOrcamento.filter((itemOrc) => itemOrc.subetapas.find((subItmOrc) => subItmOrc.nome === item.nome && item.id))
-      const dataItem = {
-        dataCriacao: String(moment().unix()),
-        numero: item.numero,
-        nome: item.nome,
-        valorUnitario: item.valor,
-        quantidade: item.quantidade,
-        valorTotal: item.valorTotal,
-        item_id: itemId.id,
-        status: 1
-      }
-
-      const mapperItem = OrcamentoMapper.itemToPersistence(dataItem)
-      const createItem = await OrcamentosServices.createItem({ token, mapperItem })
-
-      return createItem
-    })
+    /*     const itemsCreated: Array<{ id: number, numero: number, valor_total: string, nome: string }> = []
+    const subitemsCreated: Array<{ id: number, numero: number, nome: string, etapa: number, quantidade: string, unidade: string, valor_unitario: string, valor_total: string }> = [] */
 
     const dataOrcamento = {
       nome,
@@ -289,31 +314,118 @@ const CreateOrcamento: React.FC = () => {
       modelo,
       idCliente,
       obra,
-      item: idsItemsOrcamento,
-      subitem: idsSubitens
+      item: items.map(({ subetapas, ...rest }) => ({ id: rest.idEtapa, nome: rest.nome, numero: rest.numero, valor_total: rest.valorTotal })),
+      subitem: subitens.map((subitem) => ({ id: subitem.idSubetapa, numero: subitem.numero, nome: subitem.nome, etapa: subitem.etapa, quantidade: subitem.quantidade, unidade: subitem.unidade, valor_unitario: subitem.valor, valor_total: subitem.valorTotal }))
     }
 
-    try {
-      changeLoading(true, 'Enviando os dados...')
+    console.log({ dataOrcamento })
 
+    try {
+      changeLoading(true, 'Enviando os dados do orçamento...')
       const mapperOrcamento = OrcamentoMapper.toPersistence(dataOrcamento)
-      const create = !dataOrcamento
-        ? await OrcamentosServices.create({ token, mapperOrcamento })
-        : await OrcamentosServices.update({ token, mapperOrcamento })
+      const create = await OrcamentosServices.create({ token, mapperOrcamento })
 
       changeLoading(true, 'atualizando lista de obras...')
       await listOrcamentos({ token })
 
       if (create.id) {
         Toast({ type: 'success', text: 'Orçamento cadastrado com sucesso.', duration: 5000 })
+        navigate(-1)
       }
     } catch (error) {
-      Toast({ type: 'danger', text: 'Erro ao criar/atualizar orçamento.', duration: 5000 })
-      console.error('Erro ao criar/atualizar usuário:', error)
+      Toast({ type: 'danger', text: 'Erro ao criar orçamento.', duration: 5000 })
+      console.error('Erro ao criar usuário:', error)
     } finally {
       changeLoading(false)
     }
+
+    /*
+    if (!createOrcamento.id) {
+      Toast({ type: 'danger', text: 'Erro ao criar orçamento.', duration: 5000 })
+      console.error('Erro ao criar o orçamento:', 'Erro ao criar o orçamento')
+      return
+    }
+
+    if (createOrcamento.id) {
+      itemsOrcamento.forEach(async (item) => {
+        const dataItem = {
+          orcamento: createOrcamento.id,
+          dataCriacao: String(moment().unix()),
+          numero: item.numero,
+          nome: item.nome,
+          valorTotal: item.valorTotal,
+          status: 1
+        }
+
+        if (item.nome) {
+          const mapperItem = EtapaMapper.toPersistence(dataItem)
+          const createEtapa = await OrcamentosServices.createItem({ token, mapperItem })
+
+          itemsCreated.push({ id: createItem.id, numero: createItem.numero, valor_total: createItem.valorTotal, nome: createItem.nome })
+        }
+      })
+
+      subitens.forEach(async (item) => {
+        const dataItem = {
+          dataCriacao: String(moment().unix()),
+          numero: item.numero,
+          nome: item.nome,
+          status: 1
+        }
+
+        const mapperItem = OrcamentoMapper.subitemToPersistence(dataItem)
+        const createSubitem = await OrcamentosServices.createSubitem({ token, mapperItem })
+
+        subitemsCreated.push({ id: createSubitem.id, numero: createSubitem.numero, nome: createSubitem.nome, etapa: createSubitem.etapa, quantidade: createSubitem.quantidade, unidade: createSubitem.unidade, valor_unitario: createSubitem.valor, valor_total: createSubitem.valorTotal })
+      })
+
+      const dataUpdateOrcamento = {
+        id: createOrcamento.id,
+        nome,
+        dataCriacao,
+        status,
+        modelo,
+        idCliente,
+        obra,
+        item: itemsCreated,
+        subitem: subitemsCreated
+      }
+
+      try {
+        changeLoading(true, 'Enviando os dados...')
+
+        const mapperOrcamento = OrcamentoMapper.toPersistence(dataUpdateOrcamento)
+        const create = await OrcamentosServices.update({ token, mapperOrcamento })
+
+        changeLoading(true, 'atualizando lista de obras...')
+        await listOrcamentos({ token })
+
+        if (create.id) {
+          Toast({ type: 'success', text: 'Orçamento cadastrado com sucesso.', duration: 5000 })
+          navigate(-1)
+        }
+      } catch (error) {
+        Toast({ type: 'danger', text: 'Erro ao criar/atualizar orçamento.', duration: 5000 })
+        console.error('Erro ao criar/atualizar usuário:', error)
+      } finally {
+        changeLoading(false)
+      }
+    } */
   }
+
+  const getData = async () => {
+    changeLoading(true, 'Carregando etapas...')
+    await listEtapas({ token })
+
+    changeLoading(true, 'Carregando subetapas...')
+    await listSubetapas({ token })
+
+    changeLoading(false)
+  }
+
+  useEffect(() => {
+    void getData()
+  }, [])
 
   return (
     <GlobalContainer $modal>
@@ -323,8 +435,12 @@ const CreateOrcamento: React.FC = () => {
         <Form>
           <FormContent>
             <FormGroup oneOftree $error={getErrorMessageByFieldName('cliente')}>
-              <Legend>Cliente:</Legend>
-                  <Select onChange={(e) => handleChangeItem(e, 'cliente', e.target.value, setIdCliente)} $error={!!getErrorMessageByFieldName('cliente')}>
+              <Legend>Cliente: <sup>*</sup></Legend>
+              <Select
+                onChange={(e) => handleChangeItem(e, 'cliente', e.target.value, setIdCliente)}
+                $error={!!getErrorMessageByFieldName('cliente')}
+                required
+              >
                 <option>Selecione um cliente</option>
                 <option value='0'>Cadastrar novo cliente</option>
                 <option disabled>________________________________</option>
@@ -335,8 +451,12 @@ const CreateOrcamento: React.FC = () => {
             </FormGroup>
 
             <FormGroup oneOfFour $error={getErrorMessageByFieldName('obra')}>
-              <Legend>Obra:</Legend>
-              <Select onChange={(e) => handleChangeItem(e, 'obra', e.target.value, setObra)} $error={!!getErrorMessageByFieldName('obra')}>
+              <Legend>Obra: <sup>*</sup></Legend>
+              <Select
+                onChange={(e) => handleChangeItem(e, 'obra', e.target.value, setObra)}
+                $error={!!getErrorMessageByFieldName('obra')}
+                required
+              >
                 <option>Selecione uma obra</option>
                 <option value='0'>Cadastrar nova obra</option>
                 <option disabled>________________________________</option>
@@ -346,13 +466,30 @@ const CreateOrcamento: React.FC = () => {
               </Select>
             </FormGroup>
 
+            <FormGroup oneOfFive $error={getErrorMessageByFieldName('modelo')}>
+              <Legend>Modelo orçamento: <sup>*</sup></Legend>
+              <Select
+                onChange={(e) => handleChangeItem(e, 'modelo', e.target.value, setModelo)}
+                $error={!!getErrorMessageByFieldName('modelo')}
+                required
+              >
+                <option>Selecione um modelo</option>
+                <option value='0'>Cadastrar novo modelo</option>
+                <option disabled>________________________________</option>
+                {modelos.map((item) => (
+                  <option key={item.id} value={item.id}>{item.nome}</option>
+                ))}
+              </Select>
+            </FormGroup>
+
             <FormGroup oneOfFour $error={getErrorMessageByFieldName('nome')}>
-              <Legend>Nome orçamento:</Legend>
+              <Legend>Nome orçamento: <sup>*</sup></Legend>
               <Input
                 value={nome}
                 type='text'
                 placeholder='Ex.: Betim flex geral'
                 onChange={(e) => handleChangeItem(e, 'nome', e.target.value, setNome)}
+                required
                 $error={!!getErrorMessageByFieldName('nome')}
               />
             </FormGroup>
@@ -365,14 +502,17 @@ const CreateOrcamento: React.FC = () => {
               <FormContent $items>
                 <FormGroup oneOftree $error={getErrorMessageByFieldName('etapa')}>
                   <Legend>Etapa:</Legend>
-                  <Select
-                    onChange={(e) => handleChangeItem(e, 'etapa', e.target.value, setNumeroEtapa, etapa.id)}
-                    $error={!!getErrorMessageByFieldName('etapa')}>
-                    <option>Selecione uma etapa</option>
+                   <Select
+                    id={String(etapa.id)}
+                    onChange={(e) => handleChangeItem(e, 'etapa', e.target.value, () => {}, etapa.id)}
+                    $error={!!getErrorMessageByFieldName('etapa')}
+                    value={etapas.length > 0 ? etapas.filter((etapaSeleted) => etapaSeleted?.id === etapa?.id)[0]?.id : undefined}
+                    >
+                    <option value="">Selecione uma etapa</option>
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
-                    {etapas.map((item) => (
-                      <option key={item.id} value={item.id} id={String(etapa.id)}>{item.numero} - {item.nome}</option>
+                    {etapas.length > 0 && etapas.map((item) => (
+                      <option key={item.id} value={item.id} className={String(item.id)}>{item.numero} - {item.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -397,16 +537,16 @@ const CreateOrcamento: React.FC = () => {
 
                 {etapa.subetapas.map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
-                  const etapaActive = document.getElementById(String(etapa.id)) as HTMLInputElement | HTMLTextAreaElement
-                  const inputValue = etapaActive?.value
-                  const subetapasActive = subetapas.filter((item) => item.etapa === Number(inputValue))
+                  const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
+                  const numeroEtapaActive = document.getElementsByClassName(String(etapa.id)) as unknown as HTMLOptionElement | any
+                  const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
 
                   return (
                   <FormContent key={subitem.id} $items>
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
+                    <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
                     <Legend>Subetapa:</Legend>
                     <Select
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value)}
+                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value, e)}
                       $error={!!getErrorMessageByFieldName('subetapa')}
                     >
                       <option>Selecione a subetapa</option>
@@ -414,7 +554,7 @@ const CreateOrcamento: React.FC = () => {
                       <option disabled>________________________________</option>
                       {subetapasActive.map((servico) => {
                         return (
-                        <option key={servico.id} value={servico.numero}>{servico.numero} - {servico.nome}</option>
+                        <option key={servico.id} value={`${servico.id}|${servico.numero}|${servico.nome}`} >{servico.numero} - {servico.nome}</option>
                         )
                       })
                       }
@@ -426,7 +566,7 @@ const CreateOrcamento: React.FC = () => {
                     <Select
                       value={subitem.unidade}
                       $error={!!getErrorMessageByFieldName('unidade')}
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'unidade', e.target.value)}
+                      onChange={(e) => handleChangeSubitem(Number(etapaActive), subitem.id, 'unidade', e.target.value)}
                     >
                       <option value='0'>Selecione uma medida</option>
                       <option value='kg'>Kg</option>
@@ -500,7 +640,7 @@ const CreateOrcamento: React.FC = () => {
         </Form>
         <ButtonContainer>
           <span>Valor total do orçamento:<p>{Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(items.reduce<number>((acc, item) => { return acc + Number(item?.valorTotal) }, 0))}</p></span>
-          <Button disabled={!formIsValid} $green onClick={handleCreateitem}>Gravar Orçamento</Button>
+          <Button disabled={!formIsValid} $green onClick={handleCreateitem}>Salvar</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>

@@ -62,8 +62,9 @@ class UsersServices {
   }
 
   async update ({ token, mapperUser }: ValidateCreateUsersParams) {
+    console.log(mapperUser)
     try {
-      const response = await this.httpClient.post('/api/clientes/create', {
+      const response = await this.httpClient.put(`/api/users/edit/${mapperUser.id}`, {
         headers: {
           Authorization: token
         },

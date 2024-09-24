@@ -40,7 +40,7 @@ export const EtapasProvider: React.FC<EtapasProviderProps> = ({ children }) => {
         return
       }
 
-      if (response.length >= 1) {
+      if (response.length >= 0) {
         setEtapas(response)
       }
     } catch (error) {

@@ -66,7 +66,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
   const [status, setStatus] = useState(obra?.status ?? '1')
 
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
-  const formIsValid = nome && idCliente && logradouro && tipo && status && errors.length === 0
+  const formIsValid = alvara && cno && dataInicio && nome && idCliente && cep && tipo && status && errors.length === 0
 
   const [cliente] = clientes.filter((item) => item.id === obra?.id_cliente)
 
@@ -98,8 +98,6 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
     const cepResponse = await CepServices.buscaCep(cepValue.replace('-', ''))
 
     if (!cepResponse) {
-      console.log(cepResponse)
-
       return
     }
 
@@ -211,10 +209,11 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
         {obra && <Header title={`Editar obra - ${nome}`} modal />}
         <Form>
           <FormGroup $error={getErrorMessageByFieldName('cliente')}>
-            <Legend>Cliente:</Legend>
+            <Legend>Cliente: <sup>*</sup></Legend>
             <Select
               $error={!!getErrorMessageByFieldName('cliente')}
               disabled={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'cliente', 'Por favor, digite o cliente do usuário', setIdCliente)
               }>
@@ -227,7 +226,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('nome')}>
-            <Legend>Nome:</Legend>
+            <Legend>Nome: <sup>*</sup></Legend>
             <Input
               $error={!!getErrorMessageByFieldName('nome')}
               value={nome}
@@ -235,6 +234,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               type='text'
               disabled={!edit}
               $listData={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'nome', 'Por favor, digite o nome da obra', setNome)
               }
@@ -242,7 +242,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('alvara')}>
-            <Legend>Alvará:</Legend>
+            <Legend>Alvará: <sup>*</sup></Legend>
             <Input
               $error={!!getErrorMessageByFieldName('alvara')}
               value={alvara}
@@ -250,6 +250,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               type='text'
               disabled={!edit}
               $listData={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'alvara', 'Por favor, digite o alvara da obra', setAlvara)
               }
@@ -257,7 +258,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('cno')}>
-            <Legend>CNO:</Legend>
+            <Legend>CNO: <sup>*</sup></Legend>
             <Input
               $error={!!getErrorMessageByFieldName('cno')}
               value={cno}
@@ -265,6 +266,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               type='text'
               disabled={!edit}
               $listData={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'cno', 'Por favor, digite o numero CNO da obra', setCno)
               }
@@ -272,13 +274,14 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('dataInicio')}>
-            <Legend>Data início:</Legend>
+            <Legend>Data início: <sup>*</sup></Legend>
             <Input
               $error={!!getErrorMessageByFieldName('dataInicio')}
               value={obra ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
               disabled={!edit}
               $listData={!edit}
               type='date'
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'dataInicio', 'Por favor, digite a data de início da obra', setDataInicio)
               }
@@ -286,11 +289,12 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('tipo')}>
-            <Legend>Tipo:</Legend>
+            <Legend>Tipo: <sup>*</sup></Legend>
             <Select
               $error={!!getErrorMessageByFieldName('tipo')}
               disabled={!edit}
               defaultValue={tipo}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'tipo', 'Por favor, digite o tipo da obra', setTipo)
               }
@@ -348,7 +352,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('cep')}>
-            <Legend>CEP:</Legend>
+            <Legend>CEP: <sup>*</sup></Legend>
             <Input
               $error={!!getErrorMessageByFieldName('cep')}
               value={cepFormat(cep)}
@@ -357,6 +361,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               placeholder='Ex.: 32321-321'
               disabled={!edit}
               $listData={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'cep', 'Por favor, digite o cep da obra', setCep)
               }
@@ -451,11 +456,12 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('status')}>
-            <Legend>Situação:</Legend>
+            <Legend>Situação: <sup>*</sup></Legend>
             <Select
               $error={!!getErrorMessageByFieldName('status')}
               value={status}
               disabled={!edit}
+              required
               onChange={async (event) =>
                 handleChangeItem(event, 'status', 'Por favor, digite o status da obra', setStatus)
               }

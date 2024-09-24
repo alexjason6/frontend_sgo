@@ -8,6 +8,7 @@ interface lancamentoDomain {
   dataPagamento: string
   usuario?: number
   observacao: string
+  descricao: string
   parcela: string
   obra: number
   situacao: number
@@ -16,6 +17,21 @@ interface lancamentoDomain {
   conta: string
   tipo_conta: string
   pix: string
+  etapa: any
+  subetapa: any
+  fornecedor: any
+  boletos: any
+  status: number
+}
+
+interface rdoRdaDomain {
+  id?: number
+  obra: number
+  status: number
+  cliente: number
+  orcamento: number
+  dataCriacao: string
+  dataAlteracao?: string
 }
 
 class RdoRdaMapper {
@@ -29,6 +45,7 @@ class RdoRdaMapper {
       valor_pagamento: domainCliente.valorPagamento,
       data_pagamento: domainCliente.dataPagamento,
       usuario: domainCliente.usuario,
+      descricao: domainCliente.descricao,
       observacao: domainCliente.observacao,
       parcela: domainCliente.parcela,
       obra: domainCliente.obra,
@@ -37,7 +54,22 @@ class RdoRdaMapper {
       agencia: domainCliente.agencia,
       conta: domainCliente.conta,
       tipo_conta: domainCliente.tipo_conta,
-      pix: domainCliente.pix
+      pix: domainCliente.pix,
+      etapa: domainCliente.etapa,
+      subetapa: domainCliente.subetapa,
+      fornecedor: domainCliente.fornecedor,
+      boletos: domainCliente.boletos,
+      status: 1
+    }
+  }
+
+  rdaRdoToPersistence (domainRdoRda: rdoRdaDomain) {
+    return {
+      obra: domainRdoRda.obra,
+      status: domainRdoRda.status,
+      id_cliente: domainRdoRda.cliente,
+      orcamento: domainRdoRda.orcamento,
+      data_criacao: domainRdoRda.dataCriacao
     }
   }
 
