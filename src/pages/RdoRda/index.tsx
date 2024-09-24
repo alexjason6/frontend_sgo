@@ -56,21 +56,15 @@ const RdoRda: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log({ rdos, rdas, lancamentosRdo, lancamentosRda }) // Log para depuração dos dados
-
     if (!data || data.length === 0) {
       const [document] = type === 'rdo'
         ? rdos.filter((document) => document.id === Number(id))
         : rdas.filter((document) => document.id === Number(id))
 
-      console.log({ document }) // Log do documento selecionado
-
       if (document) {
         const lancamentos = type === 'rdo'
           ? lancamentosRdo.filter((lancamento) => lancamento.rdo === document.id)
           : lancamentosRda.filter((lancamento) => lancamento.rdo === document.id)
-
-        console.log({ lancamentos }) // Log dos lançamentos
 
         setData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
         setFilteredData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
@@ -78,7 +72,7 @@ const RdoRda: React.FC = () => {
 
       changeLoading(false, '')
     }
-  }, [rdos, rdas, lancamentosRdo, lancamentosRda, type, id, data])
+  }, [])
 
   return (
     <GlobalContainer>

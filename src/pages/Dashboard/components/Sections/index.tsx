@@ -54,7 +54,7 @@ const Sections: React.FC<PropsSections> = ({
       <Itens $obras={typeSection === 'obra'} >
         {items.map((item) => {
           const cliente = clientes.find((cliente) => cliente.id === item.id_cliente)
-          const [obra] = obras.filter((obra) => !isObra(item) && obra.id === item?.obra)
+          const [obra] = obras.filter((obra) => !isObra(item) ? obra.id === item?.obra : item.id === obra.id)
 
           return (
             <CardItem

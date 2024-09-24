@@ -44,7 +44,7 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
   const { fornecedores, listFornecedores } = useContext(FornecedoresContext)
   const { etapas, subetapas, listEtapas, listSubetapas } = useContext(EtapasContext)
   const { orcamentos, listOrcamentos } = useContext(OrcamentosContext)
-  // const { clientes, listClientes } = useContext(ClientesContext)
+  const [descricaoItem, setDescricaoItem] = useState('')
   const typeDocument = tipo?.toUpperCase() ?? type?.toUpperCase()
   const [parcelamento, setParcelamento] = useState<boolean>(false)
   const [groupItems, setGroupItems] = useState([{ id: 1 }])
@@ -60,9 +60,10 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
   const [contrato, setContrato] = useState<number>()
   const [observacao, setObservacao] = useState<string>('')
   const [orcamentoSelected] = orcamentos.filter((item) => Number(item.obra) === Number(obra) || Number(item.obra === Number(obraId)))
-  const etapasOrcamento = etapas.filter((etapa) => orcamentoSelected?.item.some((item) => item === etapa.id))
-  const subetapasOrcamento = subetapas.filter((subetapa) => etapasOrcamento.some((etapa) => subetapa.etapa === etapa.numero) && orcamentoSelected?.subitem.some((item) => item === subetapa.id)
+  const etapasOrcamento = etapas.filter((etapa) => orcamentoSelected?.item.some((item) => item.id === etapa.id))
+  const subetapasOrcamento = subetapas.filter((subetapa) => etapasOrcamento.some((etapa) => subetapa.etapa === etapa.id)
   )
+
   const [itens, setItens] = useState<Array<{ id: number, etapa: number | null, subetapa: number | null, valor: string }>>([
     { id: 1, etapa: null, subetapa: null, valor: '' }
   ])
@@ -142,8 +143,6 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
     setDataVencimento(date)
   }
 
-  console.log(etapas)
-
   const handleSubmitLancamento = async () => {
     try {
       changeLoading(true, 'Iniciando lançamentos...')
@@ -156,13 +155,13 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
           rdo: Number(rdoRda) || Number(id),
           dataLancamento: String(moment(dataLancamento).unix()),
           nf,
-          dataNf,
+          dataNf: String(moment(dataNf).unix()),
           valorComprometido,
-          valorPagamento: item.valor,
-          dataPagamento: dataVencimento,
+          valorPagamento: String(item.valor),
+          dataPagamento: String(moment(dataVencimento).unix()),
           usuario: user?.id,
           observacao,
-          descricao: ' - ',
+          descricao: descricaoItem,
           parcela: String(parcelas.length),
           obra: obra || obraId,
           situacao: 1,
@@ -171,15 +170,15 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
           conta,
           tipo_conta,
           pix,
-          etapa: item.etapa, // Atribuímos o valor correto da etapa
-          subetapa: item.subetapa, // Atribuímos o valor correto da subetapa
+          etapa: Number(item.etapa), // Atribuímos o valor correto da etapa
+          subetapa: Number(item.subetapa), // Atribuímos o valor correto da subetapa
           fornecedor,
           boletos: [],
           status: 1
         }
 
         try {
-          changeLoading(true, `Enviando dados da etapa ${item.etapa}...`)
+          changeLoading(true, `Enviando dados do lancamento ${item.etapa}...`)
 
           const mapperLancamento = RdoRdaMapper.toPersistence(infos)
           const create = await RdoRdaServices.createLancamentoRdoRda({ token, mapperLancamento, type })
@@ -197,7 +196,7 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
       Toast({ type: 'danger', text: 'Erro ao realizar os lançamentos.', duration: 5000 })
     } finally {
       changeLoading(false)
-      navigate(-1) // Navega de volta após os lançamentos
+      // navigate(-1) // Navega de volta após os lançamentos
     }
   }
 
@@ -295,7 +294,7 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
                     {etapasOrcamento.map((etapa) => (
-                      <option key={etapa.id}>{etapa.numero} - {etapa.nome}</option>
+                      <option key={etapa.id} value={etapa.id}>{etapa.numero} - {etapa.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -307,14 +306,14 @@ const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameClien
                     <option value='0'>Cadastrar nova subetapa</option>
                     <option disabled>________________________________</option>
                     {subetapasOrcamento.map((subetapa) => (
-                      <option key={subetapa.id}>{subetapa.numero} - {subetapa.nome}</option>
+                      <option key={subetapa.id} value={subetapa.id}>{subetapa.numero} - {subetapa.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
 
                 <FormGroup oneOfFour>
                   <Legend>Descrição:</Legend>
-                  <Input type='text' placeholder='Digite a descrição do lançamento' />
+                  <Input type='text' placeholder='Digite a descrição do lançamento' onChange={(e) => setDescricaoItem(e?.target.value)} />
                 </FormGroup>
 
                 <FormGroup oneOfFive>

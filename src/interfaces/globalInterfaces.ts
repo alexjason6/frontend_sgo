@@ -168,8 +168,8 @@ export interface Orcamento {
   modelo: number
   id_cliente: number
   obra: number
-  item: number[]
-  subitem: number[]
+  item: [{ id: number, nome: string, numero: number, valor_total: string }]
+  subitem: [{ etapa: number, id: number, nome: string, numero: number, quantidade: string, valor_total: string, valor_unitario: string }]
 }
 
 export interface Etapa {

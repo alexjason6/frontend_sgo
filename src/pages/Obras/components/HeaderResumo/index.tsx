@@ -54,7 +54,7 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, 
       <Dados>
         <span>Endereço:</span>
         <br />
-        {obra.logradouro}, {obra.numero}{obra.complemento ? ' - ' + obra.complemento : ' - '}{obra.bairro}, {obra.cidade}/{obra.uf}
+        {obra.logradouro}, {obra.numero}{obra.complemento ? ' - ' + obra.complemento : ' - '} {obra.bairro}, {obra.cidade}/{obra.uf}
       </Dados>
       <Dados>
         <span>Responsável:</span>

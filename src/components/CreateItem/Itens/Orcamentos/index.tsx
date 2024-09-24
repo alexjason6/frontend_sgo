@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
 import { FiPlus, FiX } from 'react-icons/fi'
@@ -38,7 +37,6 @@ import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title,
 
 import { type Obra } from '../../../../interfaces/globalInterfaces'
 import CreateModelo from '../Modelos'
-import EtapaMapper from '../../../../services/mappers/EtapaMapper'
 
 const CreateOrcamento: React.FC = () => {
   const navigate = useNavigate()
@@ -152,7 +150,6 @@ const CreateOrcamento: React.FC = () => {
 
   const handleChangeSubitem = (etapaId: number, subetapaId: number, field: string, value: string, e?: any) => {
     const cleanedValue = value.replace(/\D/g, '')
-    const subetapaSelected = subetapas.find(subetapa => subetapa.id === Number(value))
 
     let integerPart = cleanedValue.slice(0, -2)
     let decimalPart = cleanedValue.slice(-2)
@@ -297,15 +294,7 @@ const CreateOrcamento: React.FC = () => {
 
   const handleCreateitem = async () => {
     changeLoading(true, 'Criando orçamento...')
-    // const itemsOrcamento = items.filter((itemOrcamento) => itemOrcamento.id)
-    const itemsOrcamento = items.filter((itemOrcamento) => itemOrcamento)
-    // const idsItemsOrcamento = itemsOrcamento.map(itemOrcamento => itemOrcamento.id)
     const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento))
-    // const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento.id))
-    // const idsSubitens = subitens.map(subitemOrcamento => subitemOrcamento.id)
-
-    /*     const itemsCreated: Array<{ id: number, numero: number, valor_total: string, nome: string }> = []
-    const subitemsCreated: Array<{ id: number, numero: number, nome: string, etapa: number, quantidade: string, unidade: string, valor_unitario: string, valor_total: string }> = [] */
 
     const dataOrcamento = {
       nome,
@@ -338,79 +327,6 @@ const CreateOrcamento: React.FC = () => {
     } finally {
       changeLoading(false)
     }
-
-    /*
-    if (!createOrcamento.id) {
-      Toast({ type: 'danger', text: 'Erro ao criar orçamento.', duration: 5000 })
-      console.error('Erro ao criar o orçamento:', 'Erro ao criar o orçamento')
-      return
-    }
-
-    if (createOrcamento.id) {
-      itemsOrcamento.forEach(async (item) => {
-        const dataItem = {
-          orcamento: createOrcamento.id,
-          dataCriacao: String(moment().unix()),
-          numero: item.numero,
-          nome: item.nome,
-          valorTotal: item.valorTotal,
-          status: 1
-        }
-
-        if (item.nome) {
-          const mapperItem = EtapaMapper.toPersistence(dataItem)
-          const createEtapa = await OrcamentosServices.createItem({ token, mapperItem })
-
-          itemsCreated.push({ id: createItem.id, numero: createItem.numero, valor_total: createItem.valorTotal, nome: createItem.nome })
-        }
-      })
-
-      subitens.forEach(async (item) => {
-        const dataItem = {
-          dataCriacao: String(moment().unix()),
-          numero: item.numero,
-          nome: item.nome,
-          status: 1
-        }
-
-        const mapperItem = OrcamentoMapper.subitemToPersistence(dataItem)
-        const createSubitem = await OrcamentosServices.createSubitem({ token, mapperItem })
-
-        subitemsCreated.push({ id: createSubitem.id, numero: createSubitem.numero, nome: createSubitem.nome, etapa: createSubitem.etapa, quantidade: createSubitem.quantidade, unidade: createSubitem.unidade, valor_unitario: createSubitem.valor, valor_total: createSubitem.valorTotal })
-      })
-
-      const dataUpdateOrcamento = {
-        id: createOrcamento.id,
-        nome,
-        dataCriacao,
-        status,
-        modelo,
-        idCliente,
-        obra,
-        item: itemsCreated,
-        subitem: subitemsCreated
-      }
-
-      try {
-        changeLoading(true, 'Enviando os dados...')
-
-        const mapperOrcamento = OrcamentoMapper.toPersistence(dataUpdateOrcamento)
-        const create = await OrcamentosServices.update({ token, mapperOrcamento })
-
-        changeLoading(true, 'atualizando lista de obras...')
-        await listOrcamentos({ token })
-
-        if (create.id) {
-          Toast({ type: 'success', text: 'Orçamento cadastrado com sucesso.', duration: 5000 })
-          navigate(-1)
-        }
-      } catch (error) {
-        Toast({ type: 'danger', text: 'Erro ao criar/atualizar orçamento.', duration: 5000 })
-        console.error('Erro ao criar/atualizar usuário:', error)
-      } finally {
-        changeLoading(false)
-      }
-    } */
   }
 
   const getData = async () => {
@@ -538,7 +454,6 @@ const CreateOrcamento: React.FC = () => {
                 {etapa.subetapas.map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
                   const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
-                  const numeroEtapaActive = document.getElementsByClassName(String(etapa.id)) as unknown as HTMLOptionElement | any
                   const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
 
                   return (
