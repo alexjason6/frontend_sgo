@@ -4,7 +4,6 @@ import React, { createContext, useState, type ReactNode, useCallback, useContext
 import AuthContext from './authContext'
 
 import OrcamentosServices from '../services/sgo/OrcamentosServices'
-import { tipoOrcamentoDb } from '../assets/database/tipoOrcamento'
 
 import { type Orcamento, type Etapa, type Subetapa, type TiposOrcamentos, type ContextData } from '../interfaces/globalInterfaces'
 
@@ -14,6 +13,7 @@ interface OrcamentosContextType {
   subitens: Subetapa[]
   modelos: TiposOrcamentos[]
   listOrcamentos: ({ token }: ContextData) => Promise<void>
+  getOrcamento: ({ token, id }: ContextData) => Promise<any>
   listModelos: ({ token }: ContextData) => Promise<void>
 }
 
@@ -27,6 +27,7 @@ const initialContextValue: OrcamentosContextType = {
   subitens: [],
   modelos: [],
   listOrcamentos: async () => {},
+  getOrcamento: async () => Promise,
   listModelos: async () => {}
 }
 
@@ -35,7 +36,7 @@ const OrcamentosContext = createContext<OrcamentosContextType>(initialContextVal
 export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext)
   const [orcamentos, setOrcamentos] = useState([])
-  const [modelos, setModelos] = useState(tipoOrcamentoDb)
+  const [modelos, setModelos] = useState([])
   const [itens, setItens] = useState([])
   const [subitens, setSubitens] = useState([])
 
@@ -107,6 +108,18 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     }
   }, [])
 
+  const getOrcamento = async ({ token, id }: ContextData) => {
+    try {
+      const orcamento = await OrcamentosServices.get({ token, id })
+
+      if (orcamento.id) {
+        return orcamento
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const getInitialData = async () => {
     await listOrcamentos({ token })
     await listModelos({ token })
@@ -128,6 +141,7 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
         subitens,
         modelos,
         listOrcamentos,
+        getOrcamento,
         listModelos
       }}
     >

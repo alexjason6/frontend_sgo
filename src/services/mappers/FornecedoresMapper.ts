@@ -28,54 +28,54 @@ interface FornecedoresDomain {
 class FornecedoresMapper {
   toPersistence (domainCliente: FornecedoresDomain) {
     return {
-      nome: domainCliente.nome,
-      cpf_cnpj: domainCliente.cpfCnpj,
-      razao_social: domainCliente.razaoSocial,
+      nome: domainCliente.nome.toUpperCase(),
+      cpf_cnpj: domainCliente.cpfCnpj.toUpperCase(),
+      razao_social: domainCliente.razaoSocial.toUpperCase(),
       inscricao_municipal: domainCliente.inscricaoMunicipal,
       inscricao_estadual: domainCliente.inscricaoEstadual,
-      responsavel: domainCliente.responsavel,
+      responsavel: domainCliente.responsavel.toUpperCase(),
       telefone: domainCliente.telefone,
-      email: domainCliente.email,
-      responsavel_financeiro: domainCliente.responsavelFinanceiro,
+      email: domainCliente.email.toLowerCase(),
+      responsavel_financeiro: domainCliente.responsavelFinanceiro.toUpperCase(),
       telefone_financeiro: domainCliente.telefoneFinanceiro,
-      email_financeiro: domainCliente.emailFinanceiro,
+      email_financeiro: domainCliente.emailFinanceiro.toLowerCase(),
       status: domainCliente.status,
       cep: domainCliente.cep,
-      logradouro: domainCliente.logradouro,
-      numero: domainCliente.numero,
-      complemento: domainCliente.complemento,
-      bairro: domainCliente.bairro,
-      cidade: domainCliente.cidade,
-      uf: domainCliente.uf,
-      banco: domainCliente.banco,
+      logradouro: domainCliente.logradouro.toUpperCase(),
+      numero: domainCliente.numero.toUpperCase(),
+      complemento: domainCliente?.complemento?.toUpperCase(),
+      bairro: domainCliente.bairro.toUpperCase(),
+      cidade: domainCliente.cidade.toUpperCase(),
+      uf: domainCliente.uf.toUpperCase(),
+      banco: domainCliente.banco.toUpperCase(),
       agencia: domainCliente.agencia,
       conta: domainCliente.conta,
       tipo_conta: domainCliente.tipoConta,
-      pix: domainCliente.pix
+      pix: domainCliente.pix.toUpperCase()
     }
   }
 
   toDomain (persistenceCliente: FornecedoresDomain) {
     return {
-      nome: persistenceCliente.nome,
+      nome: persistenceCliente.nome.toUpperCase(),
       cpfCnpj: persistenceCliente.cpfCnpj,
-      razao_social: persistenceCliente.razaoSocial,
+      razao_social: persistenceCliente.razaoSocial.toUpperCase(),
       inscricaoMunicipal: persistenceCliente.inscricaoMunicipal,
       inscricaoEstadual: persistenceCliente.inscricaoEstadual,
-      responsavel: persistenceCliente.responsavel,
+      responsavel: persistenceCliente.responsavel.toUpperCase(),
       telefone: persistenceCliente.telefone,
-      email: persistenceCliente.email,
-      responsavelFinanceiro: persistenceCliente.responsavelFinanceiro,
+      email: persistenceCliente.email.toLowerCase(),
+      responsavelFinanceiro: persistenceCliente.responsavelFinanceiro.toUpperCase(),
       telefoneFinanceiro: persistenceCliente.telefoneFinanceiro,
-      emailFinanceiro: persistenceCliente.emailFinanceiro,
+      emailFinanceiro: persistenceCliente.emailFinanceiro.toLowerCase(),
       status: persistenceCliente.status,
       cep: persistenceCliente.cep,
-      logradouro: persistenceCliente.logradouro,
-      numero: persistenceCliente.numero,
-      complemento: persistenceCliente.complemento,
-      bairro: persistenceCliente.bairro,
-      cidade: persistenceCliente.cidade,
-      uf: persistenceCliente.uf
+      logradouro: persistenceCliente.logradouro.toUpperCase(),
+      numero: persistenceCliente.numero.toUpperCase(),
+      complemento: persistenceCliente.complemento?.toUpperCase(),
+      bairro: persistenceCliente.bairro.toUpperCase(),
+      cidade: persistenceCliente.cidade.toUpperCase(),
+      uf: persistenceCliente.uf.toUpperCase()
     }
   }
 }

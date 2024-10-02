@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
+
 import Loading from '../components/Loading'
 
 const Dashboard = lazy(async () => await import('../pages/Dashboard'))
@@ -12,6 +13,8 @@ const Users = lazy(async () => await import('../pages/Users'))
 const Fornecedores = lazy(async () => await import('../pages/Fornecedores'))
 const Orcamentos = lazy(async () => await import('../pages/Orcamentos'))
 const ModelosOrcamentos = lazy(async () => await import('../pages/Orcamentos/Modelos'))
+const EditOrcamentos = lazy(async () => await import('../pages/Orcamentos/Edit'))
+const CreateModelo = lazy(async () => await import('../components/CreateItem/Itens/Modelos'))
 const CreateItem = lazy(async () => await import('../components/CreateItem'))
 const NotFound = lazy(async () => await import('../pages/NotFound'))
 
@@ -32,7 +35,9 @@ const AppRouter = () => (
       <Route path="/fornecedores/novo" element={<CreateItem type='fornecedor' />} />
       <Route path="/orcamentos" element={<Orcamentos />} />
       <Route path="/orcamentos/novo" element={<CreateItem type='orcamento' />} />
+      <Route path="/orcamentos/edit/:id" element={<EditOrcamentos />} />
       <Route path="/orcamentos/modelos" element={<ModelosOrcamentos />} />
+      <Route path="/orcamentos/modelos/novo" element={<CreateModelo />} />
       <Route path="/not-found" element={<NotFound />} />
       <Route path='/*' element={<Navigate to="/not-found" replace />} />
     </Routes>

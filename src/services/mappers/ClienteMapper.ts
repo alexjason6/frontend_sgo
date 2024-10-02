@@ -25,25 +25,25 @@ class ClienteMapper {
   toPersistence (domainCliente: ClienteDomain) {
     return {
       id: domainCliente.id,
-      nome: domainCliente.nome,
+      nome: domainCliente.nome.toUpperCase(),
       cpf_cnpj: domainCliente.cpfCnpj,
-      razao_social: domainCliente.razaoSocial,
+      razao_social: domainCliente.razaoSocial.toUpperCase(),
       inscricao_municipal: domainCliente.inscricaoMunicipal,
       inscricao_estadual: domainCliente.inscricaoEstadual,
-      responsavel: domainCliente.responsavel,
+      responsavel: domainCliente.responsavel.toUpperCase(),
       telefone: domainCliente.telefone,
-      email: domainCliente.email,
-      responsavel_financeiro: domainCliente.responsavelFinanceiro,
+      email: domainCliente.email.toLowerCase(),
+      responsavel_financeiro: domainCliente.responsavelFinanceiro.toUpperCase(),
       telefone_financeiro: domainCliente.telefoneFinanceiro,
-      email_financeiro: domainCliente.emailFinanceiro,
+      email_financeiro: domainCliente.emailFinanceiro.toLocaleLowerCase(),
       status: domainCliente.status,
       cep: domainCliente.cep,
-      logradouro: domainCliente.logradouro,
-      numero: domainCliente.numero,
-      complemento: domainCliente.complemento,
-      bairro: domainCliente.bairro,
-      cidade: domainCliente.cidade,
-      uf: domainCliente.uf
+      logradouro: domainCliente.logradouro.toUpperCase(),
+      numero: domainCliente.numero.toUpperCase(),
+      complemento: domainCliente.complemento?.toUpperCase(),
+      bairro: domainCliente.bairro.toUpperCase(),
+      cidade: domainCliente.cidade.toUpperCase(),
+      uf: domainCliente.uf.toUpperCase()
     }
   }
 

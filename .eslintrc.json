@@ -20,6 +20,8 @@
       "@typescript-eslint/strict-boolean-expressions": "off",
       "@typescript-eslint/no-confusing-void-expression": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-unnecessary-type-assertion": "off"
-    }
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "quotes": ["error", "single"],        // Para usar aspas simples
+      "@typescript-eslint/semi": ["error", "never"]  // Para evitar ponto e vírgula extra
+  }
 }

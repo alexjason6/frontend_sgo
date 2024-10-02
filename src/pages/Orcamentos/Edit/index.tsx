@@ -1,49 +1,52 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
-import { FiPlus, FiX } from 'react-icons/fi'
+import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment'
-import { useNavigate } from 'react-router-dom'
 
-import { GlobalContainer, Legend } from '../../../../assets/styles/global'
+import { GlobalContainer, Legend } from '../../../assets/styles/global'
 
-import ModalContext from '../../../../contexts/modalContext'
-import ClientesContext from '../../../../contexts/clientesContext'
-import ObrasContext from '../../../../contexts/obrasContext'
-import OrcamentosContext from '../../../../contexts/orcamentosContext'
-import LoadingContext from '../../../../contexts/loadingContext'
-import AuthContext from '../../../../contexts/authContext'
-import EtapasContext from '../../../../contexts/etapasContext'
+import OrcamentosContext from '../../../contexts/orcamentosContext'
+import ModalContext from '../../../contexts/modalContext'
+import AuthContext from '../../../contexts/authContext'
+import ClientesContext from '../../../contexts/clientesContext'
+import LoadingContext from '../../../contexts/loadingContext'
+import ObrasContext from '../../../contexts/obrasContext'
+import EtapasContext from '../../../contexts/etapasContext'
 
-import Header from '../../../../components/Header'
-import Menu from '../../../../components/Menu'
-import FormGroup from '../../../../components/FormGroup'
-import Input from '../../../../components/Input'
-import Select from '../../../../components/Select'
-import Button from '../../../../components/Button'
+import OrcamentoMapper from '../../../services/mappers/OrcamentoMapper'
+import OrcamentosServices from '../../../services/sgo/OrcamentosServices'
 
-import OrcamentoMapper from '../../../../services/mappers/OrcamentoMapper'
-import OrcamentosServices from '../../../../services/sgo/OrcamentosServices'
+import Header from '../../../components/Header'
+import Menu from '../../../components/Menu'
+import Select from '../../../components/Select'
+import Input from '../../../components/Input'
+import Button from '../../../components/Button'
+import FormGroup from '../../../components/FormGroup'
+import CreateCliente from '../../../components/CreateItem/Itens/Clientes'
+import CreateObra from '../../../components/CreateItem/Itens/Obras'
+import CreateModelo from '../../../components/CreateItem/Itens/Modelos'
+import CreateEtapa from '../../../components/CreateItem/Itens/Etapas'
+import useErrors from '../../../hooks/useErrors'
 
-import CreateObra from '../Obras'
-import CreateEtapa from '../Etapas'
-import CreateCliente from '../Clientes'
-
-import useErrors from '../../../../hooks/useErrors'
-
-import { currencyFormat } from '../../../../utils/currencyFormat'
-import Toast from '../../../../utils/toast'
+import Toast from '../../../utils/toast'
+import { currencyFormat } from '../../../utils/currencyFormat'
 
 import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title, AddSubitem } from './styles'
 
-import { type Obra } from '../../../../interfaces/globalInterfaces'
-import CreateModelo from '../Modelos'
+import { type Obra, type Orcamento } from '../../../interfaces/globalInterfaces'
 
-const CreateOrcamento: React.FC = () => {
+import { FiPlus, FiX } from 'react-icons/fi'
+
+const EditItem: React.FC = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
   const { token } = useContext(AuthContext)
-  const { isOpen, changeModal } = useContext(ModalContext)
+  const { getOrcamento } = useContext(OrcamentosContext)
+  const [orcamento, setOrcamento] = useState<Orcamento>()
+
   const { clientes } = useContext(ClientesContext)
   const { changeLoading } = useContext(LoadingContext)
+  const { changeModal } = useContext(ModalContext)
   const { obras } = useContext(ObrasContext)
   const { modelos, listOrcamentos } = useContext(OrcamentosContext)
   const { etapas, subetapas, listEtapas, listSubetapas } = useContext(EtapasContext)
@@ -61,7 +64,7 @@ const CreateOrcamento: React.FC = () => {
       numero: 0,
       idEtapa: 0,
       subetapas: [
-        { id: 1, nome: '', unidade: '', numero: 0, etapa: 0, idSubetapa: 0, quantidade: 1, valor: 0, valorTotal: '' }
+        { id: 1, nome: '', unidade: '', numero: 0, etapa: 0, idSubetapa: 0, quantidade: 0, valor: 0, valorTotal: '' }
       ]
     }
   ])
@@ -92,7 +95,7 @@ const CreateOrcamento: React.FC = () => {
             numero: 0,
             etapa: 0,
             idSubetapa: 0,
-            quantidade: 1,
+            quantidade: 0,
             valor: 0,
             fornecedor: '',
             valorTotal: ''
@@ -121,7 +124,7 @@ const CreateOrcamento: React.FC = () => {
                   nome: '',
                   unidade: '',
                   numero: 0,
-                  quantidade: 1,
+                  quantidade: 0,
                   idSubetapa: 0,
                   etapa: 0,
                   valor: 0,
@@ -179,16 +182,17 @@ const CreateOrcamento: React.FC = () => {
           if (etapa.id === etapaId) {
             const updatedSubetapas = etapa.subetapas.map(subetapa => {
               if (subetapa.id === subetapaId) {
-                const [id, numero, nome] = value.split('|')
+                const id = value
+                const subetapaFiltered = subetapas.find((etapaSearch) => etapaSearch.id === Number(id))
 
                 return {
                   ...subetapa,
                   [field]: trataValue,
-                  nome,
+                  nome: subetapaFiltered ? subetapaFiltered.nome : '',
                   id: subetapaId, // Setando o ID da subetapa selecionada
                   idSubetapa: Number(id),
                   etapa: Number(etapaId),
-                  numero: Number(numero)
+                  numero: Number(subetapa.numero)
                 }
               }
               return subetapa
@@ -292,11 +296,12 @@ const CreateOrcamento: React.FC = () => {
     }
   }
 
-  const handleCreateitem = async () => {
-    changeLoading(true, 'Criando orçamento...')
+  const handleUpdateitem = async () => {
+    changeLoading(true, 'Salvando orçamento...')
     const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento))
 
     const dataOrcamento = {
+      id: Number(id),
       nome,
       dataCriacao,
       status,
@@ -307,23 +312,21 @@ const CreateOrcamento: React.FC = () => {
       subitem: subitens.map((subitem) => ({ id: subitem.idSubetapa, numero: subitem.numero, nome: subitem.nome, etapa: subitem.etapa, quantidade: subitem.quantidade, unidade: subitem.unidade, valor_unitario: subitem.valor, valor_total: subitem.valorTotal }))
     }
 
-    console.log({ dataOrcamento })
-
     try {
       changeLoading(true, 'Enviando os dados do orçamento...')
       const mapperOrcamento = OrcamentoMapper.toPersistence(dataOrcamento)
-      const create = await OrcamentosServices.create({ token, mapperOrcamento })
+      const edit = await OrcamentosServices.update({ token, mapperOrcamento })
 
       changeLoading(true, 'atualizando lista de obras...')
       await listOrcamentos({ token })
 
-      if (create.id) {
-        Toast({ type: 'success', text: 'Orçamento cadastrado com sucesso.', duration: 5000 })
+      if (edit.id) {
+        Toast({ type: 'success', text: 'Orçamento editado com sucesso.', duration: 5000 })
         navigate(-1)
       }
     } catch (error) {
-      Toast({ type: 'danger', text: 'Erro ao criar orçamento.', duration: 5000 })
-      console.error('Erro ao criar usuário:', error)
+      Toast({ type: 'danger', text: 'Erro ao editar orçamento.', duration: 5000 })
+      console.error('Erro ao editar orçamento:', error)
     } finally {
       changeLoading(false)
     }
@@ -339,14 +342,77 @@ const CreateOrcamento: React.FC = () => {
     changeLoading(false)
   }
 
+  const getInitialOrcamento = async () => {
+    try {
+      const response = await getOrcamento({ token, id: Number(id) })
+
+      if (response.id) {
+        setOrcamento(response)
+        setIdCliente(response.id_cliente)
+        setObra(response.obra)
+        setNome(response.nome)
+        setModelo(response.modelo)
+
+        const initialObras = obras.filter((item) => item.id_cliente === Number(response.id_cliente))
+        setObrasCliente(initialObras)
+
+        // Mapeando os itens e associando seus subitens correspondentes
+        const itemsWithSubitems = response.item?.map((item: any) => {
+        // Filtrar subitens que pertencem ao item atual
+          const subitemsForItem = response.subitem.filter(
+            (subitem: any) => subitem.etapa === item.id
+          ).map((subitem: any) => ({
+            id: subitem.id,
+            nome: subitem.nome,
+            unidade: subitem.unidade,
+            numero: subitem.numero,
+            etapa: subitem.etapa,
+            idSubetapa: subitem.id,
+            quantidade: subitem.quantidade,
+            valor: subitem.valor_unitario,
+            valorTotal: subitem.valor_total
+          }))
+
+          // Retornar o item com os subitens associados
+          return {
+            id: item.id,
+            nome: item.nome,
+            valorTotal: item.valor_total,
+            numero: item.numero,
+            idEtapa: item.id,
+            subetapas: subitemsForItem
+          }
+        })
+
+        // Definir os itens com subitens
+        setItems(itemsWithSubitems)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
-    void getData()
+    if (!orcamento) {
+      changeLoading(true, 'Buscando dados orcamento...')
+
+      void getInitialOrcamento()
+      void getData()
+
+      const timeout = setTimeout(() => {
+        changeLoading(false)
+      }, 1000)
+
+      return () => {
+        clearTimeout(timeout)
+      }
+    }
   }, [])
 
   return (
-    <GlobalContainer $modal>
-      {!isOpen && <Menu />}
-      <Header title="Criar orçamento" fullwidth={!!isOpen} />
+    <GlobalContainer>
+      <Menu />
+      <Header title="Editar orçamento" goBack/>
       <Container>
         <Form>
           <FormContent>
@@ -356,6 +422,7 @@ const CreateOrcamento: React.FC = () => {
                 onChange={(e) => handleChangeItem(e, 'cliente', e.target.value, setIdCliente)}
                 $error={!!getErrorMessageByFieldName('cliente')}
                 required
+                value={idCliente}
               >
                 <option>Selecione um cliente</option>
                 <option value='0'>Cadastrar novo cliente</option>
@@ -372,6 +439,7 @@ const CreateOrcamento: React.FC = () => {
                 onChange={(e) => handleChangeItem(e, 'obra', e.target.value, setObra)}
                 $error={!!getErrorMessageByFieldName('obra')}
                 required
+                value={obra}
               >
                 <option>Selecione uma obra</option>
                 <option value='0'>Cadastrar nova obra</option>
@@ -388,6 +456,7 @@ const CreateOrcamento: React.FC = () => {
                 onChange={(e) => handleChangeItem(e, 'modelo', e.target.value, setModelo)}
                 $error={!!getErrorMessageByFieldName('modelo')}
                 required
+                value={modelo}
               >
                 <option>Selecione um modelo</option>
                 <option value='0'>Cadastrar novo modelo</option>
@@ -451,7 +520,7 @@ const CreateOrcamento: React.FC = () => {
                 </p>
               </FormContent>
 
-                {etapa.subetapas.map((subitem: any) => {
+                {etapa.subetapas?.map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
                   const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
                   const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
@@ -463,13 +532,14 @@ const CreateOrcamento: React.FC = () => {
                     <Select
                       onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value, e)}
                       $error={!!getErrorMessageByFieldName('subetapa')}
+                      defaultValue={subitem.id}
                     >
                       <option>Selecione a subetapa</option>
                       <option value='0'>Cadastrar nova subetapa</option>
                       <option disabled>________________________________</option>
                       {subetapasActive.map((servico) => {
                         return (
-                        <option key={servico.id} value={`${servico.id}|${servico.numero}|${servico.nome}`} >{servico.numero} - {servico.nome}</option>
+                        <option key={servico.id} value={servico.id} >{servico.numero} - {servico.nome}</option>
                         )
                       })
                       }
@@ -490,7 +560,6 @@ const CreateOrcamento: React.FC = () => {
                       <option value='unidade'>Unidade</option>
                       <option value='mês'>Mês</option>
                       <option value='verba'>Verba</option>
-                      <option value='dia'>Dia</option>
                       <option value='viagem'>Viagem</option>
                     </Select>
                   </FormGroup>
@@ -556,11 +625,11 @@ const CreateOrcamento: React.FC = () => {
         </Form>
         <ButtonContainer>
           <span>Valor total do orçamento:<p>{Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(items.reduce<number>((acc, item) => { return acc + Number(item?.valorTotal) }, 0))}</p></span>
-          <Button disabled={!formIsValid} $green onClick={handleCreateitem}>Salvar</Button>
+          <Button disabled={!formIsValid} $green onClick={handleUpdateitem}>Salvar</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>
   )
 }
 
-export default CreateOrcamento
+export default EditItem

@@ -9,7 +9,7 @@ interface EtapasDomain {
 class EtapasMapper {
   toPersistence (domainEtapa: EtapasDomain) {
     return {
-      nome: domainEtapa.nome,
+      nome: domainEtapa.nome.toUpperCase(),
       data_criacao: domainEtapa.dataCriacao,
       status: domainEtapa.status,
       numero: domainEtapa.numero

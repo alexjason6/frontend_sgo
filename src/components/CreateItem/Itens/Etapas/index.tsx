@@ -193,9 +193,9 @@ const CreateEtapa: React.FC = () => {
           </FormContent>
         </Form>
 
-        {isOpen && <ButtonContainer $fullwidth>
+        {/* {isOpen && <ButtonContainer $fullwidth>
           <p onClick={handleGoBack}>Voltar para orçamentos</p>
-        </ButtonContainer>}
+        </ButtonContainer>} */}
       </Container>
     </GlobalContainer>
   )

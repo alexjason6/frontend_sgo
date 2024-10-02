@@ -30,6 +30,7 @@ import useErrors from '../../../../hooks/useErrors'
 import { Container, Edit, EditIcon, ButtonContainer, Form } from './styles'
 
 import { type Fornecedores } from '../../../../interfaces/globalInterfaces'
+import SerproServices from '../../../../services/serpro/SerproServices'
 
 interface Data {
   fornecedor?: Fornecedores
@@ -77,6 +78,12 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
 
     setState(value)
 
+    if (setState === setCpfCnpj) {
+      const cpfCnpjValue = value.replaceAll('.', '').replace('/', '').replace('-', '')
+
+      void fetchCpfCnpj(cpfCnpjValue)
+    }
+
     // Lidar com campos específicos de forma separada
     if (setState === setCep) {
       const cepValue = value.replace('-', '')
@@ -97,11 +104,36 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
     }
   }
 
+  const fetchCpfCnpj = async (cpfCnpjValue: string) => {
+    const value = cpfCnpjValue.replaceAll('.', '').replace('/', '').replace('-', '')
+
+    if (value.length === 11) {
+      const dataCpf = await SerproServices.buscaCpf(value)
+
+      if (dataCpf?.status === 200) {
+        setNome(dataCpf?.data.nome)
+      }
+    }
+
+    if (value.length === 14) {
+      const dataCnpj = await SerproServices.buscaCnpj(value)
+
+      if (dataCnpj?.status === 200) {
+        setNome(dataCnpj.data.nomeFantasia)
+        setRazaoSocial(dataCnpj.data.nomeEmpresarial)
+        setCep(dataCnpj.data.endereco.cep)
+        await fetchCep(dataCnpj.data.endereco.cep)
+        setNumero(dataCnpj.data.endereco.numero)
+        setComplemento(dataCnpj.data.endereco.complemento)
+      }
+    }
+  }
+
   const fetchCep = async (cepValue: string) => {
     const cepResponse = await CepServices.buscaCep(cepValue)
 
     if (cepResponse.data.erro) {
-      Toast({ type: 'danger', text: 'Erro ao buscar o CEP.', duration: 5000 })
+      Toast({ type: 'danger', text: 'CEP não encontrado.', duration: 5000 })
     }
 
     setLogradouro(cepResponse.data.logradouro)
@@ -112,7 +144,7 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
 
   const handleCreateFornecedor = async () => {
     try {
-      changeLoading(true, 'enviando dados...')
+      changeLoading(true, 'Enviando dados do fornecedor...')
 
       const dataFornecedor = {
         nome,
@@ -202,7 +234,22 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
         {!fornecedor && <Header title='Cadastrar novo fornecedor' subHeader={isOpen} modal />}
         {fornecedor && <Header title={`Editar fornecedor - ${nome}`} modal />}
         <Form>
-        <FormGroup $error={getErrorMessageByFieldName('nome')}>
+          <FormGroup $error={getErrorMessageByFieldName('cpfCnpj')}>
+            <Legend>CPF/CNPJ:<sup>*</sup></Legend>
+            <Input
+              value={cpfCnpjFormat(cpfCnpj)}
+              disabled={!edit}
+              $listData={!edit}
+              maxLength={18}
+              $error={!!getErrorMessageByFieldName('cpfCnpj')}
+              type='tel'
+              onChange={async (event) =>
+                handleChangeItem(event, 'cpfCnpj', 'Por favor, digite o CPF/CNPJ', setCpfCnpj)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup $error={getErrorMessageByFieldName('nome')}>
             <Legend>Nome:<sup>*</sup></Legend>
             <Input
               placeholder='Ex.: Almeida Pinto Fundações'
@@ -227,21 +274,6 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
               type='text'
               onChange={async (event) =>
                 handleChangeItem(event, 'razaoSocial', 'Por favor, digite a razao social', setRazaoSocial)
-              }
-            />
-          </FormGroup>
-
-          <FormGroup $error={getErrorMessageByFieldName('cpfCnpj')}>
-            <Legend>CPF/CNPJ:<sup>*</sup></Legend>
-            <Input
-              value={cpfCnpjFormat(cpfCnpj)}
-              disabled={!edit}
-              $listData={!edit}
-              maxLength={18}
-              $error={!!getErrorMessageByFieldName('cpfCnpj')}
-              type='tel'
-              onChange={async (event) =>
-                handleChangeItem(event, 'cpfCnpj', 'Por favor, digite o CPF/CNPJ', setCpfCnpj)
               }
             />
           </FormGroup>
@@ -512,9 +544,9 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
                 handleChangeItem(event, 'tipoConta', 'Por favor, selecione uma situação', setTipoConta)
               }
             >
-              <option value={''}>Selecione uma opção</option>
-              <option value={'1'}>Corrente</option>
-              <option value={'2'}>Poupança</option>
+              <option value={0}>Selecione uma opção</option>
+              <option value={1}>Corrente</option>
+              <option value={2}>Poupança</option>
             </Select>
           </FormGroup>
         </Form>

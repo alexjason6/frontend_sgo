@@ -52,7 +52,7 @@ const CreateModelo: React.FC = () => {
     }
   }
 
-  const handleCreateFornecedor = async () => {
+  const handleCreateModeloOrcamento = async () => {
     try {
       changeLoading(true, 'enviando dados...')
 
@@ -136,7 +136,7 @@ const CreateModelo: React.FC = () => {
           </FormGroup>
         </Form>
         <ButtonContainer>
-          <Button disabled={!formIsValid} onClick={handleCreateFornecedor} $green>Salvar</Button>
+          <Button disabled={!formIsValid} onClick={handleCreateModeloOrcamento} $green>Salvar</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>

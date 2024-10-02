@@ -1,13 +1,13 @@
-import React, { useContext, useState } from 'react'
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import checkStatus from '../../../../utils/checkStatus'
 import dateFormat from '../../../../utils/dateFormat'
+import { orcamentoValue } from '../../../../utils/calculateInfosObras'
 
 import { Table, Tr, Td } from './styles'
 
 import { type Orcamento, type TiposOrcamentos, type Cliente, type Obra } from '../../../../interfaces/globalInterfaces'
-import { orcamentoValue } from '../../../../utils/calculateInfosObras'
-import OrcamentosContext from '../../../../contexts/orcamentosContext'
 
 interface ItemTableProps {
   orcamentos: Orcamento[]
@@ -17,20 +17,10 @@ interface ItemTableProps {
 }
 
 const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes, obras }) => {
-  const [infoOpen, setInfoOpen] = useState<number[]>([])
-  const { itens } = useContext(OrcamentosContext)
+  const navigate = useNavigate()
 
-  const handleOpenInfo = (id: number) => {
-    const [idExists] = infoOpen.filter((cliente) => cliente === id)
-
-    if (idExists) {
-      setInfoOpen((prevState) => prevState.filter((cliente) => cliente !== id))
-    } else {
-      setInfoOpen((prevState) => [
-        ...prevState,
-        id
-      ])
-    }
+  const handleOpenOrcamento = (id: number) => {
+    navigate(`/orcamentos/edit/${id}`)
   }
 
   return (
@@ -46,29 +36,22 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
           <Td $index><b>Situação</b></Td>
         </Tr>
         {orcamentos?.map((orcamento) => {
-          const [open] = infoOpen.filter((info) => info === orcamento.id)
           const [obra] = obras.filter((item) => item.id === orcamento.obra)
           const [cliente] = clientes.filter((item) => item.id === orcamento.id_cliente)
           const [tipoOrcamento] = tipo.filter((item) => orcamento.modelo === item.tipo)
-          const itensOrcamento = itens.filter((item) => item.orcamento === orcamento.id)
-
-          console.log(itensOrcamento)
-          const valorTotal = orcamentoValue(itens)
+          const valorTotal = orcamentoValue(orcamento.item)
 
           return (
             <React.Fragment key={orcamento.id}>
-              <Tr $open={open === orcamento.id} onClick={() => handleOpenInfo(orcamento.id)}>
+              <Tr onClick={() => handleOpenOrcamento(orcamento.id)}>
                 <Td>{orcamento.nome}</Td>
                 <Td>{dateFormat(orcamento.data_criacao)}</Td>
                 <Td>{tipoOrcamento?.nome ?? 'Avulso'}</Td>
-                <Td>{obra?.nome}</Td>
-                <Td>{cliente?.nome}</Td>
+                <Td>{obra?.nome.length > 25 ? obra?.nome.slice(0, 25) + ' ...' : obra.nome}</Td>
+                <Td>{cliente?.nome.length > 20 ? cliente.nome.slice(0, 20) + '...' : cliente?.nome}</Td>
                 <Td>{valorTotal}</Td>
                 <Td>{checkStatus(orcamento.status, 'orçamento')}</Td>
               </Tr>
-              {open === orcamento.id && (
-                <>{/* <Infos data={orcamento} /> */}</>
-              )}
             </React.Fragment>
           )
         })}

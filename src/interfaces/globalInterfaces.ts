@@ -159,6 +159,23 @@ export interface Users {
   push?: string
 }
 
+export interface ItemOrcamento {
+  id: number
+  nome: string
+  numero: number
+  valor_total: string
+}
+
+export interface SubitemOrcamento {
+  etapa: number
+  id: number
+  nome: string
+  numero: number
+  quantidade: string
+  valor_total: string
+  valor_unitario: string
+}
+
 export interface Orcamento {
   id: number
   nome: string
@@ -168,20 +185,20 @@ export interface Orcamento {
   modelo: number
   id_cliente: number
   obra: number
-  item: [{ id: number, nome: string, numero: number, valor_total: string }]
-  subitem: [{ etapa: number, id: number, nome: string, numero: number, quantidade: string, valor_total: string, valor_unitario: string }]
+  item: ItemOrcamento[]
+  subitem: SubitemOrcamento[]
 }
 
 export interface Etapa {
   id: number
-  data_criacao: string
-  data_alteracao: string | null
+  data_criacao?: string
+  data_alteracao?: string | null
   numero: number
   nome: string
   valor_total: string
-  status: number
-  orcamento: number
-  subetapas: Array<{}>
+  status?: number
+  orcamento?: number
+  subetapas?: Array<{}>
 }
 
 export interface Subetapa {

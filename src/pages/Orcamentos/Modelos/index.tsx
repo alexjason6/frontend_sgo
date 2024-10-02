@@ -23,7 +23,7 @@ const ModelosOrcamento: React.FC = () => {
   const { changeLoading } = useContext(LoadingContext)
   const { modelos, listModelos } = useContext(OrcamentosContext)
 
-  const handleCreateObra = () => {
+  const handleCreateModelo = () => {
     changeModal(<CreateModelo />)
   }
 
@@ -53,11 +53,11 @@ const ModelosOrcamento: React.FC = () => {
       <Header title='Modelos de orçamentos' goBack/>
       <Content $itens={modelos.length > 0}>
       {!modelos || modelos.length === 0
-        ? <NoItemListed component={<CreateModelo />} text='Não foram encontradas orçamentos cadastrados.' />
+        ? <NoItemListed component={<CreateModelo />} text='Não foram encontradas modelos de orçamentos.' type='modeloOrcamento' />
         : (
           <ContentPage>
             <ButtonContainer>
-              <Button $blue onClick={handleCreateObra}>Criar modelo</Button>
+              <Button $blue onClick={handleCreateModelo}>Criar modelo</Button>
             </ButtonContainer>
             <ModelosTable
               data={modelos}

@@ -32,6 +32,7 @@ import { type Cliente } from '../../../../interfaces/globalInterfaces'
 import { GlobalContainer, Legend } from '../../../../assets/styles/global'
 import useErrors from '../../../../hooks/useErrors'
 import isEmailValid from '../../../../utils/isEmailValid'
+import SerproServices from '../../../../services/serpro/SerproServices'
 
 interface Data {
   cliente?: Cliente
@@ -91,6 +92,12 @@ const CreateCliente: React.FC<Data> = ({ cliente }) => {
       setItem(value.toUpperCase())
     }
 
+    if (setItem === setCpfCnpj) {
+      const cpfCnpjValue = value.toString().replaceAll('.', '').replace('/', '').replace('-', '')
+
+      void fetchCpfCnpj(cpfCnpjValue)
+    }
+
     if (!value) {
       setError({ field: fieldName, message })
     } else if (setItem === setEmail && !isEmailValid(value.toString())) {
@@ -112,6 +119,31 @@ const CreateCliente: React.FC<Data> = ({ cliente }) => {
       setBairro(cepResponse.data.bairro)
       setCidade(cepResponse.data.localidade)
       setUf(cepResponse.data.uf)
+    }
+  }
+
+  const fetchCpfCnpj = async (cpfCnpjValue: string) => {
+    const value = cpfCnpjValue.replaceAll('.', '').replace('/', '').replace('-', '')
+
+    if (value.length === 11) {
+      const dataCpf = await SerproServices.buscaCpf(value)
+
+      if (dataCpf?.status === 200) {
+        setNome(dataCpf?.data.nome)
+      }
+    }
+
+    if (value.length === 14) {
+      const dataCnpj = await SerproServices.buscaCnpj(value)
+
+      if (dataCnpj?.status === 200) {
+        setNome(dataCnpj.data.nomeFantasia)
+        setRazaoSocial(dataCnpj.data.nomeEmpresarial)
+        setCep(dataCnpj.data.endereco.cep)
+        await fetchCep(dataCnpj.data.endereco.cep)
+        setNumero(dataCnpj.data.endereco.numero)
+        setComplemento(dataCnpj.data.endereco.complemento)
+      }
     }
   }
 
@@ -202,6 +234,20 @@ const CreateCliente: React.FC<Data> = ({ cliente }) => {
         </Edit>}
 
         <Form>
+          <FormGroup $error={getErrorMessageByFieldName('cpfCnpj')}>
+            <Legend>CPF/CNPJ: <sup>*</sup></Legend>
+            <Input
+              value={cpfCnpj && cpfCnpjFormat(cpfCnpj)}
+              disabled={!edit}
+              type='tel'
+              required
+              maxLength={18}
+              $listData={!edit}
+              $error={!!getErrorMessageByFieldName('cpfCnpj')}
+              onChange={(event) => handleChangeField(setCpfCnpj as Dispatch<SetStateAction<string | number>>, 'cpfCnpj', 'Digite o CPF ou CNPJ.', event.target.value)}
+            />
+          </FormGroup>
+
           <FormGroup $error={getErrorMessageByFieldName('razaoSocial')}>
             <Legend>Razão Social: <sup>*</sup></Legend>
             <Input
@@ -225,20 +271,6 @@ const CreateCliente: React.FC<Data> = ({ cliente }) => {
               $listData={!edit}
               $error={!!getErrorMessageByFieldName('nome')}
               onChange={(event) => handleChangeField(setNome as Dispatch<SetStateAction<string | number>>, 'nome', 'Digite o nome do cliente.', event.target.value)}
-            />
-          </FormGroup>
-
-          <FormGroup $error={getErrorMessageByFieldName('cpfCnpj')}>
-            <Legend>CPF/CNPJ: <sup>*</sup></Legend>
-            <Input
-              value={cpfCnpj && cpfCnpjFormat(cpfCnpj)}
-              disabled={!edit}
-              type='tel'
-              required
-              maxLength={18}
-              $listData={!edit}
-              $error={!!getErrorMessageByFieldName('cpfCnpj')}
-              onChange={(event) => handleChangeField(setCpfCnpj as Dispatch<SetStateAction<string | number>>, 'cpfCnpj', 'Digite o CPF ou CNPJ.', event.target.value)}
             />
           </FormGroup>
 

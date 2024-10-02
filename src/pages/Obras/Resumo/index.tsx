@@ -43,8 +43,6 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
 
   const [rdo] = rdos.filter((item) => item.obra === obra.id)
 
-  console.log(orcamento)
-
   const getData = async () => {
     changeLoading(true, 'Buscando dados do cliente...')
     await listClientes({ token })

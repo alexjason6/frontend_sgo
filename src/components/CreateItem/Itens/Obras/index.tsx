@@ -66,7 +66,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
   const [status, setStatus] = useState(obra?.status ?? '1')
 
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
-  const formIsValid = alvara && cno && dataInicio && nome && idCliente && cep && tipo && status && errors.length === 0
+  const formIsValid = nome && idCliente && cep && tipo && status && errors.length === 0
 
   const [cliente] = clientes.filter((item) => item.id === obra?.id_cliente)
 
@@ -242,7 +242,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('alvara')}>
-            <Legend>Alvará: <sup>*</sup></Legend>
+            <Legend>Alvará:</Legend>
             <Input
               $error={!!getErrorMessageByFieldName('alvara')}
               value={alvara}
@@ -250,7 +250,6 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               type='text'
               disabled={!edit}
               $listData={!edit}
-              required
               onChange={async (event) =>
                 handleChangeItem(event, 'alvara', 'Por favor, digite o alvara da obra', setAlvara)
               }
@@ -258,7 +257,7 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('cno')}>
-            <Legend>CNO: <sup>*</sup></Legend>
+            <Legend>CNO:</Legend>
             <Input
               $error={!!getErrorMessageByFieldName('cno')}
               value={cno}
@@ -266,7 +265,6 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
               type='text'
               disabled={!edit}
               $listData={!edit}
-              required
               onChange={async (event) =>
                 handleChangeItem(event, 'cno', 'Por favor, digite o numero CNO da obra', setCno)
               }
@@ -274,14 +272,13 @@ const CreateObra: React.FC<Data> = ({ obra }) => {
           </FormGroup>
 
           <FormGroup $error={getErrorMessageByFieldName('dataInicio')}>
-            <Legend>Data início: <sup>*</sup></Legend>
+            <Legend>Data início:</Legend>
             <Input
               $error={!!getErrorMessageByFieldName('dataInicio')}
               value={obra ? dateFormat(dataInicio, false, 'reverse') : dataInicio}
               disabled={!edit}
               $listData={!edit}
               type='date'
-              required
               onChange={async (event) =>
                 handleChangeItem(event, 'dataInicio', 'Por favor, digite a data de início da obra', setDataInicio)
               }

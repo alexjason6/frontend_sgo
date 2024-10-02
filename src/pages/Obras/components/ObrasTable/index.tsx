@@ -40,8 +40,8 @@ const ObrasTable: React.FC<ClientTableProps> = ({ obras, clientes }) => {
 
           return (
             <Tr key={obra?.id} onClick={() => handleOpenInfo(obra?.id)}>
-              <Td>{obra?.nome}</Td>
-              <Td>{cliente?.nome}</Td>
+              <Td>{obra?.nome.length > 25 ? obra?.nome.slice(0, 25) + ' ...' : obra.nome}</Td>
+              <Td>{cliente?.nome.length > 25 ? cliente?.nome.slice(0, 25) + ' ...' : cliente.nome}</Td>
               <Td>{obra?.alvara}</Td>
               <Td>{obra?.cno}</Td>
               <Td>{obra?.engenheiro}</Td>

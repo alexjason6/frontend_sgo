@@ -20,18 +20,18 @@ class UserMapper {
   toPersistence (domainUser: UserDomain) {
     return {
       id: domainUser.id ?? 0,
-      nome: domainUser.nome,
+      nome: domainUser.nome.toUpperCase(),
       cpf: domainUser.cpf,
       telefone: domainUser.telefone,
-      email: domainUser.email,
+      email: domainUser.email.toLowerCase(),
       status: domainUser.status,
       cep: domainUser.cep,
-      logradouro: domainUser.logradouro,
-      numero: domainUser.numero,
-      complemento: domainUser.complemento,
-      bairro: domainUser.bairro,
-      cidade: domainUser.cidade,
-      uf: domainUser.uf,
+      logradouro: domainUser.logradouro.toUpperCase(),
+      numero: domainUser.numero.toUpperCase(),
+      complemento: domainUser.complemento?.toUpperCase(),
+      bairro: domainUser.bairro.toUpperCase(),
+      cidade: domainUser.cidade.toUpperCase(),
+      uf: domainUser.uf.toUpperCase(),
       password: domainUser.password,
       permissoes: domainUser.permissoes
     }
@@ -40,18 +40,18 @@ class UserMapper {
   toDomain (persistenceUser: UserDomain) {
     return {
       id: persistenceUser.id,
-      nome: persistenceUser.nome,
+      nome: persistenceUser.nome.toUpperCase(),
       cpf: persistenceUser.cpf,
       telefone: persistenceUser.telefone,
-      email: persistenceUser.email,
+      email: persistenceUser.email.toLowerCase(),
       status: persistenceUser.status,
       cep: persistenceUser.cep,
-      logradouro: persistenceUser.logradouro,
-      numero: persistenceUser.numero,
-      complemento: persistenceUser.complemento,
-      bairro: persistenceUser.bairro,
-      cidade: persistenceUser.cidade,
-      uf: persistenceUser.uf,
+      logradouro: persistenceUser.logradouro.toUpperCase(),
+      numero: persistenceUser.numero.toUpperCase(),
+      complemento: persistenceUser.complemento?.toUpperCase(),
+      bairro: persistenceUser.bairro.toUpperCase(),
+      cidade: persistenceUser.cidade.toUpperCase(),
+      uf: persistenceUser.uf.toUpperCase(),
       password: persistenceUser.password,
       permissoes: persistenceUser.permissoes
     }
