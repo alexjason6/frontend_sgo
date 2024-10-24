@@ -18,6 +18,8 @@ interface PropsSections {
   typeSection: string
   items: RdoRda[] | Obra[]
   itemDb: any[]
+  width: number
+  showDoc?: boolean
   setItem: Dispatch<SetStateAction<any[]>>
   handleChangeMore: (typeSection: string, setItem: Dispatch<SetStateAction<any[]>>, itemDb: any[]) => void
   more: string[]
@@ -34,6 +36,8 @@ const Sections: React.FC<PropsSections> = ({
   items,
   itemDb,
   more,
+  showDoc,
+  width,
   setItem,
   handleChangeMore
 }) => {
@@ -44,6 +48,8 @@ const Sections: React.FC<PropsSections> = ({
   const createRdoRda = (type: string) => {
     changeModal(<CreateRdoRda type={type}/>)
   }
+
+  console.log(itemDb.length, items.length)
 
   return (
   <div>
@@ -64,20 +70,22 @@ const Sections: React.FC<PropsSections> = ({
               item={item}
               id={item.id}
               nome={obra?.nome ?? 'Obra desconhecida'}
+              idCliente={cliente?.id}
             />
           )
         })}
       </Itens>
 
-      {(items.length > 3 && itemDb.length > 3) && (
-        itemDb.length >= items.length && (
+      {showDoc && typeSection === 'rdo' && <div style={{ width: '100%', marginTop: '20px', marginBottom: '-20px' }}><Button style={{ float: 'right' }} onClick={() => createRdoRda('rdo')}>Novo RDO</Button></div>}
+
+      {(width < itemDb.length) && (
           <More>
             <p onClick={() => handleChangeMore(typeSection, setItem, itemDb)}>
               {more.includes(typeSection) ? 'Recolher' : 'Expandir'}
               <Chevron $obras={more.includes(typeSection)} />
             </p>
           </More>
-        ))}
+        )}
     </Content>
   </div>
   )

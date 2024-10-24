@@ -1,33 +1,34 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams, useNavigate } from 'react-router-dom'
 
 import { GlobalContainer } from '../../assets/styles/global'
 
 import RdoRdaContext from '../../contexts/rdoRdaContext'
 import LoadingContext from '../../contexts/loadingContext'
+import FornecedoresContext from '../../contexts/fornecedoresContext'
+import ClientesContext from '../../contexts/clientesContext'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import TableInfos from '../../components/TableInfos'
 import Button from '../../components/Button'
+import Input from '../../components/Input'
 
 import { Content, Infos } from './styles'
 
 import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
-import Input from '../../components/Input'
-import ModalContext from '../../contexts/modalContext'
-import CreateLancamento from './CreateLancamento'
-import FornecedoresContext from '../../contexts/fornecedoresContext'
 
 const RdoRda: React.FC = () => {
   const params = useParams()
   const location = useLocation()
+  const navigate = useNavigate()
   const { type, id } = params
-  const { obra, cliente, clienteId } = location.state
+  const { obra, cliente } = location.state
   const { changeLoading } = useContext(LoadingContext)
   const { fornecedores } = useContext(FornecedoresContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
-  const { changeModal } = useContext(ModalContext)
+  const {clientes} = useContext(ClientesContext)
+
 
   const [data, setData] = useState<LancamentoRdoRda[]>([])
   const [filteredData, setFilteredData] = useState<LancamentoRdoRda[]>([])
@@ -52,7 +53,15 @@ const RdoRda: React.FC = () => {
   }
 
   const handleOpenModal = () => {
-    changeModal(<CreateLancamento tipo={type} rdoRda={id} nameCliente={cliente} obraId={obra} cliente_id={clienteId} />)
+    const clienteId = clientes.find((item) => item.nome === cliente)
+
+    navigate(`/obras/lancamentos/${type}/${obra}/novo`, {
+      state: {
+        obra,
+        cliente,
+        clienteId: clienteId?.id
+      }
+    })
   }
 
   useEffect(() => {

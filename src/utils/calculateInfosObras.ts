@@ -13,7 +13,12 @@ export const executadoValue = (
   type?: string
 ) => {
   const executado = lancamentos.reduce<number>((accumulator, item) => {
-    return accumulator + Number(item.valor_pagamento);
+    // Verifica se o valor_pagamento está vazio, nulo ou indefinido, e trata como 0
+    const valor =
+      item.valor_pagamento === "" || isNaN(Number(item.valor_pagamento))
+        ? 0
+        : Number(item.valor_pagamento);
+    return accumulator + valor;
   }, 0);
 
   if (type === "pure") {
@@ -88,7 +93,12 @@ export const saldoValue = (
   }, 0);
 
   const executado = lancamentos.reduce<number>((accumulator, item) => {
-    return accumulator + Number(item.valor_pagamento);
+    // Verifica se o valor_pagamento está vazio, nulo ou indefinido, e trata como 0
+    const valor =
+      item.valor_pagamento === "" || isNaN(Number(item.valor_pagamento))
+        ? 0
+        : Number(item.valor_pagamento);
+    return accumulator + valor;
   }, 0);
 
   const comprometido = lancamentos.reduce<number>((accumulator, item) => {

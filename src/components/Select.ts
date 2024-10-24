@@ -1,8 +1,9 @@
-import styled, { css } from 'styled-components'
-import { device } from '../assets/styles/themes/devices'
+import styled, { css } from "styled-components";
+import { device } from "../assets/styles/themes/devices";
+import arrowDown from "../assets/images/chevron-down.png";
 
 interface PropStyles {
-  $error?: boolean
+  $error?: boolean;
 }
 
 export default styled.select<PropStyles>`
@@ -13,13 +14,17 @@ export default styled.select<PropStyles>`
   width: 100%;
   height: 40px;
   font-size: 12px;
-  padding: 0px 15px;
+  padding: 0px 20px 0px 15px;
   background: ${({ theme }) => theme.colors.grays.lighter};
   border: 2px solid ${({ theme }) => theme.colors.grays.lighter};
   border-radius: 4px;
   outline: none;
   text-align: center;
   color: ${({ theme }) => theme.colors.grays.light};
+  -webkit-appearance: none;
+  background: ${({ theme }) => theme.colors.grays.lighter} url(${arrowDown})
+    no-repeat right center;
+  background-size: 20px;
 
   &:focus,
   &:hover {
@@ -36,7 +41,7 @@ export default styled.select<PropStyles>`
     $error &&
     css`
       border-color: ${theme.colors.danger.primary};
-  `}
+    `}
 
   @media ${device.mobileL} {
     background: ${({ theme }) => theme.colors.white};
@@ -53,15 +58,17 @@ export default styled.select<PropStyles>`
     border: 2px solid ${({ theme }) => theme.colors.white};
   }
 
-  ${({ disabled, theme }) => disabled && css`
-    background: ${theme.colors.white};
-    border: none;
-    border-radius: 0;
-    border-bottom: 2px solid ${theme.colors.oranges.primary};
-
-    &:hover {
+  ${({ disabled, theme }) =>
+    disabled &&
+    css`
+      background: ${theme.colors.white};
       border: none;
+      border-radius: 0;
       border-bottom: 2px solid ${theme.colors.oranges.primary};
-    }
-  `}
-`
+
+      &:hover {
+        border: none;
+        border-bottom: 2px solid ${theme.colors.oranges.primary};
+      }
+    `}
+`;

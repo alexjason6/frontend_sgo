@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction } from 'react'
+import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment'
 
@@ -31,7 +31,7 @@ import useErrors from '../../../hooks/useErrors'
 import Toast from '../../../utils/toast'
 import { currencyFormat } from '../../../utils/currencyFormat'
 
-import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title, AddSubitem } from './styles'
+import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title, AddSubitem, Arrow, ArrowSubitem } from './styles'
 
 import { type Obra, type Orcamento } from '../../../interfaces/globalInterfaces'
 
@@ -56,15 +56,16 @@ const EditItem: React.FC = () => {
   const [status] = useState<number>(1)
   const [modelo, setModelo] = useState(0)
   const [obra, setObra] = useState<number>(0)
+  const [etapasOpened, setEtapasOpened] = useState<number[]>([])
   const [items, setItems] = useState([
     {
       id: 1,
       nome: '',
       valorTotal: '',
-      numero: 0,
+      numero: '',
       idEtapa: 0,
       subetapas: [
-        { id: 1, nome: '', unidade: '', numero: 0, etapa: 0, idSubetapa: 0, quantidade: 0, valor: 0, valorTotal: '' }
+        { id: 1, nome: '', unidade: '', numero: '', etapa: 0, idSubetapa: 0, quantidade: 0, valor: 0, valorTotal: '' }
       ]
     }
   ])
@@ -75,9 +76,7 @@ const EditItem: React.FC = () => {
 
   const handleAddEtapa = () => {
     // Verifica se existe alguma etapa e obtém o maior ID
-    const newEtapaId = items.length
-      ? Math.max(...items.map(item => item.id)) + 1
-      : 1
+    const newEtapaId = Math.random()
 
     setItems(prevState => [
       ...prevState,
@@ -85,14 +84,14 @@ const EditItem: React.FC = () => {
         id: newEtapaId,
         nome: '',
         valorTotal: '',
-        idEtapa: 1,
-        numero: 0,
+        idEtapa: 0,
+        numero: '',
         subetapas: [
           {
             id: 1,
             nome: '',
             unidade: '',
-            numero: 0,
+            numero: '',
             etapa: 0,
             idSubetapa: 0,
             quantidade: 0,
@@ -118,12 +117,10 @@ const EditItem: React.FC = () => {
               subetapas: [
                 ...etapa.subetapas,
                 {
-                  id: etapa.subetapas.length
-                    ? Math.max(...etapa.subetapas.map(sub => sub.id)) + 1
-                    : 1,
+                  id: Math.random(),
                   nome: '',
                   unidade: '',
-                  numero: 0,
+                  numero: '',
                   quantidade: 0,
                   idSubetapa: 0,
                   etapa: 0,
@@ -174,9 +171,7 @@ const EditItem: React.FC = () => {
       changeModal(<CreateEtapa />)
     }
 
-    // Atualizando o estado com os IDs de subetapas selecionadas
-
-    if (field === 'subetapa' && value !== '0') {
+    if (field === 'subetapa' && value !== '0' || field === 'numSubEtapa') {
       setItems(prevState =>
         prevState.map(etapa => {
           if (etapa.id === etapaId) {
@@ -192,8 +187,7 @@ const EditItem: React.FC = () => {
                   id: subetapaId, // Setando o ID da subetapa selecionada
                   idSubetapa: Number(id),
                   etapa: Number(etapaId),
-                  numero: Number(subetapa.numero)
-                }
+                  numero: field === 'numSubEtapa' ? value : ''                }
               }
               return subetapa
             })
@@ -277,14 +271,29 @@ const EditItem: React.FC = () => {
 
     if (fieldName === 'etapa' && value !== '0' && etapaId) {
       const etapaSelecionada = etapas?.find(etapa => etapa.id === Number(value))
+
       if (etapaSelecionada) {
         setItems(prevState =>
           prevState.map(item =>
             item.id === etapaId
-              ? { ...item, nome: etapaSelecionada.nome, numero: etapaSelecionada.numero, idEtapa: Number(value), id: etapaSelecionada.id }
+              ? { ...item, nome: etapaSelecionada.nome, idEtapa: Number(value), id: etapaSelecionada.id, numero: value }
               : item
           )
         )
+      }
+    }
+
+    if (fieldName === 'numEtapa') {
+      const [etapaSelecionada] = etapas?.filter(etapa => etapa.id === Number(value));
+
+      if (etapaSelecionada) {
+        setItems(prevState =>
+          prevState.map(item =>
+            item.id === etapaId
+              ? { ...item, numero: value }
+              : item
+          )
+        );
       }
     }
 
@@ -295,8 +304,8 @@ const EditItem: React.FC = () => {
       removeError(fieldName)
     }
   }
-
-  const handleUpdateitem = async () => {
+console.log({items})
+  const handleUpdateItem = async () => {
     changeLoading(true, 'Salvando orçamento...')
     const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento))
 
@@ -332,7 +341,7 @@ const EditItem: React.FC = () => {
     }
   }
 
-  const getData = async () => {
+  const getData = useCallback( async () => {
     changeLoading(true, 'Carregando etapas...')
     await listEtapas({ token })
 
@@ -340,9 +349,9 @@ const EditItem: React.FC = () => {
     await listSubetapas({ token })
 
     changeLoading(false)
-  }
+  }, [changeLoading, listSubetapas, listEtapas, token])
 
-  const getInitialOrcamento = async () => {
+  const getInitialOrcamento = useCallback( async () => {
     try {
       const response = await getOrcamento({ token, id: Number(id) })
 
@@ -390,6 +399,20 @@ const EditItem: React.FC = () => {
     } catch (error) {
       console.log(error)
     }
+  }, [getOrcamento, id, obras, token])
+
+  const handleChangeVisibilityOfSubetapas = (id: number) => {
+    const [etapaIsOpened] = etapasOpened.filter((item) => item === id)
+
+    if (etapaIsOpened) {
+      const hideSubetapa = etapasOpened.filter((item) => item !== id)
+      setEtapasOpened(hideSubetapa)
+    } else {
+      setEtapasOpened((prevstate) => [
+        ...prevstate,
+        id
+      ])
+    }
   }
 
   useEffect(() => {
@@ -407,7 +430,7 @@ const EditItem: React.FC = () => {
         clearTimeout(timeout)
       }
     }
-  }, [])
+  }, [changeLoading, getData, getInitialOrcamento, orcamento])
 
   return (
     <GlobalContainer>
@@ -481,10 +504,23 @@ const EditItem: React.FC = () => {
           </FormContent>
 
           <Title>Itens do orçamento</Title>
-          {items?.map((etapa) => {
+          {items?.sort((a, b) => a.numero > b.numero ? 1 : -1).sort((a, b) => a.idEtapa === 0 || b.idEtapa > 0 ? 1 : -1).map((etapa) => {
             return (
             <React.Fragment key={etapa.id}>
               <FormContent $items>
+                {etapa.subetapas.length > 0 && <Arrow $open={!!etapasOpened.find((item) => item === Number(etapa.id))} onClick={() => {handleChangeVisibilityOfSubetapas(Number(etapa.id))}} />}
+                <FormGroup oneOfSix  $error={getErrorMessageByFieldName('numEtapa')}>
+                  <Legend>Número:</Legend>
+                  <Input
+                    type="text"
+                    value={etapa.numero}
+                    placeholder="Ex.: 1"
+                    $square
+                    $error={!!getErrorMessageByFieldName('numEtapa')}
+                    onChange={(e) => handleChangeItem(e, 'numEtapa', e.target.value, () => {}, etapa.id)}
+                  />
+                </FormGroup>
+
                 <FormGroup oneOftree $error={getErrorMessageByFieldName('etapa')}>
                   <Legend>Etapa:</Legend>
                    <Select
@@ -497,7 +533,7 @@ const EditItem: React.FC = () => {
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
                     {etapas.length > 0 && etapas.map((item) => (
-                      <option key={item.id} value={item.id} className={String(item.id)}>{item.numero} - {item.nome}</option>
+                      <option key={item.id} value={item.id} className={String(item.id)}>{item.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -526,85 +562,105 @@ const EditItem: React.FC = () => {
                   const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
 
                   return (
-                  <FormContent key={subitem.id} $items>
-                    <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
-                    <Legend>Subetapa:</Legend>
-                    <Select
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value, e)}
-                      $error={!!getErrorMessageByFieldName('subetapa')}
-                      defaultValue={subitem.id}
-                    >
-                      <option>Selecione a subetapa</option>
-                      <option value='0'>Cadastrar nova subetapa</option>
-                      <option disabled>________________________________</option>
-                      {subetapasActive.map((servico) => {
-                        return (
-                        <option key={servico.id} value={servico.id} >{servico.numero} - {servico.nome}</option>
-                        )
-                      })
-                      }
-                    </Select>
-                  </FormGroup>
+                    <>
+                    {!!etapasOpened.find((item) => item === Number(etapa.id)) &&
+                      <FormContent key={subitem.id} $items>
+                        <ArrowSubitem />
+                        <FormGroup oneOfSix $error={getErrorMessageByFieldName('numSubEtapa')}>
+                        <Legend>Número:</Legend>
+                        <Input
+                          type="text"
+                          value={subitem.numero}
+                          $error={!!getErrorMessageByFieldName('numSubEtapa')}
+                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'numSubEtapa', e.target.value)}
+                          placeholder="Ex.: 01.01"
+                          $square
+                        />
+                      </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('unidade')}>
-                    <Legend>Unidade:</Legend>
-                    <Select
-                      value={subitem.unidade}
-                      $error={!!getErrorMessageByFieldName('unidade')}
-                      onChange={(e) => handleChangeSubitem(Number(etapaActive), subitem.id, 'unidade', e.target.value)}
-                    >
-                      <option value='0'>Selecione uma medida</option>
-                      <option value='kg'>Kg</option>
-                      <option value='m2'>m2</option>
-                      <option value='m3'>m3</option>
-                      <option value='unidade'>Unidade</option>
-                      <option value='mês'>Mês</option>
-                      <option value='verba'>Verba</option>
-                      <option value='viagem'>Viagem</option>
-                    </Select>
-                  </FormGroup>
+                        <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
+                          <Legend>Subetapa:</Legend>
+                          <Select
+                            onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value, e)}
+                            $error={!!getErrorMessageByFieldName('subetapa')}
+                            defaultValue={subitem.id}
+                          >
+                            <option>Selecione a subetapa</option>
+                            <option value='0'>Cadastrar nova subetapa</option>
+                            <option disabled>________________________________</option>
+                            {subetapasActive.map((servico) => {
+                              return (
+                              <option key={servico.id} value={servico.id} >{servico.nome}</option>
+                              )
+                            })
+                            }
+                          </Select>
+                        </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('quantidade')}>
-                    <Legend>Quantidade:</Legend>
-                    <Input
-                      type="tel"
-                      value={subitem.quantidade}
-                      $error={!!getErrorMessageByFieldName('quantidade')}
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'quantidade', e.target.value)}
-                      placeholder="Quantidade"
-                    />
-                  </FormGroup>
+                      <FormGroup oneOfSix $error={getErrorMessageByFieldName('unidade')}>
+                        <Legend>Unidade:</Legend>
+                        <Select
+                          value={subitem.unidade}
+                          $error={!!getErrorMessageByFieldName('unidade')}
+                          onChange={(e) => handleChangeSubitem(Number(etapaActive), subitem.id, 'unidade', e.target.value)}
+                        >
+                          <option value='0'>Selecione uma medida</option>
+                          <option value='kg'>Kg</option>
+                          <option value='metro'>m</option>
+                          <option value='m2'>m2</option>
+                          <option value='m3'>m3</option>
+                          <option value='unidade'>Unidade</option>
+                          <option value='mês'>Mês</option>
+                          <option value='verba'>Verba</option>
+                          <option value='dia'>Dia</option>
+                          <option value='viagem'>Viagem</option>
+                        </Select>
+                      </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('valor')}>
-                    <Legend>Valor unit.:</Legend>
-                    <Input
-                      type="tel"
-                      $error={!!getErrorMessageByFieldName('valor')}
-                      value={currencyFormat(subitem.valor)}
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valor', e.target.value)}
-                      placeholder="Valor"
-                    />
-                  </FormGroup>
+                      <FormGroup oneOfSix $error={getErrorMessageByFieldName('quantidade')}>
+                        <Legend>Quantidade:</Legend>
+                        <Input
+                          type="tel"
+                          value={subitem.quantidade}
+                          $error={!!getErrorMessageByFieldName('quantidade')}
+                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'quantidade', e.target.value)}
+                          placeholder="Quantidade"
+                          $square
+                        />
+                      </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('valorTotal')}>
-                    <Legend>Valor total:</Legend>
-                    <Input
-                      type="tel"
-                      value={Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }).format(valorTotal)}
-                      onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valorTotal', e.target.value)}
-                      placeholder="Valor total"
-                      $error={!!getErrorMessageByFieldName('valorTotal')}
-                      readOnly
-                    />
-                  </FormGroup>
+                      <FormGroup oneOfFive $error={getErrorMessageByFieldName('valor')}>
+                        <Legend>Valor unit.:</Legend>
+                        <Input
+                          type="tel"
+                          $error={!!getErrorMessageByFieldName('valor')}
+                          value={currencyFormat(subitem.valor)}
+                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valor', e.target.value)}
+                          placeholder="Valor"
+                        />
+                      </FormGroup>
 
-                  <p style={{ cursor: 'pointer' }} onClick={() => handleRemoveSubitem(etapa.id, subitem.id)}>
-                    <FiX color="red" size={23} />
-                  </p>
-                </FormContent>
+                      <FormGroup oneOfFive $error={getErrorMessageByFieldName('valorTotal')}>
+                        <Legend>Valor total:</Legend>
+                        <Input
+                          type="tel"
+                          value={Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                          }).format(valorTotal)}
+                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valorTotal', e.target.value)}
+                          placeholder="Valor total"
+                          $error={!!getErrorMessageByFieldName('valorTotal')}
+                          readOnly
+                        />
+                      </FormGroup>
+
+                      <p style={{ cursor: 'pointer' }} onClick={() => handleRemoveSubitem(etapa.id, subitem.id)}>
+                        <FiX color="red" size={23} />
+                      </p>
+                    </FormContent>
+                    }
+                    </>
                   )
                 })}
 
@@ -625,7 +681,7 @@ const EditItem: React.FC = () => {
         </Form>
         <ButtonContainer>
           <span>Valor total do orçamento:<p>{Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(items.reduce<number>((acc, item) => { return acc + Number(item?.valorTotal) }, 0))}</p></span>
-          <Button disabled={!formIsValid} $green onClick={handleUpdateitem}>Salvar</Button>
+          <Button disabled={!formIsValid} $green onClick={handleUpdateItem}>Salvar</Button>
         </ButtonContainer>
       </Container>
     </GlobalContainer>

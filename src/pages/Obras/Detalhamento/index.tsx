@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import moment from 'moment'
 
@@ -39,8 +39,8 @@ const DetalhamentoObra: React.FC = () => {
   const [obra] = obras.filter((item) => item.id === Number(id))
   const [orcamentoOpened] = orcamentos.filter((orcamento) => orcamento.obra === obra.id)
   const itens = orcamentoOpened.item
-  const bigestPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_pagamento) > Number(b.valor_pagamento) ? -1 : 1).slice(0, 5), [])
-  const comprometidoPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_comprometido) > Number(b.valor_comprometido) ? -1 : 1).slice(0, 8), [])
+  const bigestPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_pagamento) > Number(b.valor_pagamento) ? -1 : 1).slice(0, 5), [lancamentosRdo])
+  const comprometidoPayments = useMemo(() => lancamentosRdo.sort((a, b) => Number(a.valor_comprometido) > Number(b.valor_comprometido) ? -1 : 1).slice(0, 8), [lancamentosRdo])
   const trataInicio = moment.unix(Number(obra?.data_inicio))
   const inicio = moment(trataInicio, 'YYYY-MM-DD').diff(moment().format('YYYY-MM-DD'), 'months')
   const sizeExecutado = Number(calculaPerCentValue(executadoValue(lancamentosRdo, 'pure'), orcamentoValue(itens, 'pure')))
@@ -59,7 +59,7 @@ const DetalhamentoObra: React.FC = () => {
       return 0
     }
 
-    return lancamentosRdo.length === 0 ? '0' : value
+    return lancamentosRdo.length === 0 ? 0 : value
   }
 
   const verificaOpacidade = (index: number, arrayLength: number) => {
@@ -89,13 +89,13 @@ const DetalhamentoObra: React.FC = () => {
     })
   }
 
-  const getData = async () => {
+  const getData = useCallback(async () => {
     changeLoading(true, 'Buscando fornecedores...')
     await listFornecedores({ token })
 
     changeLoading(true, 'Buscando dados da obra...')
     await listObras({ token })
-  }
+  }, [listObras, token, changeLoading, listFornecedores])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -118,7 +118,7 @@ const DetalhamentoObra: React.FC = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [])
+  }, [changeLoading, getData, obras])
 
   if (!obra) return <p>Obra não encontrada</p>
 

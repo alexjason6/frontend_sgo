@@ -17,16 +17,16 @@ import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
 import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
 
-const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => {
+const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id, idCliente }) => {
   const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
   const { orcamentos } = useContext(OrcamentosContext)
   const { rdos, lancamentosRdo } = useContext(RdoRdaContext)
   const { obras } = useContext(ObrasContext)
-  const rdo = rdos.find((file) => file.obra === id)
-  const lancamentos = lancamentosRdo.filter((lancamento) => lancamento.obra === rdo?.obra)
-  const itensObra = orcamentos.filter((orcamento) => orcamento.obra === id)
+  const [rdo] = rdos.filter((file) => file.obra === Number(id))
+  const lancamentos = lancamentosRdo.filter((lancamento) => lancamento.rdo === rdo?.id && lancamento.cliente === idCliente)
+  const itensObra = orcamentos.filter((orcamento) => orcamento.obra === id && orcamento.id_cliente === idCliente)
   const [itens] = itensObra.map((itemObra) => itemObra.item)
 
   const handleClickCard = () => {
@@ -74,7 +74,7 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
   return (
     <Container>
       <div className='card' onClick={type === 'obra' ? handleClickCard : undefined}>
-        <Title>{`${nome && nome.length > 20 ? nome?.slice(0, 20) + ' ...' : nome}`}</Title>
+        <Title>{`${nome && nome.length > 20 ? nome?.slice(0, 20) + '...' : nome}`}</Title>
         <Hr $title />
         {type === 'obra'
           ? (
@@ -90,7 +90,6 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
 
               <Item>Saldo <Value $saldo>{saldoValue(itens, lancamentos)}</Value></Item>
               <Hr />
-
             </>
             )
           : (
@@ -99,7 +98,7 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id }) => 
               <Button $rdoRda $blue onClick={handleOpenNewEntry}>Criar lancamento</Button>
             </div>
             )}
-        <Cliente>{cliente && cliente.length > 25 ? cliente.slice(0, 25) + ' ...' : cliente}</Cliente>
+        <Cliente>{cliente && cliente.length > 25 ? cliente.slice(0, 25) + '...' : cliente}</Cliente>
       </div>
     </Container>
   )

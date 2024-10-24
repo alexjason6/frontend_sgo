@@ -21,6 +21,7 @@
       "@typescript-eslint/no-confusing-void-expression": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "import/no-anonymous-default-export": "off",
       "quotes": ["error", "single"],        // Para usar aspas simples
       "@typescript-eslint/semi": ["error", "never"]  // Para evitar ponto e vírgula extra
   }

@@ -1,41 +1,42 @@
 interface lancamentoDomain {
-  rdo: number
-  dataLancamento: string
-  nf?: number
-  dataNf: string
-  valorComprometido?: string
-  valorPagamento?: string
-  dataPagamento: string
-  usuario?: number
-  observacao: string
-  descricao: string
-  parcela: string
-  obra: number
-  situacao: number
-  banco: string
-  agencia: string
-  conta: string
-  tipo_conta: string
-  pix: string
-  etapa: any
-  subetapa: any
-  fornecedor: any
-  boletos: any
-  status: number
+  rdo: number;
+  dataLancamento: string;
+  nf?: string;
+  dataNf: string;
+  valorComprometido?: string;
+  valorPagamento?: string;
+  dataPagamento: string;
+  usuario?: number;
+  observacao: string;
+  descricao: string;
+  parcela: string;
+  obra: number;
+  situacao: number;
+  banco: string;
+  agencia: string;
+  conta: string;
+  tipo_conta: string;
+  pix: string;
+  etapa: any;
+  subetapa: any;
+  fornecedor: any;
+  boletos: any;
+  cliente: number;
+  status: number;
 }
 
 interface rdoRdaDomain {
-  id?: number
-  obra: number
-  status: number
-  cliente: number
-  orcamento: number
-  dataCriacao: string
-  dataAlteracao?: string
+  id?: number;
+  obra: number;
+  status: number;
+  cliente: number;
+  orcamento: number;
+  dataCriacao: string;
+  dataAlteracao?: string;
 }
 
 class RdoRdaMapper {
-  toPersistence (domainCliente: lancamentoDomain) {
+  toPersistence(domainCliente: lancamentoDomain) {
     return {
       rdo: domainCliente.rdo,
       data_lancamento: domainCliente.dataLancamento,
@@ -59,25 +60,24 @@ class RdoRdaMapper {
       subetapa: domainCliente.subetapa,
       fornecedor: domainCliente.fornecedor,
       boletos: domainCliente.boletos,
-      status: 1
-    }
+      cliente: domainCliente.cliente,
+      status: 1,
+    };
   }
 
-  rdaRdoToPersistence (domainRdoRda: rdoRdaDomain) {
+  rdaRdoToPersistence(domainRdoRda: rdoRdaDomain) {
     return {
       obra: domainRdoRda.obra,
       status: domainRdoRda.status,
       id_cliente: domainRdoRda.cliente,
       orcamento: domainRdoRda.orcamento,
-      data_criacao: domainRdoRda.dataCriacao
-    }
+      data_criacao: domainRdoRda.dataCriacao,
+    };
   }
 
-  toDomain (persistenceCliente: lancamentoDomain) {
-    return {
-
-    }
+  toDomain(persistenceCliente: lancamentoDomain) {
+    return {};
   }
 }
 
-export default new RdoRdaMapper()
+export default new RdoRdaMapper();

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect } from 'react'
+import React, { useContext, useState, type Dispatch, type SetStateAction, type ChangeEvent, useEffect, useCallback } from 'react'
 import { FiPlus, FiX } from 'react-icons/fi'
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
@@ -58,10 +58,10 @@ const CreateOrcamento: React.FC = () => {
       id: 1,
       nome: '',
       valorTotal: '',
-      numero: 0,
+      numero: '',
       idEtapa: 0,
       subetapas: [
-        { id: 1, nome: '', unidade: '', numero: 0, etapa: 0, idSubetapa: 0, quantidade: 1, valor: 0, valorTotal: '' }
+        { id: 1, nome: '', unidade: '', numero: '', etapa: 0, idSubetapa: 0, quantidade: 1, valor: 0, valorTotal: '' }
       ]
     }
   ])
@@ -83,13 +83,13 @@ const CreateOrcamento: React.FC = () => {
         nome: '',
         valorTotal: '',
         idEtapa: 1,
-        numero: 0,
+        numero: '',
         subetapas: [
           {
             id: 1,
             nome: '',
             unidade: '',
-            numero: 0,
+            numero: '',
             etapa: 0,
             idSubetapa: 0,
             quantidade: 1,
@@ -120,7 +120,7 @@ const CreateOrcamento: React.FC = () => {
                     : 1,
                   nome: '',
                   unidade: '',
-                  numero: 0,
+                  numero: '',
                   quantidade: 1,
                   idSubetapa: 0,
                   etapa: 0,
@@ -173,7 +173,7 @@ const CreateOrcamento: React.FC = () => {
 
     // Atualizando o estado com os IDs de subetapas selecionadas
 
-    if (field === 'subetapa' && value !== '0') {
+    if (field === 'subetapa' && value !== '0' || field === 'numSubEtapa') {
       setItems(prevState =>
         prevState.map(etapa => {
           if (etapa.id === etapaId) {
@@ -188,7 +188,7 @@ const CreateOrcamento: React.FC = () => {
                   id: subetapaId, // Setando o ID da subetapa selecionada
                   idSubetapa: Number(id),
                   etapa: Number(etapaId),
-                  numero: Number(numero)
+                  numero: field === 'numSubEtapa' ? value : ''
                 }
               }
               return subetapa
@@ -277,10 +277,24 @@ const CreateOrcamento: React.FC = () => {
         setItems(prevState =>
           prevState.map(item =>
             item.id === etapaId
-              ? { ...item, nome: etapaSelecionada.nome, numero: etapaSelecionada.numero, idEtapa: Number(value), id: etapaSelecionada.id }
+              ? { ...item, nome: etapaSelecionada.nome, numero: String(etapaSelecionada.numero), idEtapa: Number(value), id: etapaSelecionada.id }
               : item
           )
         )
+      }
+    }
+
+    if (fieldName === 'numEtapa') {
+      const [etapaSelecionada] = etapas?.filter(etapa => etapa.id === Number(value));
+
+      if (etapaSelecionada) {
+        setItems(prevState =>
+          prevState.map(item =>
+            item.id === etapaId
+              ? { ...item, numero: value }
+              : item
+          )
+        );
       }
     }
 
@@ -307,14 +321,12 @@ const CreateOrcamento: React.FC = () => {
       subitem: subitens.map((subitem) => ({ id: subitem.idSubetapa, numero: subitem.numero, nome: subitem.nome, etapa: subitem.etapa, quantidade: subitem.quantidade, unidade: subitem.unidade, valor_unitario: subitem.valor, valor_total: subitem.valorTotal }))
     }
 
-    console.log({ dataOrcamento })
-
     try {
       changeLoading(true, 'Enviando os dados do orçamento...')
       const mapperOrcamento = OrcamentoMapper.toPersistence(dataOrcamento)
       const create = await OrcamentosServices.create({ token, mapperOrcamento })
 
-      changeLoading(true, 'atualizando lista de obras...')
+      changeLoading(true, 'atualizando lista de orçamentos...')
       await listOrcamentos({ token })
 
       if (create.id) {
@@ -323,13 +335,13 @@ const CreateOrcamento: React.FC = () => {
       }
     } catch (error) {
       Toast({ type: 'danger', text: 'Erro ao criar orçamento.', duration: 5000 })
-      console.error('Erro ao criar usuário:', error)
+      console.error('Erro ao criar orçamento:', error)
     } finally {
       changeLoading(false)
     }
   }
 
-  const getData = async () => {
+  const getData = useCallback( async () => {
     changeLoading(true, 'Carregando etapas...')
     await listEtapas({ token })
 
@@ -337,16 +349,16 @@ const CreateOrcamento: React.FC = () => {
     await listSubetapas({ token })
 
     changeLoading(false)
-  }
+  }, [changeLoading, listEtapas, listSubetapas, token])
 
   useEffect(() => {
     void getData()
-  }, [])
+  }, [getData])
 
   return (
     <GlobalContainer $modal>
       {!isOpen && <Menu />}
-      <Header title="Criar orçamento" fullwidth={!!isOpen} />
+      <Header title="Criar orçamento" fullwidth={!!isOpen} goBack />
       <Container>
         <Form>
           <FormContent>
@@ -416,6 +428,18 @@ const CreateOrcamento: React.FC = () => {
             return (
             <React.Fragment key={etapa.id}>
               <FormContent $items>
+                <FormGroup oneOfSix  $error={getErrorMessageByFieldName('numEtapa')}>
+                  <Legend>Número:</Legend>
+                  <Input
+                    type="text"
+                    value={etapa.numero}
+                    placeholder="Ex.: 1"
+                    $square
+                    $error={!!getErrorMessageByFieldName('numEtapa')}
+                    onChange={(e) => handleChangeItem(e, 'numEtapa', e.target.value, () => {}, etapa.id)}
+                  />
+                </FormGroup>
+
                 <FormGroup oneOftree $error={getErrorMessageByFieldName('etapa')}>
                   <Legend>Etapa:</Legend>
                    <Select
@@ -428,7 +452,7 @@ const CreateOrcamento: React.FC = () => {
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
                     {etapas.length > 0 && etapas.map((item) => (
-                      <option key={item.id} value={item.id} className={String(item.id)}>{item.numero} - {item.nome}</option>
+                      <option key={item.id} value={item.id} className={String(item.id)}>{item.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -458,6 +482,17 @@ const CreateOrcamento: React.FC = () => {
 
                   return (
                   <FormContent key={subitem.id} $items>
+                    <FormGroup oneOfSix $error={getErrorMessageByFieldName('numSubEtapa')}>
+                      <Legend>Número:</Legend>
+                      <Input
+                        type="text"
+                        value={subitem.numero}
+                        $error={!!getErrorMessageByFieldName('numSubEtapa')}
+                        onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'numSubEtapa', e.target.value)}
+                        placeholder="Ex.: 01.01"
+                        $square
+                      />
+                    </FormGroup>
                     <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
                     <Legend>Subetapa:</Legend>
                     <Select
@@ -476,7 +511,7 @@ const CreateOrcamento: React.FC = () => {
                     </Select>
                   </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('unidade')}>
+                  <FormGroup oneOfSix $error={getErrorMessageByFieldName('unidade')}>
                     <Legend>Unidade:</Legend>
                     <Select
                       value={subitem.unidade}
@@ -485,6 +520,7 @@ const CreateOrcamento: React.FC = () => {
                     >
                       <option value='0'>Selecione uma medida</option>
                       <option value='kg'>Kg</option>
+                      <option value='metro'>Metro</option>
                       <option value='m2'>m2</option>
                       <option value='m3'>m3</option>
                       <option value='unidade'>Unidade</option>
@@ -495,7 +531,7 @@ const CreateOrcamento: React.FC = () => {
                     </Select>
                   </FormGroup>
 
-                  <FormGroup oneOfFive $error={getErrorMessageByFieldName('quantidade')}>
+                  <FormGroup oneOfSix $error={getErrorMessageByFieldName('quantidade')}>
                     <Legend>Quantidade:</Legend>
                     <Input
                       type="tel"
@@ -503,6 +539,7 @@ const CreateOrcamento: React.FC = () => {
                       $error={!!getErrorMessageByFieldName('quantidade')}
                       onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'quantidade', e.target.value)}
                       placeholder="Quantidade"
+                      $square
                     />
                   </FormGroup>
 

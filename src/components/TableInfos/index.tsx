@@ -20,7 +20,7 @@ interface TypeInfos {
 
 const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
   const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
-  const lastLancamentos = sortLancamentos.slice(-15)
+  const lastLancamentos = sortLancamentos
   const { etapas, subetapas } = useContext(EtapasContext)
 
   const formatValue = (value?: string | null) => {
@@ -68,7 +68,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
           <React.Fragment key={lancamento.id}>
             <Tr>
               <Td>{dateFormat(lancamento.data_lancamento)}</Td>
-              <Td>{numberFormat(lancamento.nf)}</Td>
+              <Td>{lancamento.nf}</Td>
               <Td>{dateFormat(lancamento.data_nf)}</Td>
               <Td $large>{lancamento.descricao}</Td>
               <Td $medium>{etapa?.numero} - {etapa.nome}</Td>

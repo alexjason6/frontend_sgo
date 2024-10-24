@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/semi */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import styled, { css } from "styled-components";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiChevronRight, FiCornerDownRight } from "react-icons/fi";
 import { device } from "../../../assets/styles/themes/devices";
 
 interface PropStyle {
@@ -12,6 +12,7 @@ interface PropStyle {
   $items?: boolean;
   $total?: boolean;
   $fullwidth?: boolean;
+  $open?: boolean;
 }
 
 const mobileStyles = css`
@@ -117,6 +118,19 @@ export const EditIcon = styled(FiEdit)`
   font-size: 1rem;
   color: ${({ theme }) => theme.colors.oranges.primary};
   cursor: pointer;
+`;
+
+export const Arrow = styled(FiChevronRight)<PropStyle>`
+  font-size: 1rem;
+  color: ${({ theme }) => theme.colors.oranges.primary};
+  cursor: pointer;
+  rotate: ${({ $open }) => $open && "90deg"};
+  transition: rotate 0.5s;
+`;
+
+export const ArrowSubitem = styled(FiCornerDownRight)`
+  margin-left: 40px;
+  color: ${({ theme }) => theme.colors.oranges.light};
 `;
 
 export const ButtonContainer = styled.div`

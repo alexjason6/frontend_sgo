@@ -10,7 +10,6 @@ import Header from '../../components/Header'
 
 import CreateFirstObra from './components/CreateFirsObra'
 import Sections from './components/Sections'
-import ClientesContext from '../../contexts/clientesContext'
 import AuthContext from '../../contexts/authContext'
 
 import { type Obra } from '../../interfaces/globalInterfaces'
@@ -20,7 +19,6 @@ const Dashboard: React.FC = () => {
 
   const { changeLoading } = useContext(LoadingContext)
   const { token } = useContext(AuthContext)
-  const { clientes, listClientes } = useContext(ClientesContext)
   const { obras, listObras } = useContext(ObrasContext)
   const { rdos, rdas, listRdas, listRdos } = useContext(RdoRdaContext)
 
@@ -30,7 +28,7 @@ const Dashboard: React.FC = () => {
   const [more, setMore] = useState<string[]>([])
   const [width, setWidth] = useState<number>(6)
 
-  const resizeHandler = (sizeWindow: number) => {
+  const resizeHandler = useCallback((sizeWindow: number) => {
     if (obras && rdos && rdas) {
       let size
       if (sizeWindow >= 1740) {
@@ -63,7 +61,7 @@ const Dashboard: React.FC = () => {
       if (!more.includes('rdos')) setItensRdos(rdos.slice(0, size))
       if (!more.includes('rdas')) setItensRdas(rdas.slice(0, size))
     }
-  }
+  }, [obras, rdas, rdos])
 
   const handleResize = useCallback(() => {
     if (refPage.current) {
@@ -98,12 +96,9 @@ const Dashboard: React.FC = () => {
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [obras, changeLoading, resizeHandler])
 
-  const getData = async () => {
-    changeLoading(true, 'Carregando clientes...')
-    await listClientes({ token })
-
+  const getData = useCallback(async() => {
     changeLoading(true, 'Carregando obras...')
     await listObras({ token })
 
@@ -112,7 +107,7 @@ const Dashboard: React.FC = () => {
 
     changeLoading(true, 'Carregando RDAS...')
     await listRdas({ token })
-  }
+  }, [changeLoading, listObras, listRdas, listRdos, token])
 
   useEffect(() => {
     window.addEventListener('resize', handleResize)
@@ -121,12 +116,10 @@ const Dashboard: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [handleResize])
 
   useEffect(() => {
-    if (!clientes || clientes.length === 0) {
-      void getData()
-    }
+    void getData()
 
     if (obras.length > 0) {
       setItensObras(obras)
@@ -139,7 +132,7 @@ const Dashboard: React.FC = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [clientes, token, obras])
+  }, [token, getData])
 
   return (
     <GlobalContainer ref={refPage}>
@@ -157,6 +150,7 @@ const Dashboard: React.FC = () => {
               setItem={setItensObras}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
+              width={width}
             />
 
             <Sections
@@ -168,6 +162,8 @@ const Dashboard: React.FC = () => {
               setItem={setItensRdos}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
+              showDoc
+              width={width}
             />
 
             <Sections
@@ -179,7 +175,10 @@ const Dashboard: React.FC = () => {
               setItem={setItensRdas}
               handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
               more={more}
+              showDoc
+              width={width}
             />
+
         </div>
             )}
     </GlobalContainer>

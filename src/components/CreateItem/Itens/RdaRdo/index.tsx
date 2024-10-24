@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useState, type ChangeEvent, type SetStateAction, type Dispatch, useEffect } from 'react'
+import React, { useContext, useState, type ChangeEvent, type SetStateAction, type Dispatch, useEffect, useCallback } from 'react'
 import moment from 'moment'
 
 import { GlobalContainer, Legend } from '../../../../assets/styles/global'
@@ -129,7 +129,7 @@ const CreateRdoRda: React.FC<typeParams> = ({ type }) => {
     setOrcamento(0)
   }
 
-  const getData = async () => {
+  const getData = useCallback( async () => {
     changeLoading(true, 'Buscando clientes...')
     await listClientes({ token })
 
@@ -138,11 +138,11 @@ const CreateRdoRda: React.FC<typeParams> = ({ type }) => {
 
     changeLoading(true, 'Buscando orçamentos...')
     await listOrcamentos({ token })
-  }
+  }, [listClientes, listObras, listOrcamentos, changeLoading, token])
 
   useEffect(() => {
     void getData()
-  }, [])
+  }, [getData])
 
   return (
     <GlobalContainer>

@@ -48,7 +48,7 @@ const ClientesTable: React.FC<ClientTableProps> = ({ clientes }) => {
           return (
             <React.Fragment key={cliente.id}>
               <Tr $open={open === cliente.id} onClick={() => handleOpenInfo(cliente.id!)}>
-                <Td>{cliente?.nome.length > 25 ? cliente?.nome.slice(0, 25) + ' ...' : cliente.nome}</Td>
+                <Td>{cliente?.nome.length > 25 ? cliente?.nome.slice(0, 25) + '...' : cliente.nome}</Td>
                 <Td>{cpfCnpjFormat(cliente.cpf_cnpj)}</Td>
                 <Td>{phoneFormat(cliente.telefone)}</Td>
                 <Td>{cliente.email}</Td>

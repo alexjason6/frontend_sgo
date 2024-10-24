@@ -104,8 +104,26 @@ class OrcamentosServices {
 
       return response;
     } catch (error) {
-      console.error("Erro ao criar orcçamento", error);
+      console.error("Erro ao criar orçamento", error);
       throw new Error("Falha na criação de orçamento.");
+    }
+  }
+
+  async delete({ token, id }: ValidateCreateOrcamentosParams) {
+    try {
+      const response = await this.httpClient.delete(
+        `/api/orcamentos/delete/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Erro ao deletar orçamento", error);
+      throw new Error("Falha na remoção de orçamento.");
     }
   }
 

@@ -10,6 +10,7 @@ export default function FormGroup ({
   oneOftree,
   oneOfFour,
   oneOfFive,
+  oneOfSix,
   square,
   passwordChange
 }: TypesInputs) {
@@ -18,6 +19,7 @@ export default function FormGroup ({
       $oneOftree={oneOftree}
       $oneOfFour={oneOfFour}
       $oneOfFive={oneOfFive}
+      $oneOfSix={oneOfSix}
       $square={square}
       passwordChange={passwordChange}
     >
