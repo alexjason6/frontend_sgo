@@ -1,7 +1,5 @@
-import React, { useContext, useState, useRef,  } from 'react'
+import React, { useContext,  } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import generatePDF, { Margin } from 'react-to-pdf'
 
 import checkStatus from '../../../../utils/checkStatus'
 import dateFormat from '../../../../utils/dateFormat'
@@ -17,6 +15,7 @@ import Toast from '../../../../utils/toast'
 import moment from 'moment'
 import OrcamentosContext from '../../../../contexts/orcamentosContext'
 import OrcamentoPdf from '../PDF'
+import ModalContext from '../../../../contexts/modalContext'
 
 interface ItemTableProps {
   orcamentos: Orcamento[]
@@ -28,10 +27,9 @@ interface ItemTableProps {
 const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes, obras }) => {
   const navigate = useNavigate()
   const {changeLoading} = useContext(LoadingContext)
+  const {changeModal} = useContext(ModalContext)
   const { token } = useContext(AuthContext)
   const {listOrcamentos} = useContext(OrcamentosContext)
-  const [orcamentoPdf, setOrcamentoPdf] = useState<any>()
-  const targetRef = useRef<HTMLDivElement>(null)
 
   const handleOpenOrcamento = (id: number) => {
     navigate(`/orcamentos/edit/${id}`)
@@ -84,33 +82,16 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
     }
   }
 
-  const createPdf = async () => {
-    if (!targetRef.current) {
-      console.error("targetRef is null. Cannot generate PDF.");
-      return;
-    }
-
-    try {
-      // Chama a função para gerar o PDF
-      await generatePDF(targetRef, {
-        method: 'open',
-        page: {
-          margin: Margin.SMALL,
-          format: 'A4',
-          orientation: 'portrait'
-        }
-      });
-
-      // PDF gerado com sucesso, limpa o estado
-      setOrcamentoPdf(null);
-      Toast({ type: 'success', text: 'PDF gerado com sucesso.', duration: 5000 });
+  const createPdf = async (orcamento: any) => {
+   try {
+      changeLoading(true, 'Gerando PDF...')
+      changeModal(<OrcamentoPdf orcamento={orcamento}/>)
     } catch (error) {
+      changeLoading(false)
       console.error("Erro ao gerar PDF:", error);
       Toast({ type: 'danger', text: 'Erro ao gerar PDF.', duration: 5000 });
     }
   };
-
-  {console.log(orcamentoPdf)}
 
   return (
     <>
@@ -145,7 +126,7 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
                   <Td>
                     <Edit onClick={() => handleOpenOrcamento(orcamento.id)}/>
                     <Copy onClick={() => handleDuplicateOrcamento(orcamento)}/>
-                    <Pdf onClick={() => {setOrcamentoPdf(orcamento); createPdf()}}/>
+                    <Pdf onClick={() => createPdf(orcamento)}/>
                     <Delete onClick={() => handleDeleteOrcamento(orcamento.id)}/>
                   </Td>
                 </Tr>
@@ -154,11 +135,6 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
           })}
         </tbody>
       </Table>
-      {orcamentoPdf && (
-        <div ref={targetRef}>
-          <OrcamentoPdf orcamento={orcamentoPdf} />
-        </div>
-      )}
     </>
   )
 }

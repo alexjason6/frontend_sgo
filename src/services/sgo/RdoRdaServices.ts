@@ -1,126 +1,203 @@
-import HttpClientSgo from '../utils/HttpCliente'
-import { url } from '../utils/urlServices'
+import HttpClientSgo from "../utils/HttpCliente";
+import { url } from "../utils/urlServices";
 
 interface ValidateCreateRdoRdaParams {
-  token: string
-  type?: string
-  mapperLancamento?: any
-  mapperRdoRda?: any
+  token: string;
+  type?: string;
+  mapperLancamento?: any;
+  mapperRdoRda?: any;
+  id?: string | number;
 }
 
 interface ListRdoRdaParams {
-  token: string
+  token: string;
 }
 
 class RdoRdaServices {
-  private readonly httpClient: HttpClientSgo
+  private readonly httpClient: HttpClientSgo;
 
-  constructor () {
-    this.httpClient = new HttpClientSgo(url)
+  constructor() {
+    this.httpClient = new HttpClientSgo(url);
   }
 
-  async listRdo ({ token }: ListRdoRdaParams) {
+  async listRdo({ token }: ListRdoRdaParams) {
     try {
-      const response = await this.httpClient.get('/api/rdo/list', {
+      const response = await this.httpClient.get("/api/rdo/list", {
         headers: {
-          Authorization: token
-        }
-      })
-      return response
+          Authorization: token,
+        },
+      });
+      return response;
     } catch (error) {
-      console.error('Erro ao listar RDOs:', error)
-      throw new Error('Falha na listagem de RDOs.')
+      console.error("Erro ao listar RDOs:", error);
+      throw new Error("Falha na listagem de RDOs.");
     }
   }
 
-  async listLancamentosRdo ({ token }: ListRdoRdaParams) {
+  async listLancamentosRdo({ token }: ListRdoRdaParams) {
     try {
-      const response = await this.httpClient.get('/api/rdo/lancamentos/list', {
+      const response = await this.httpClient.get("/api/rdo/lancamentos/list", {
         headers: {
-          Authorization: token
-        }
-      })
-      return response
+          Authorization: token,
+        },
+      });
+      return response;
     } catch (error) {
-      console.error('Erro ao listar lançamentos:', error)
-      throw new Error('Falha na listagem de lançamentos.')
+      console.error("Erro ao listar lançamentos:", error);
+      throw new Error("Falha na listagem de lançamentos.");
     }
   }
 
-  async createRdoRda ({ token, mapperRdoRda, type }: ValidateCreateRdoRdaParams) {
+  async createRdoRda({
+    token,
+    mapperRdoRda,
+    type,
+  }: ValidateCreateRdoRdaParams) {
     try {
       const response = await this.httpClient.post(`/api/${type}/create`, {
         headers: {
-          Authorization: token
+          Authorization: token,
         },
-        data: mapperRdoRda
-      })
+        data: mapperRdoRda,
+      });
 
-      return response
+      return response;
     } catch (error) {
-      console.error('Erro ao criar orcçamento', error)
-      throw new Error('Falha na criação de orcçamento.')
+      console.error("Erro ao criar orcçamento", error);
+      throw new Error("Falha na criação de orcçamento.");
     }
   }
 
-  async createLancamentoRdoRda ({ token, mapperLancamento, type }: ValidateCreateRdoRdaParams) {
+  async createLancamentoRdoRda({
+    token,
+    mapperLancamento,
+    type,
+  }: ValidateCreateRdoRdaParams) {
     try {
-      const response = await this.httpClient.post(`/api/${type}/lancamentos/create`, {
-        headers: {
-          Authorization: token
-        },
-        data: mapperLancamento
-      })
+      const response = await this.httpClient.post(
+        `/api/${type}/lancamentos/create`,
+        {
+          headers: {
+            Authorization: token,
+          },
+          data: mapperLancamento,
+        }
+      );
 
-      return response
+      return response;
     } catch (error) {
-      console.error('Erro ao criar documento', error)
-      throw new Error('Falha na criação de documento.')
+      console.error("Erro ao criar documento", error);
+      throw new Error("Falha na criação de documento.");
     }
   }
 
-  async updateRdoRda ({ token, mapperRdoRda, type }: ValidateCreateRdoRdaParams) {
+  async updateLancamento({
+    token,
+    mapperLancamento,
+    type,
+    id,
+  }: ValidateCreateRdoRdaParams) {
+    try {
+      const response = await this.httpClient.put(
+        `/api/${type}/lancamentos/edit/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+          data: mapperLancamento,
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Erro ao criar documento", error);
+      throw new Error("Falha na criação de documento.");
+    }
+  }
+
+  async getLancamentoRdo({ token, type, id }: ValidateCreateRdoRdaParams) {
+    try {
+      const response = await this.httpClient.get(
+        `/api/${type}/lancamentos/get/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Falha na ao buscar lançamentos.", error);
+      throw new Error("Falha na ao buscar lançamentos.");
+    }
+  }
+
+  async getLancamentosRdo({ token, type, id }: ValidateCreateRdoRdaParams) {
+    try {
+      const response = await this.httpClient.get(
+        `/api/${type}/lancamentos/list/obra/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Falha na ao buscar lançamentos.", error);
+      throw new Error("Falha na ao buscar lançamentos.");
+    }
+  }
+
+  async updateRdoRda({
+    token,
+    mapperRdoRda,
+    type,
+  }: ValidateCreateRdoRdaParams) {
     try {
       const response = await this.httpClient.post(`/api/${type}/edit`, {
         headers: {
-          Authorization: token
+          Authorization: token,
         },
-        data: mapperRdoRda
-      })
+        data: mapperRdoRda,
+      });
 
-      return response
+      return response;
     } catch (error) {
-      console.error('Erro ao editar documento', error)
-      throw new Error('Falha na edição de documento.')
+      console.error("Erro ao editar documento", error);
+      throw new Error("Falha na edição de documento.");
     }
   }
 
-  async listRda ({ token }: ListRdoRdaParams) {
+  async listRda({ token }: ListRdoRdaParams) {
     try {
-      const response = await this.httpClient.get('/api/rda/list', {
+      const response = await this.httpClient.get("/api/rda/list", {
         headers: {
-          Authorization: token
-        }
-      })
-      return response
+          Authorization: token,
+        },
+      });
+      return response;
     } catch (error) {
-      console.error('Erro ao listar RDAs:', error)
-      throw new Error('Falha na listagem de RDAs.')
+      console.error("Erro ao listar RDAs:", error);
+      throw new Error("Falha na listagem de RDAs.");
     }
   }
 
-  async listLancamentosRda ({ token }: ListRdoRdaParams) {
+  async listLancamentosRda({ token }: ListRdoRdaParams) {
     try {
-      const response = await this.httpClient.get('/api/rda/lancamentos/list', {
+      const response = await this.httpClient.get("/api/rda/lancamentos/list", {
         headers: {
-          Authorization: token
-        }
-      })
-      return response
+          Authorization: token,
+        },
+      });
+      return response;
     } catch (error) {
-      console.error('Erro ao listar lançamentos:', error)
-      throw new Error('Falha na listagem de lançamentos.')
+      console.error("Erro ao listar lançamentos:", error);
+      throw new Error("Falha na listagem de lançamentos.");
     }
   }
 }
-export default new RdoRdaServices()
+
+export default new RdoRdaServices();

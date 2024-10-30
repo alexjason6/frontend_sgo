@@ -90,18 +90,18 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
     }
   }, [])
 
-  const getInitialData = async () => {
+  const getInitialData = useCallback(async () => {
     await listRdos({ token })
     await listRdas({ token })
     await listLancamentosRdo({ token })
     await listLancamentosRda({ token })
-  }
+  }, [token, listRdos, listRdas, listLancamentosRda, listLancamentosRdo])
 
   useEffect(() => {
     if (token) {
       void getInitialData()
     }
-  }, [token])
+  }, [token, getInitialData])
 
   return (
     <RdoRdaContext.Provider

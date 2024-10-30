@@ -4,7 +4,7 @@ import {
   MdMenu, MdDashboard, MdClose, MdLogout
 } from 'react-icons/md'
 import { FiUsers, FiUser, FiList, FiPlus } from 'react-icons/fi'
-import { LuConstruction } from 'react-icons/lu'
+import { LuConstruction, LuList } from 'react-icons/lu'
 import { FaFileInvoiceDollar, FaHandHoldingUsd, FaStar } from 'react-icons/fa'
 
 import AuthContext from '../../contexts/authContext'
@@ -65,6 +65,22 @@ const Menu: React.FC<TypeMenu> = ({ className }) => {
             {open && <p>Dashboard</p>}
           </Item>
         </Link>
+
+{/*       <div onMouseEnter={() => handleMouseEnter('rdos')} onMouseLeave={handleMouseLeave}>
+        <Link to="/rdos" onClick={() => handleSelectItem('/rdos')}>
+          <Item $open={open} $active={itemActive.name.includes('/rdos')}>
+            <LuList size={20} />
+            {open && <p>Clientes</p>}
+          </Item>
+        </Link>
+        {submenuActive === 'rdos' && (
+          <Submenu $open={open}>
+            <SubmenuItem><FiList /><Link to="/rdos">Listar RDOs</Link></SubmenuItem>
+            <SubmenuItem><FiPlus /><Link to="/rdos/novo">Cadastrar RDO</Link></SubmenuItem>
+          </Submenu>
+        )}
+      </div> */}
+
       <div onMouseEnter={() => handleMouseEnter('clientes')} onMouseLeave={handleMouseLeave}>
         <Link to="/clientes" onClick={() => handleSelectItem('/clientes')}>
           <Item $open={open} $active={itemActive.name.includes('/clientes')}>

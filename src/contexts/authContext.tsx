@@ -46,7 +46,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const tokenIsValid = await AuthServices.validaToken({ token: hash })
 
-      if (!tokenIsValid) throw new Error('Token inválido')
+      if (!tokenIsValid) {
+        signOut()
+        throw new Error('Token inválido')
+      }
 
       const response = await AuthServices.getUser({ id, token: hash })
 

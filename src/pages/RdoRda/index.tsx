@@ -4,7 +4,6 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import { GlobalContainer } from '../../assets/styles/global'
 
 import RdoRdaContext from '../../contexts/rdoRdaContext'
-import LoadingContext from '../../contexts/loadingContext'
 import FornecedoresContext from '../../contexts/fornecedoresContext'
 import ClientesContext from '../../contexts/clientesContext'
 
@@ -24,7 +23,6 @@ const RdoRda: React.FC = () => {
   const navigate = useNavigate()
   const { type, id } = params
   const { obra, cliente } = location.state
-  const { changeLoading } = useContext(LoadingContext)
   const { fornecedores } = useContext(FornecedoresContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
   const {clientes} = useContext(ClientesContext)
@@ -72,14 +70,12 @@ const RdoRda: React.FC = () => {
 
       if (document) {
         const lancamentos = type === 'rdo'
-          ? lancamentosRdo.filter((lancamento) => lancamento.rdo === document.id)
-          : lancamentosRda.filter((lancamento) => lancamento.rdo === document.id)
+          ? lancamentosRdo?.filter((lancamento) => lancamento.rdo === document.id)
+          : lancamentosRda?.filter((lancamento) => lancamento.rdo === document.id)
 
         setData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
         setFilteredData(lancamentos.sort((a, b) => a.valor_pagamento > b.valor_pagamento ? -1 : 1))
       }
-
-      changeLoading(false, '')
     }
   }, [])
 
@@ -99,7 +95,7 @@ const RdoRda: React.FC = () => {
               onChange={handleChangeFilteredData}
             />
           </div>
-          <TableInfos infos={filteredData} fornecedores={fornecedores} />
+          <TableInfos infos={filteredData.filter((filter) => filter.rdo === Number(id))} fornecedores={fornecedores} id={obra} />
         </Infos>
       </Content>
     </GlobalContainer>

@@ -65,6 +65,7 @@ export interface User {
 }
 
 export interface Obra {
+  cliente: number | undefined;
   id: number;
   alvara: string;
   nome: string;
@@ -291,4 +292,10 @@ export interface TypeNewLancamento {
   nameCliente?: string;
   obraId?: number;
   cliente_id?: number;
+  lancamento?: LancamentoRdoRda;
+}
+
+export interface TypeEditLancamento {
+  tipo?: string;
+  lancamento: LancamentoRdoRda;
 }

@@ -49,8 +49,6 @@ const Sections: React.FC<PropsSections> = ({
     changeModal(<CreateRdoRda type={type}/>)
   }
 
-  console.log(itemDb.length, items.length)
-
   return (
   <div>
     {isSubHeader && <Header title={titleHeader} subHeader={isSubHeader} />}

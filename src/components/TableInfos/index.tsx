@@ -1,27 +1,45 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useContext } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 
-import OrcamentosContext from '../../contexts/orcamentosContext'
+import EtapasContext from '../../contexts/etapasContext'
+import AuthContext from '../../contexts/authContext'
+import ModalContext from '../../contexts/modalContext'
+import LoadingContext from '../../contexts/loadingContext'
+
+import RdoRdaServices from '../../services/sgo/RdoRdaServices'
 
 import dateFormat from '../../utils/dateFormat'
-import { numberFormat } from '../../utils/numberFormat'
 import { currencyFormat } from '../../utils/currencyFormat'
 import { comprometidoValue, executadoValue } from '../../utils/calculateInfosObras'
+import Toast from '../../utils/toast'
 
-import { Table, Td, Tr } from './styles'
+import EditLancamento from '../../pages/RdoRda/Edit'
+
+import { Table, Td, Thead, Tr, Th } from './styles'
 
 import { type Fornecedores, type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
-import EtapasContext from '../../contexts/etapasContext'
 
 interface TypeInfos {
   infos: LancamentoRdoRda[]
   fornecedores: Fornecedores[]
+  id?: string | number
 }
 
-const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
+const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
+  const {token} = useContext(AuthContext)
+  const {changeLoading} = useContext(LoadingContext)
+  const { etapas, subetapas } = useContext(EtapasContext)
+  const {changeModal} = useContext(ModalContext)
   const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
   const lastLancamentos = sortLancamentos
-  const { etapas, subetapas } = useContext(EtapasContext)
+  const [lancamentos, setLancamentos] = useState(lastLancamentos)
+
+  const getLancamentos = useCallback(async () => {
+    const response = await RdoRdaServices.getLancamentosRdo({token, type: 'rdo', id})
+
+    setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
+    changeLoading(false, '')
+  }, [changeLoading, id, token])
 
   const formatValue = (value?: string | null) => {
     if (!value) {
@@ -33,56 +51,80 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores }) => {
     return formatedValue
   }
 
+  const handleEditLancamento = async (id: number) => {
+    changeLoading(true, 'Carregando dados do lançamento...')
+    const response = await RdoRdaServices.getLancamentoRdo({token, type: 'rdo', id})
+
+    if (response) {
+      changeModal(<EditLancamento lancamento={response} />)
+    } else {
+      Toast({ type: 'danger', text: `Lançamento não encontrado.`, duration: 5000 })
+    }
+  }
+
+  useEffect(() => {
+    setInterval(() => {
+      getLancamentos()
+    }, 15000)
+  }, [getLancamentos])
+
+  useEffect(() => {
+      getLancamentos()
+  }, [])
+
   return (
-    <Table cellSpacing={0} cellPadding={0}>
-      <tbody>
-        <Tr $index>
-          <Td $index><b>Data<br />lançamento</b></Td>
-          <Td $index><b>Nº da NF</b></Td>
-          <Td $index><b>Data emissão<br />NF</b></Td>
-          <Td $index $large><b>Descrição</b></Td>
-          <Td $index $medium><b>Etapa</b></Td>
-          <Td $index $medium><b>Serviço</b></Td>
-          <Td $index><b>Valor<br />comprometido</b></Td>
-          <Td $index $large><b>Fornecedor</b></Td>
-          <Td $index><b>Data<br />pagamento</b></Td>
-          <Td $index><b>Valor<br />Pagamento</b></Td>
-        </Tr>
-        <Tr $total>
-          <Td $index $total><b>Total</b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b>{comprometidoValue(infos)}</b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b></b></Td>
-          <Td $index $total><b>{executadoValue(infos)}</b></Td>
-        </Tr>
-      {lastLancamentos.map((lancamento) => {
-        const [fornecedor] = fornecedores.filter((item) => item.id === lancamento.fornecedor)
-        const [etapa] = etapas.filter((item) => item.id === Number(lancamento.etapa))
-        const [subetapa] = subetapas?.filter((item) => item.id === Number(lancamento?.subetapa))
-        return (
-          <React.Fragment key={lancamento.id}>
-            <Tr>
+    <div style={{overflowY: 'auto', maxHeight: 600,}}>
+      <Table cellSpacing={0} cellPadding={0}>
+        <Thead>
+          <Tr $index>
+            <Th $index><b>Data<br />lançamento</b></Th>
+            <Th $index><b>Nº da NF</b></Th>
+            <Th $index><b>Data emissão<br />NF</b></Th>
+            <Th $index $large><b>Descrição</b></Th>
+            <Th $index $medium><b>Etapa</b></Th>
+            <Th $index $medium><b>Serviço</b></Th>
+            <Th $index><b>Valor<br />comprometido</b></Th>
+            <Th $index $large><b>Fornecedor</b></Th>
+            <Th $index><b>Data<br />pagamento</b></Th>
+            <Th $index><b>Valor<br />Pagamento</b></Th>
+          </Tr>
+          <Tr $total>
+            <Th $index $total><b>Total</b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b>{comprometidoValue(lancamentos)}</b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b></b></Th>
+            <Th $index $total><b>{executadoValue(lancamentos)}</b></Th>
+          </Tr>
+        </Thead>
+        <tbody>
+        {lancamentos.length >= 1 && lancamentos?.map((lancamento) => {
+          const [fornecedor] = fornecedores.filter((item) => item.id === lancamento.fornecedor)
+          const [etapa] = etapas.filter((item) => Number(item.id) === Number(lancamento.etapa))
+          const [subetapa] = subetapas?.filter((item) => Number(item.id) === Number(lancamento?.subetapa))
+
+          return (
+            <Tr key={lancamento.id} onClick={() => handleEditLancamento(lancamento.id)}>
               <Td>{dateFormat(lancamento.data_lancamento)}</Td>
               <Td>{lancamento.nf}</Td>
               <Td>{dateFormat(lancamento.data_nf)}</Td>
-              <Td $large>{lancamento.descricao}</Td>
-              <Td $medium>{etapa?.numero} - {etapa.nome}</Td>
-              <Td $medium>{subetapa?.numero} - {subetapa.nome}</Td>
+              <Td $large>{}{lancamento.descricao?.length > 70 ? lancamento.descricao.slice(0, 70) + '...' : lancamento.descricao}</Td>
+              <Td $medium>{etapa?.numero} - {etapa?.nome}</Td>
+              <Td $medium>{subetapa?.numero} - {subetapa?.nome}</Td>
               <Td>{formatValue(lancamento.valor_comprometido)}</Td>
-              <Td $large>{fornecedor?.nome}</Td>
+              <Td $medium>{fornecedor?.nome}</Td>
               <Td>{dateFormat(lancamento.data_pagamento)}</Td>
               <Td>{formatValue(lancamento.valor_pagamento)}</Td>
             </Tr>
-          </React.Fragment>
-        )
-      })}
-    </tbody>
-  </Table>
+          )
+        })}
+      </tbody>
+    </Table>
+  </div>
   )
 }
 

@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment'
+import { FiPlus, FiX } from 'react-icons/fi'
 
 import { GlobalContainer, Legend } from '../../../assets/styles/global'
 
@@ -35,10 +36,12 @@ import { AddItem, ButtonContainer, Container, Divisor, Form, FormContent, Title,
 
 import { type Obra, type Orcamento } from '../../../interfaces/globalInterfaces'
 
-import { FiPlus, FiX } from 'react-icons/fi'
+interface Props {
+  idOrcamento?: number | string
+}
 
-const EditItem: React.FC = () => {
-  const { id } = useParams()
+const EditItem: React.FC<Props> = ({idOrcamento}) => {
+  const { id } = useParams() || idOrcamento
   const navigate = useNavigate()
   const { token } = useContext(AuthContext)
   const { getOrcamento } = useContext(OrcamentosContext)
@@ -210,33 +213,36 @@ const EditItem: React.FC = () => {
         if (etapa.id === etapaId) {
           const updatedSubetapas = etapa.subetapas.map(subetapa => {
             if (subetapa.id === subetapaId) {
-              const valor = parseFloat(String(subetapa.valor)) || 0
-              const quantidade = parseFloat(String(subetapa.quantidade)) || 1
-              const updatedValue = parseFloat(trataValue) || 0
+              const valor = parseFloat(String(subetapa.valor)) || 0;
+              const quantidade = parseFloat(String(subetapa.quantidade)) || 0; // Usando 0 aqui para checar se é zero
+              const updatedValue = parseFloat(trataValue) || 0;
 
               return {
                 ...subetapa,
                 [field]: trataValue,
-                id: subetapaId, // Setando o ID da subetapa selecionada
-                valorTotal: field === 'valor'
-                  ? (updatedValue * quantidade).toFixed(2)
-                  : (valor * updatedValue).toFixed(2)
-              }
+                id: subetapaId,
+                valorTotal:
+                  field === 'valor' && valor !== 0 && quantidade !== 0
+                    ? (updatedValue * quantidade).toFixed(2)
+                    : '' // Deixando em branco se valor ou quantidade for zero
+              };
             }
-            return subetapa
-          })
+            return subetapa;
+          });
 
-          const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
+          const etapaTotal = updatedSubetapas.reduce((acc, subetapa) =>
+            acc + parseFloat(subetapa.valorTotal || '0'), 0
+          );
 
           return {
             ...etapa,
             subetapas: updatedSubetapas,
             valorTotal: etapaTotal.toFixed(2)
-          }
+          };
         }
-        return etapa
+        return etapa;
       })
-    )
+    );
   }
 
   const handleChangeItem = (
@@ -304,7 +310,7 @@ const EditItem: React.FC = () => {
       removeError(fieldName)
     }
   }
-console.log({items})
+
   const handleUpdateItem = async () => {
     changeLoading(true, 'Salvando orçamento...')
     const subitens = items.flatMap(itemOrcamento => itemOrcamento.subetapas.filter(subitemOrcamento => subitemOrcamento))
@@ -556,7 +562,7 @@ console.log({items})
                 </p>
               </FormContent>
 
-                {etapa.subetapas?.map((subitem: any) => {
+                {etapa.subetapas?.sort((a, b) => a.numero > b.numero ? 1 : -1).map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
                   const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
                   const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
@@ -570,7 +576,7 @@ console.log({items})
                         <Legend>Número:</Legend>
                         <Input
                           type="text"
-                          value={subitem.numero}
+                          value={subetapasActive.find((item) => item.id === subitem.id)?.numero ? `${etapa.numero}.${subetapasActive.find((item) => item.id === subitem.id)?.numero}` : subitem.numero}
                           $error={!!getErrorMessageByFieldName('numSubEtapa')}
                           onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'numSubEtapa', e.target.value)}
                           placeholder="Ex.: 01.01"
