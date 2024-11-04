@@ -1,21 +1,28 @@
 import React, { useContext,  } from 'react'
 import { useNavigate } from 'react-router-dom'
+import xlsx from "json-as-xlsx"
+import moment from 'moment'
+
+import ModalContext from '../../../../contexts/modalContext'
+import LoadingContext from '../../../../contexts/loadingContext'
+import AuthContext from '../../../../contexts/authContext'
+import OrcamentosContext from '../../../../contexts/orcamentosContext'
+
+import OrcamentosServices from '../../../../services/sgo/OrcamentosServices'
+
+import OrcamentoPdf from '../PDF'
+import Confirmation from '../../../../components/Modal/components/confirmation';
 
 import checkStatus from '../../../../utils/checkStatus'
 import dateFormat from '../../../../utils/dateFormat'
+import Toast from '../../../../utils/toast'
 import { orcamentoValue } from '../../../../utils/calculateInfosObras'
+import { currencyFormat } from '../../../../utils/currencyFormat'
 
-import { Table, Tr, Td, Edit, Copy, Pdf, Delete } from './styles'
+import { Table, Tr, Td, Edit, Copy, Pdf, Delete, Xlsx } from './styles'
 
 import { type Orcamento, type TiposOrcamentos, type Cliente, type Obra } from '../../../../interfaces/globalInterfaces'
-import LoadingContext from '../../../../contexts/loadingContext'
-import AuthContext from '../../../../contexts/authContext'
-import OrcamentosServices from '../../../../services/sgo/OrcamentosServices'
-import Toast from '../../../../utils/toast'
-import moment from 'moment'
-import OrcamentosContext from '../../../../contexts/orcamentosContext'
-import OrcamentoPdf from '../PDF'
-import ModalContext from '../../../../contexts/modalContext'
+import { ExportOrcamentoXLSX } from '../../../../utils/createXlsx'
 
 interface ItemTableProps {
   orcamentos: Orcamento[]
@@ -26,8 +33,8 @@ interface ItemTableProps {
 
 const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes, obras }) => {
   const navigate = useNavigate()
-  const {changeLoading} = useContext(LoadingContext)
-  const {changeModal} = useContext(ModalContext)
+  const { changeLoading } = useContext(LoadingContext)
+  const { changeModal, changeModalConfirmacao } = useContext(ModalContext)
   const { token } = useContext(AuthContext)
   const {listOrcamentos} = useContext(OrcamentosContext)
 
@@ -64,7 +71,9 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
     }
   }
 
-  const handleDeleteOrcamento = async (id: number) => {
+  const deleteOrcamento = async (id: number) => {
+    changeModalConfirmacao()
+
     try {
       const erase = await OrcamentosServices.delete({ token, id })
 
@@ -82,60 +91,77 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
     }
   }
 
-  const createPdf = async (orcamento: any) => {
-   try {
-      changeLoading(true, 'Gerando PDF...')
-      changeModal(<OrcamentoPdf orcamento={orcamento}/>)
-    } catch (error) {
-      changeLoading(false)
-      console.error("Erro ao gerar PDF:", error);
-      Toast({ type: 'danger', text: 'Erro ao gerar PDF.', duration: 5000 });
+  const handleDeleteOrcamento = async (orcamento: {nome: string, id: number}) => {
+    changeModalConfirmacao(
+      <Confirmation confirmation={() => deleteOrcamento(orcamento.id)} message={`Você tem certeza que deseja deletar o orçamento ${orcamento.nome}`} />
+    )
+  }
+
+  const createDoc = async (orcamento: any, type: string) => {
+    if (type === 'excel') {
+      try {
+        ExportOrcamentoXLSX({orcamento})
+      } catch (error) {
+        console.error('Erro ao gerar o arquivo Excel:', error);
+        return Toast({ type: 'danger', text: 'Erro ao gerar arquivo para excel.', duration: 5000 });
+      }
+    }
+
+    if (type === 'pdf') {
+      changeLoading(true, 'Gerando arquivo...')
+
+      try {
+        changeModal(<OrcamentoPdf orcamento={orcamento} />)
+      } catch (error) {
+        changeLoading(false)
+        console.error("Erro ao gerar PDF:", error);
+        Toast({ type: 'danger', text: 'Erro ao gerar PDF.', duration: 5000 });
+      }
     }
   };
 
   return (
-    <>
-      <Table>
-        <tbody>
-          <Tr $index>
-            <Td $index><b>Nome</b></Td>
-            <Td $index><b>Data criação</b></Td>
-            <Td $index><b>Modelo</b></Td>
-            <Td $index><b>Obra</b></Td>
-            <Td $index><b>Cliente</b></Td>
-            <Td $index><b>Valor total</b></Td>
-            <Td $index><b>Situação</b></Td>
-            <Td $index><b>Ações</b></Td>
-          </Tr>
-          {orcamentos?.map((orcamento) => {
-            const [obra] = obras.filter((item) => item.id === orcamento.obra)
-            const [cliente] = clientes.filter((item) => item.id === orcamento.id_cliente)
-            const [tipoOrcamento] = tipo.filter((item) => orcamento.modelo === item.tipo)
-            const valorTotal = orcamentoValue(orcamento.item)
+    <Table>
+      <tbody>
+        <Tr $index>
+          <Td $index><b>Nome</b></Td>
+          <Td $index><b>Data criação</b></Td>
+          <Td $index><b>Modelo</b></Td>
+          <Td $index><b>Obra</b></Td>
+          <Td $index $large><b>Cliente</b></Td>
+          <Td $index><b>Valor total</b></Td>
+          <Td $index><b>Situação</b></Td>
+          <Td $index $large><b>Ações</b></Td>
+        </Tr>
+        {orcamentos?.map((orcamento) => {
+          const [obra] = obras.filter((item) => item.id === orcamento.obra)
+          const [cliente] = clientes.filter((item) => item.id === orcamento.id_cliente)
+          const [tipoOrcamento] = tipo.filter((item) => orcamento.modelo === item.tipo)
+          const valorTotal = orcamentoValue(orcamento.item)
 
-            return (
-              <React.Fragment key={orcamento.id}>
-                <Tr>
-                  <Td>{orcamento.nome}</Td>
-                  <Td>{dateFormat(orcamento.data_criacao)}</Td>
-                  <Td>{tipoOrcamento?.nome ?? 'Avulso'}</Td>
-                  <Td>{obra?.nome.length > 25 ? obra?.nome.slice(0, 25) + '...' : obra?.nome}</Td>
-                  <Td>{cliente?.nome.length > 20 ? cliente.nome.slice(0, 20) + '...' : cliente?.nome}</Td>
-                  <Td>{valorTotal}</Td>
-                  <Td>{checkStatus(orcamento.status, 'orçamento')}</Td>
-                  <Td>
-                    <Edit onClick={() => handleOpenOrcamento(orcamento.id)}/>
-                    <Copy onClick={() => handleDuplicateOrcamento(orcamento)}/>
-                    <Pdf onClick={() => createPdf(orcamento)}/>
-                    <Delete onClick={() => handleDeleteOrcamento(orcamento.id)}/>
-                  </Td>
-                </Tr>
-              </React.Fragment>
-            )
-          })}
-        </tbody>
-      </Table>
-    </>
+          return (
+            <React.Fragment key={orcamento.id}>
+              <Tr>
+                <Td>{orcamento.nome}</Td>
+                <Td>{dateFormat(orcamento.data_criacao)}</Td>
+                <Td>{tipoOrcamento?.nome ?? 'Avulso'}</Td>
+                <Td >{obra?.nome.length > 25 ? obra?.nome.slice(0, 25) + '...' : obra?.nome}</Td>
+                <Td $large>{cliente?.nome.length > 20 ? cliente.nome.slice(0, 20) + '...' : cliente?.nome}</Td>
+                <Td>{valorTotal}</Td>
+                <Td>{checkStatus(orcamento.status, 'orçamento')}</Td>
+                <Td $large>
+                  <Edit onClick={() => handleOpenOrcamento(orcamento.id)}/>
+                  <Copy onClick={() => handleDuplicateOrcamento(orcamento)}/>
+                  <Pdf onClick={() => createDoc(orcamento, 'pdf')}/>
+                  <Xlsx onClick={() => createDoc(orcamento, 'excel')}/>
+                  <Delete onClick={() => handleDeleteOrcamento(orcamento)}/>
+                </Td>
+              </Tr>
+            </React.Fragment>
+          )
+        })}
+      </tbody>
+    </Table>
   )
 }
 

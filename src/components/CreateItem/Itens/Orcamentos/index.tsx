@@ -173,7 +173,7 @@ const CreateOrcamento: React.FC = () => {
 
     // Atualizando o estado com os IDs de subetapas selecionadas
 
-    if (field === 'subetapa' && value !== '0' || field === 'numSubEtapa') {
+    if (field === 'subetapa' && value !== '0') {
       setItems(prevState =>
         prevState.map(etapa => {
           if (etapa.id === etapaId) {
@@ -188,7 +188,34 @@ const CreateOrcamento: React.FC = () => {
                   id: subetapaId, // Setando o ID da subetapa selecionada
                   idSubetapa: Number(id),
                   etapa: Number(etapaId),
-                  numero: field === 'numSubEtapa' ? value : ''
+                }
+              }
+              return subetapa
+            })
+
+            const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
+
+            return {
+              ...etapa,
+              subetapas: updatedSubetapas,
+              valorTotal: etapaTotal.toFixed(2)
+            }
+          }
+          return etapa
+        })
+      )
+    }
+
+    if (field === 'numSubEtapa') {
+      setItems(prevState =>
+        prevState.map(etapa => {
+          if (etapa.id === etapaId) {
+            const updatedSubetapas = etapa.subetapas.map(subetapa => {
+              if (subetapa.id === subetapaId) {
+
+                return {
+                  ...subetapa,
+                  numero: value
                 }
               }
               return subetapa

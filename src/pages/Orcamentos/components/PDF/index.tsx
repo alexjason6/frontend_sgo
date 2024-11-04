@@ -4,7 +4,6 @@ import generatePDF, { Margin } from 'react-to-pdf'
 import LoadingContext from "../../../../contexts/loadingContext";
 import ModalContext from "../../../../contexts/modalContext";
 import ClientesContext from "../../../../contexts/clientesContext";
-import EtapasContext from "../../../../contexts/etapasContext";
 
 import Logo from  '../../../../assets/images/marca_sgo_preferencial.svg'
 import LogoCliente from '../../../../assets/images/cliente.svg'
@@ -25,7 +24,6 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
   const {changeLoading} = useContext(LoadingContext)
   const {clientes} = useContext(ClientesContext)
   const {changeModal} = useContext(ModalContext)
-  const {subetapas} = useContext(EtapasContext)
   const cliente = clientes.find((item) => item.id === orcamento.id_cliente)
 
   const createPdf = async () => {
@@ -75,7 +73,7 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
             {orcamento.item.map((item: any) => (
             <>
               <Tr>
-                <Td className={String(item.id)}>{item.numero}</Td>
+                <Td className={String(item.numero)}>{item.numero}</Td>
                 <Td $large>{item.nome}</Td>
                 <Td $index></Td>
                 <Td $index></Td>
@@ -84,22 +82,40 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
               </Tr>
             {orcamento.subitem.length >= 1 && (
               <>
-                {orcamento.subitem.map((subitem: any) => {
-                  const etapaActive = document.getElementsByClassName(String(item.id))[0]?.className.slice(-1) as unknown as HTMLOptionElement | any
-                  const [subetapasActive] = subetapas.filter((subEtapa) => subEtapa.etapa === Number(etapaActive))
+                {orcamento.subitem?.sort((a: { numero: any; }, b: { numero: any; }) => {
+                  try {
+                    const parseNumber = (num: string) => num?.split('.')?.map((part: string) => parseInt(part, 10) || 0);
 
-                  console.log(subitem.etapa === 2)
+                    const numA = parseNumber(a.numero);
+                    const numB = parseNumber(b.numero);
 
-                  return subitem.etapa === item.numero && (
+                    for (let i = 0; i < Math.max(numA.length, numB.length); i++) {
+                      const partA = numA[i] || 0;
+                      const partB = numB[i] || 0;
+
+                      if (partA !== partB) {
+                        return partA - partB; // Inverte a ordem para decrescente
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Erro ao comparar números:", error);
+                  }
+
+                  return 0;
+                }).map((subitem: any) => {
+                  const etapaActive = document.getElementsByClassName(String(item.numero))[0]?.className as unknown as HTMLOptionElement | any
+                  //const [subetapasActive] = orcamento.subitem.filter((item2: { etapa: any; }) => etapaActive === item2.etapa || Number(etapaActive) === Number(item2.etapa))
+
+                  return (subitem.etapa === item.numero || Number(etapaActive) === Number(item.numero)) ? (
                   <Tr $subitem>
-                    <Td $subitem>{item.numero}.{subetapasActive?.numero}</Td>
+                    <Td $subitem>{subitem.numero}</Td>
                     <Td $subitem $large>{subitem?.nome}</Td>
                     <Td $subitem>{subitem.unidade}</Td>
                     <Td $subitem>{String(subitem.quantidade).replace('.', ',')}</Td>
                     <Td $subitem>{currencyFormat(subitem.valor_unitario)}</Td>
                     <Td $subitem>{currencyFormat(subitem.valor_total)}</Td>
                   </Tr>
-                )})}
+                ) : null })}
               </>
             )}
             </>

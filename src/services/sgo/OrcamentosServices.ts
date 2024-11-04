@@ -42,9 +42,7 @@ class OrcamentosServices {
   }
 
   async get({ token, id }: ValidateCreateOrcamentosParams) {
-    console.log(id);
     try {
-      console.log(id);
       const response = await this.httpClient.get(`/api/orcamentos/get/${id}`, {
         headers: {
           Authorization: token,

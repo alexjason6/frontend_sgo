@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { FiCopy, FiEdit, FiTrash } from "react-icons/fi";
-import { BsFiletypePdf } from "react-icons/bs";
+import { BsFiletypePdf, BsFiletypeXlsx } from "react-icons/bs";
 
 interface PropStyle {
   $index?: boolean;
@@ -8,6 +8,7 @@ interface PropStyle {
   $inativo?: boolean;
   $clientes?: boolean;
   $open?: boolean;
+  $large?: boolean;
 }
 
 export const Table = styled.table`
@@ -60,13 +61,19 @@ export const Tr = styled.tr<PropStyle>`
 `;
 
 export const Td = styled.td<PropStyle>`
-  width: 11%;
+  width: 10%;
   height: ${({ $index }) => ($index ? "50px" : "40px")};
   font-size: 12px;
   font-weight: 300;
   text-align: center;
   padding: 0 10px;
   margin: 0;
+
+  ${({ $large }) =>
+    $large &&
+    css`
+      width: 20%;
+    `}
 
   p {
     font-weight: 500;
@@ -101,6 +108,17 @@ export const Copy = styled(FiCopy)`
 `;
 
 export const Pdf = styled(BsFiletypePdf)`
+  color: ${({ theme }) => theme.colors.oranges.primary};
+  font-size: 22px;
+  margin-left: 15px;
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.white};
+  }
+`;
+
+export const Xlsx = styled(BsFiletypeXlsx)`
   color: ${({ theme }) => theme.colors.oranges.primary};
   font-size: 22px;
   margin-left: 15px;

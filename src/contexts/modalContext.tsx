@@ -38,11 +38,13 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   }
 
   const changeModalConfirmacao = (element?: ReactNode) => {
-    setIsOpenConfirmacao(!isOpenConfirmacao)
-
     if (element) {
       setComponent(element)
+      setIsOpenConfirmacao(!isOpenConfirmacao)
+      return
     }
+
+    setIsOpenConfirmacao(!isOpenConfirmacao)
   }
 
   return (
@@ -54,7 +56,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
         changeModalConfirmacao
       }}
     >
-      {isOpen && <Modal component={component} />}
+      {(isOpen || isOpenConfirmacao) && <Modal component={component} confirmation={isOpenConfirmacao} />}
       {children}
     </ModalContext.Provider>
   )

@@ -7,9 +7,10 @@ import ReactPortal from '../ReactPortal'
 
 interface TypeModal {
   component: ReactNode
+  confirmation?: boolean
 }
 
-const Modal: React.FC<TypeModal> = ({ component }) => {
+const Modal: React.FC<TypeModal> = ({ component, confirmation }) => {
   const { changeModal } = useContext(ModalContext)
 
   useEffect(() => {
@@ -26,9 +27,9 @@ const Modal: React.FC<TypeModal> = ({ component }) => {
   return (
     <ReactPortal containerId='modal-root'>
       <Container>
-        <Content>
+        <Content $confirmation={confirmation}>
           <Close>
-            <X onClick={() => changeModal()}/>
+            <X $confirmation={confirmation} onClick={() => changeModal()}/>
           </Close>
           {component}
         </Content>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction, useCallback } from 'react'
+import React, { useContext, useEffect, useState, type Dispatch, type ChangeEvent, type SetStateAction, useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment'
 import { FiPlus, FiX } from 'react-icons/fi'
@@ -46,7 +46,6 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
   const { token } = useContext(AuthContext)
   const { getOrcamento } = useContext(OrcamentosContext)
   const [orcamento, setOrcamento] = useState<Orcamento>()
-
   const { clientes } = useContext(ClientesContext)
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
@@ -174,23 +173,50 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
       changeModal(<CreateEtapa />)
     }
 
-    if (field === 'subetapa' && value !== '0' || field === 'numSubEtapa') {
+    if (field === 'subetapa' && value !== '0') {
       setItems(prevState =>
         prevState.map(etapa => {
           if (etapa.id === etapaId) {
             const updatedSubetapas = etapa.subetapas.map(subetapa => {
               if (subetapa.id === subetapaId) {
-                const id = value
-                const subetapaFiltered = subetapas.find((etapaSearch) => etapaSearch.id === Number(id))
+                const id = Number(value)
+                const subetapaFiltered = subetapas.find((etapaSearch) => etapaSearch.id === id)
 
                 return {
                   ...subetapa,
                   [field]: trataValue,
-                  nome: subetapaFiltered ? subetapaFiltered.nome : '',
-                  id: subetapaId, // Setando o ID da subetapa selecionada
+                  nome: subetapaFiltered ? subetapaFiltered.nome : e,
+                  id, // Setando o ID da subetapa selecionada
                   idSubetapa: Number(id),
-                  etapa: Number(etapaId),
-                  numero: field === 'numSubEtapa' ? value : ''                }
+                  etapa: Number(etapaId)
+                }
+              }
+              return subetapa
+            })
+
+            const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
+
+            return {
+              ...etapa,
+              subetapas: updatedSubetapas,
+              valorTotal: etapaTotal.toFixed(2)
+            }
+          }
+          return etapa
+        })
+      )
+    }
+
+    if (field === 'numSubEtapa') {
+      setItems(prevState =>
+        prevState.map(etapa => {
+          if (etapa.id === etapaId) {
+            const updatedSubetapas = etapa.subetapas.map(subetapa => {
+              if (subetapa.id === subetapaId) {
+                return {
+                  ...subetapa,
+                  numero: value
+                }
               }
               return subetapa
             })
@@ -372,7 +398,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
         setObrasCliente(initialObras)
 
         // Mapeando os itens e associando seus subitens correspondentes
-        const itemsWithSubitems = response.item?.map((item: any) => {
+        const itemsWithSubitems = response.item?.sort((a: any, b: any) => a.numero > b.numero ? 1 : -1).map((item: any) => {
         // Filtrar subitens que pertencem ao item atual
           const subitemsForItem = response.subitem.filter(
             (subitem: any) => subitem.etapa === item.id
@@ -395,7 +421,27 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
             valorTotal: item.valor_total,
             numero: item.numero,
             idEtapa: item.id,
-            subetapas: subitemsForItem
+            subetapas: subitemsForItem.sort((a: { numero: number }, b: { numero: number }) => a.numero > b.numero ? -1 : 1).sort((a: { numero: any }, b: { numero: any }) => {
+              try {
+                const parseNumber = (num: string) => num?.split('.')?.map((part: string) => parseInt(part, 10) || 0);
+
+                const numA = parseNumber(a.numero);
+                const numB = parseNumber(b.numero);
+
+                for (let i = 0; i < Math.max(numA.length, numB.length); i++) {
+                  const partA = numA[i] || 0;
+                  const partB = numB[i] || 0;
+
+                  if (partA !== partB) {
+                    return partA - partB;
+                  }
+                }
+              } catch (error) {
+                console.error("Erro ao comparar números:", error);
+              }
+
+              return 0;
+            })
           }
         })
 
@@ -437,6 +483,27 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
       }
     }
   }, [changeLoading, getData, getInitialOrcamento, orcamento])
+
+/*   useEffect(() => {
+    setItems((prevItems) =>
+      prevItems.map((item) => {
+        return {
+          ...item,
+          subetapas: item.subetapas.map((subitem) => {
+            const subetapasActive = subetapas.filter((item2) => item2.nome === subitem.nome);
+            const subetapaActive = subetapasActive.find((item3) => item3.id === subitem.id);
+            const autoNumero = `${item.numero}.${subetapaActive?.numero}`;
+
+            return {
+              ...subitem,
+              etapa: Number(item.numero),
+              numero: autoNumero,
+            };
+          })
+        };
+      })
+    );
+  }, [subetapas, etapas, etapasOpened]); */
 
   return (
     <GlobalContainer>
@@ -510,7 +577,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
           </FormContent>
 
           <Title>Itens do orçamento</Title>
-          {items?.sort((a, b) => a.numero > b.numero ? 1 : -1).sort((a, b) => a.idEtapa === 0 || b.idEtapa > 0 ? 1 : -1).map((etapa) => {
+          {items?.map((etapa) => {
             return (
             <React.Fragment key={etapa.id}>
               <FormContent $items>
@@ -533,13 +600,13 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                     id={String(etapa.id)}
                     onChange={(e) => handleChangeItem(e, 'etapa', e.target.value, () => {}, etapa.id)}
                     $error={!!getErrorMessageByFieldName('etapa')}
-                    value={etapas.length > 0 ? etapas.filter((etapaSeleted) => etapaSeleted?.id === etapa?.id)[0]?.id : undefined}
+                    value={etapas.length > 0 ? etapas.filter((etapaSeleted) => etapaSeleted?.id === etapa?.id)[0]?.numero : undefined}
                     >
                     <option value="">Selecione uma etapa</option>
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
                     {etapas.length > 0 && etapas.map((item) => (
-                      <option key={item.id} value={item.id} className={String(item.id)}>{item.nome}</option>
+                      <option key={item.id} value={item.id} className={String(item.id)}>{etapa.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -562,10 +629,12 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                 </p>
               </FormContent>
 
-                {etapa.subetapas?.sort((a, b) => a.numero > b.numero ? 1 : -1).map((subitem: any) => {
+                {etapa.subetapas?.map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
                   const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
                   const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
+
+                  //console.log(subitem.numero, 'oi', subetapasActive.find((item) => item.id === subitem.id)?.numero)
 
                   return (
                     <>
@@ -576,7 +645,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                         <Legend>Número:</Legend>
                         <Input
                           type="text"
-                          value={subetapasActive.find((item) => item.id === subitem.id)?.numero ? `${etapa.numero}.${subetapasActive.find((item) => item.id === subitem.id)?.numero}` : subitem.numero}
+                          value={subitem.numero || subetapasActive.find((item) => item.id === subitem.id)?.numero && `${etapa.numero + '.' + subetapasActive.find((item) => item.id === subitem.id)?.numero}` || ''}
                           $error={!!getErrorMessageByFieldName('numSubEtapa')}
                           onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'numSubEtapa', e.target.value)}
                           placeholder="Ex.: 01.01"
