@@ -28,7 +28,7 @@ const initialContextValue: EtapasContextType = {
 const EtapasContext = createContext<EtapasContextType>(initialContextValue)
 
 export const EtapasProvider: React.FC<EtapasProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [etapas, setEtapas] = useState([])
   const [subetapas, setSubetapas] = useState([])
 
@@ -36,8 +36,8 @@ export const EtapasProvider: React.FC<EtapasProviderProps> = ({ children }) => {
     try {
       const response = await EtapasServices.listEtapas({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 0) {
@@ -53,8 +53,8 @@ export const EtapasProvider: React.FC<EtapasProviderProps> = ({ children }) => {
     try {
       const response = await EtapasServices.listSubetapas({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {

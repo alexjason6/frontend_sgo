@@ -1,6 +1,5 @@
 import React, { useContext,  } from 'react'
 import { useNavigate } from 'react-router-dom'
-import xlsx from "json-as-xlsx"
 import moment from 'moment'
 
 import ModalContext from '../../../../contexts/modalContext'
@@ -17,12 +16,11 @@ import checkStatus from '../../../../utils/checkStatus'
 import dateFormat from '../../../../utils/dateFormat'
 import Toast from '../../../../utils/toast'
 import { orcamentoValue } from '../../../../utils/calculateInfosObras'
-import { currencyFormat } from '../../../../utils/currencyFormat'
+import { ExportOrcamentoXLSX } from '../../../../utils/createXlsx'
 
 import { Table, Tr, Td, Edit, Copy, Pdf, Delete, Xlsx } from './styles'
 
 import { type Orcamento, type TiposOrcamentos, type Cliente, type Obra } from '../../../../interfaces/globalInterfaces'
-import { ExportOrcamentoXLSX } from '../../../../utils/createXlsx'
 
 interface ItemTableProps {
   orcamentos: Orcamento[]

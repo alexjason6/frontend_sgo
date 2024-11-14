@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { createContext, useCallback, useState, type ReactNode } from 'react'
+import React, { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 
 import { type User } from '../interfaces/globalInterfaces'
 import UsersServices from '../services/sgo/UsersServices'
+import AuthContext from './authContext'
 
 interface TokenParams {
   token: string
@@ -26,13 +27,14 @@ const UsersContext = createContext<UsersContextType>(initialContextValue)
 
 export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
   const [users, setUsers] = useState([])
+  const { signOut } = useContext(AuthContext)
 
   const listUsers = useCallback(async ({ token }: TokenParams) => {
     try {
       const response = await UsersServices.list({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {

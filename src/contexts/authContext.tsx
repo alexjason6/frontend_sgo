@@ -44,21 +44,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const getUser = useCallback(async ({ id, hash }: GetUserParams) => {
     try {
-      const tokenIsValid = await AuthServices.validaToken({ token: hash })
-
-      if (!tokenIsValid) {
-        signOut()
-        throw new Error('Token inválido')
-      }
-
       const response = await AuthServices.getUser({ id, token: hash })
 
       localStorage.setItem('@SGO:user', JSON.stringify(response))
 
       setUser(response)
     } catch (error) {
-      console.error('Erro ao buscar usuário:', error)
-      setUser(null)
+
+      signOut()
+      Toast({ type: 'danger', text: 'Erro ao buscar o usuário. Tente novamente.' })
     } finally {
       setLoadingAuth(false)
       changeLoading(false)
@@ -70,11 +64,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const response = await AuthServices.signIn({ email, password })
+
+      if (!response.token || !response.newToken) {
+        Toast({ type: 'danger', text: 'Falha na autenticação. Por favor, verifique suas credenciais.' })
+        return
+      }
+
       setToken(response.token)
 
       localStorage.setItem('@SGO:token', response.token)
 
       await getUser({ id: response.id_user, hash: response.token })
+
     } catch {
       Toast({ type: 'danger', text: 'Falha na autenticação. Por favor, verifique suas credenciais.' })
     } finally {

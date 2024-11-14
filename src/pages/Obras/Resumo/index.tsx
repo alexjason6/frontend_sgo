@@ -21,6 +21,7 @@ import { Content } from './styles'
 
 import { type Obra } from '../../../interfaces/globalInterfaces'
 import ModalContext from '../../../contexts/modalContext'
+import Toast from '../../../utils/toast'
 
 interface TypeObra {
   obra: Obra
@@ -36,12 +37,12 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
   const navigate = useNavigate()
   const { clientes, listClientes } = useContext(ClientesContext)
   const { token } = useContext(AuthContext)
-  const { rdos, rdas } = useContext(RdoRdaContext)
+  const { rdos, rdas , lancamentosRdo, lancamentosRda} = useContext(RdoRdaContext)
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
   const [dataCliente] = clientes.filter((item) => item.nome === clienteName)
-
-  const [rdo] = rdos.filter((item) => item.obra === obra.id)
+  const rdo = rdos?.filter((item) => item.obra === obra.id)
+  const lancamentos = lancamentosRdo?.filter((lancamento) => lancamento.rdo === rdo[0]?.id)
 
   const getData = async () => {
     changeLoading(true, 'Buscando dados do cliente...')
@@ -49,19 +50,28 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
   }
 
   const handleOpenLancamentoRDORDA = (type: string, id?: number) => {
-    if (!type || !id) {
+    console.log(id, type)
+    if (!id || id === 0) {
+      Toast({type: 'default', text: 'Não há RDO cadastrado para esta obra.'})
       return
     }
 
-    changeLoading(true, `carregando dados do ${type}...`)
+    changeLoading(true, `Carregando dados do ${type}...`)
 
     navigate(`/obras/lancamentos/${type}/${id}`, {
       state: {
         cliente: dataCliente,
         clienteId: obra.id_cliente,
-        obra: obra.id
+        obra: obra.id,
+        infos: lancamentos
       }
     })
+
+    changeModal()
+  }
+
+  const handleOpenOrcamentos = () => {
+    navigate('/orcamentos/')
 
     changeModal()
   }
@@ -88,8 +98,12 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
 
       <Header title='Documentos' modal subHeader/>
         <Content>
-          {rdos.length > 0 ? <div style={{ cursor: 'pointer' }} onClick={() => handleOpenLancamentoRDORDA('rdo', rdo.id)}><BoxInfos info='RDO' color='grays' /></div> : <Button>Cadastrar RDO</Button>}
-          {rdos.length > 0 ? <BoxInfos info='RDA' color='grays' /> : <Button>Cadastrar RDA</Button>}
+          {rdos.length > 0 && rdo.length > 0 ? (
+            <div style={{ cursor: 'pointer' }} onClick={() => handleOpenLancamentoRDORDA('rdo', rdo[0].id)}>
+              <BoxInfos info='RDO' color='grays' />
+            </div>
+            ) : <Button>Cadastrar RDO</Button>}
+          {rdas.length > 0 ? <BoxInfos info='RDA' color='grays' /> : <Button>Cadastrar RDA</Button>}
           {/* <BoxInfos info='Relatórios' color='blues' opacityColor={1} /> */}
         </Content>
 
@@ -107,7 +121,7 @@ const ResumoObra: React.FC<TypeObra> = ({ saldo, orcamento, executado, compromet
           info={saldo}
         />
         <div className='containerButtons'>
-          <Button $blue>Ver mais</Button>
+          <Button $blue onClick={handleOpenOrcamentos}>Ver mais</Button>
         </div>
       </Content>
 

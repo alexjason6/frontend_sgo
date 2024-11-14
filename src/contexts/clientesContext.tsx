@@ -24,15 +24,15 @@ const initialContextValue: ClientesContextType = {
 const ClientesContext = createContext<ClientesContextType>(initialContextValue)
 
 export const ClientesProvider: React.FC<ClientesProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [clientes, setClientes] = useState([])
 
   const listClientes = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await ClientesServices.list({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       setClientes(response)

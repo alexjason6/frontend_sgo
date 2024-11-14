@@ -38,8 +38,7 @@ class HttpClientSgo {
       return response.data; // O Axios já retorna a resposta no formato JSON
     } catch (error) {
       // Adicione tratamento de erro adequado aqui
-      console.error("Erro na requisição:", error);
-      throw error;
+      return error;
     }
   }
 }

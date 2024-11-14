@@ -24,15 +24,15 @@ const initialContextValue: ObrasContextType = {
 const ObrasContext = createContext<ObrasContextType>(initialContextValue)
 
 export const ObrasProvider: React.FC<ObrasProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [obras, setObras] = useState([])
 
   const listObras = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await ObrasServices.list({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {

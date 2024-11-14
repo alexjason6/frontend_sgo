@@ -34,7 +34,7 @@ const initialContextValue: OrcamentosContextType = {
 const OrcamentosContext = createContext<OrcamentosContextType>(initialContextValue)
 
 export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [orcamentos, setOrcamentos] = useState([])
   const [modelos, setModelos] = useState([])
   const [itens, setItens] = useState([])
@@ -44,8 +44,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     try {
       const response = await OrcamentosServices.list({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {
@@ -61,8 +61,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     try {
       const response = await OrcamentosServices.listTipos({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {
@@ -78,8 +78,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     try {
       const response = await OrcamentosServices.listItens({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {
@@ -95,8 +95,8 @@ export const OrcamentosProvider: React.FC<OrcamentosProviderProps> = ({ children
     try {
       const response = await OrcamentosServices.listSubitens({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {

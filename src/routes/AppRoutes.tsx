@@ -3,7 +3,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 
 import Loading from '../components/Loading'
 
-const Dashboard = lazy(async () => await import('../pages/Dashboard'))
+const Dashboard = lazy(async () => await import('../pages/Dashboard/Container'))
 const Clientes = lazy(async () => await import('../pages/Clientes'))
 const Obras = lazy(async () => await import('../pages/Obras'))
 const DetalhamentoObra = lazy(async () => await import('../pages/Obras/Detalhamento'))

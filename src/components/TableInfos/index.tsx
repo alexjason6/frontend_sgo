@@ -32,13 +32,18 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
   const {changeModal} = useContext(ModalContext)
   const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
   const lastLancamentos = sortLancamentos
-  const [lancamentos, setLancamentos] = useState(lastLancamentos)
+  const [lancamentos, setLancamentos] = useState<LancamentoRdoRda[]>(lastLancamentos)
 
   const getLancamentos = useCallback(async () => {
-    const response = await RdoRdaServices.getLancamentosRdo({token, type: 'rdo', id})
+    try {
+      const response = await RdoRdaServices.getLancamentosRdo({token, type: 'rdo', id})
 
-    setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
-    changeLoading(false, '')
+      setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
+      changeLoading(false, '')
+    } catch (error) {
+      Toast({ type: 'danger', text: 'Erro ao carregar lançamentos', duration: 5000 })
+    }
+
   }, [changeLoading, id, token])
 
   const formatValue = (value?: string | null) => {
@@ -63,14 +68,14 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
   }
 
   useEffect(() => {
-    setInterval(() => {
-      getLancamentos()
-    }, 15000)
-  }, [getLancamentos])
+    getLancamentos()
 
-  useEffect(() => {
+    const interval = setInterval(() => {
       getLancamentos()
-  }, [])
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [getLancamentos])
 
   return (
     <div style={{overflowY: 'auto', maxHeight: 600,}}>
@@ -102,8 +107,8 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
           </Tr>
         </Thead>
         <tbody>
-        {lancamentos.length >= 1 && lancamentos?.map((lancamento) => {
-          const [fornecedor] = fornecedores.filter((item) => item.id === lancamento.fornecedor)
+        {lancamentos.length >= 1 && lancamentos.map((lancamento) => {
+          const [fornecedor] = fornecedores.filter((item) => Number(item.id) === Number(lancamento.fornecedor))
           const [etapa] = etapas.filter((item) => Number(item.id) === Number(lancamento.etapa))
           const [subetapa] = subetapas?.filter((item) => Number(item.id) === Number(lancamento?.subetapa))
 
@@ -116,7 +121,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
               <Td $medium>{etapa?.numero} - {etapa?.nome}</Td>
               <Td $medium>{subetapa?.numero} - {subetapa?.nome}</Td>
               <Td>{formatValue(lancamento.valor_comprometido)}</Td>
-              <Td $medium>{fornecedor?.nome}</Td>
+              <Td $medium>{typeof fornecedor?.nome === 'string' ? fornecedor.nome : 'Nome não disponível'}</Td>
               <Td>{dateFormat(lancamento.data_pagamento)}</Td>
               <Td>{formatValue(lancamento.valor_pagamento)}</Td>
             </Tr>

@@ -36,7 +36,7 @@ const initialContextValue: RdoRdaContextType = {
 const RdoRdaContext = createContext<RdoRdaContextType>(initialContextValue)
 
 export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [rdos, setRdos] = useState([])
   const [rdas, setRdas] = useState([])
   const [lancamentosRdo, setLancamentosRdo] = useState([])
@@ -45,8 +45,8 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
   const listRdos = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listRdo({ token })
 
-    if (response.message) {
-      return
+    if (response.message === 'Token inválido.') {
+      signOut()
     }
 
     if (response.length >= 1) {
@@ -57,8 +57,8 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
   const listRdas = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listRda({ token })
 
-    if (response.message) {
-      return
+    if (response.message === 'Token inválido.') {
+      signOut()
     }
 
     if (response.length >= 1) {
@@ -69,8 +69,8 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
   const listLancamentosRdo = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listLancamentosRdo({ token })
 
-    if (response.message) {
-      return
+    if (response.message === 'Token inválido.') {
+      signOut()
     }
 
     if (response.length >= 1) {
@@ -81,8 +81,8 @@ export const RdoRdaProvider: React.FC<RdoRdaProviderProps> = ({ children }) => {
   const listLancamentosRda = useCallback(async ({ token }: Data) => {
     const response = await RdoRdaServices.listLancamentosRda({ token })
 
-    if (response.message) {
-      return
+    if (response.message === 'Token inválido.') {
+      signOut()
     }
 
     if (response.length >= 1) {

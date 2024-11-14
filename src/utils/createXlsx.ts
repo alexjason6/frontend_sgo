@@ -1,8 +1,13 @@
 import xlsx from "json-as-xlsx";
 import { currencyFormat } from "./currencyFormat";
+import dateFormat from "./dateFormat";
+/* import { useContext } from "react";
+import OrcamentosContext from "../contexts/orcamentosContext";
+import RdoRdaContext from "../contexts/rdoRdaContext";
+import ObrasContext from "../contexts/obrasContext"; */
 
 interface Props {
-  orcamento: {
+  orcamento?: {
     nome: string;
     obra: string;
     item: {
@@ -24,9 +29,41 @@ interface Props {
     servico: string;
     valor_total: string;
   };
+
+  lancamentos?: {
+    agencia: string;
+    banco: string;
+    boletos: string[];
+    cliente: number;
+    comprovante: string;
+    conta: string;
+    data_alteracao: string;
+    data_lancamento: string;
+    data_nf: string;
+    data_pagamento: string;
+    descricao: string;
+    etapa: string;
+    fornecedor: number;
+    id: number;
+    nf: string;
+    nf_doc: string;
+    obra: number;
+    observacao: string;
+    parcela: string;
+    pix: string;
+    rdo: number;
+    situacao: number;
+    status: number;
+    subetapa: string;
+    tipo_conta: number;
+    usuario: number;
+    valor_comprometido: string;
+    valor_pagamento: string;
+  }[];
 }
+
 export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
-  const content = orcamento.item.flatMap((item: any) => {
+  const content = orcamento!.item.flatMap((item: any) => {
     const valor = currencyFormat(item.valor_total);
     // Adiciona o item pai
     const itemRow = {
@@ -38,11 +75,10 @@ export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
       valor_total: valor, // Deixe em branco, pois o item pai não possui valor total
     };
 
-    const subitemsRows = orcamento.subitem
+    const subitemsRows = orcamento!.subitem
       .filter(
         (subitem: any) =>
-          subitem.etapa === item.numero ||
-          Number(subitem.etapa) === Number(item.numero)
+          Number(subitem.numero.split(".")[0]) === Number(item.numero)
       ) // Use a chave que associa subitem ao item pai
       .map((subitem: any) => {
         const valorUnitario = currencyFormat(subitem.valor_unitario);
@@ -82,11 +118,66 @@ export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
   ];
 
   const settings = {
-    fileName: `orcamento - ${orcamento.nome}`,
+    fileName: `orcamento - ${orcamento!.nome}`,
     extraLength: 3,
     writeMode: "writeFile",
     writeOptions: {},
   };
 
   return xlsx(data, settings);
+};
+
+export const ExportLancamentosXLSX = ({ lancamentos }: Props) => {
+  console.log(lancamentos);
+
+  const content = lancamentos!.map((lancamento: any) => {
+    const valorUnitario = currencyFormat(lancamento.valor_unitario);
+    const somaTotal =
+      Number(lancamento.valor_unitario) * Number(lancamento.quantidade);
+    const valorTotal = Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(somaTotal);
+
+    return {
+      dataLancamento: dateFormat(lancamento.data_lancamento),
+      nfNumber: lancamento.nf,
+      nfDate: dateFormat(lancamento.data_nf),
+      descricao: lancamento.descricao,
+      valorComprometido: currencyFormat(lancamento.valor_comprometido),
+      servicos: "SERVIÇO",
+      item: "ITEM",
+      contrato: lancamento.valor_comprometido && lancamento.observacao,
+      dataPagamento: dateFormat(lancamento.data_pagamento),
+      valorPagamento: currencyFormat(lancamento.valor_pagamento),
+    };
+  });
+
+  const data = [
+    {
+      sheet: "Rdo - ",
+      columns: [
+        { value: "dataLancamento", label: "DATA DE LANÇAMENTO" },
+        { value: "nfNumber", label: "Nº DA NOTA FISCAL" },
+        { value: "nfDate", label: "DATA DA EMISSÃO" },
+        { value: "descricao", label: "DESCRIÇÃO" },
+        { value: "valorComprometido", label: "VALOR COMPROMETIDO" },
+        { value: "servicos", label: "SERVIÇO" },
+        { value: "item", label: "ITEM" },
+        { value: "contrato", label: "CONTRATO" },
+        { value: "dataPagamento", label: "DATA PAGAMENTO" },
+        { value: "valorPagamento", label: "VALOR PAGAMENTO" },
+      ],
+      content: content,
+    },
+  ];
+
+  const settings = {
+    fileName: `lançamentos RDO obra`, // ${obra.nome}`,
+    extraLength: 3,
+    writeMode: "writeFile",
+    writeOptions: {},
+  };
+
+  //return xlsx(data, settings);
 };

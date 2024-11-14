@@ -50,7 +50,7 @@ export const comprometidoValue = (
 };
 
 export const orcamentoValue = (itens: ItemOrcamento[], type?: string) => {
-  const orcamento = itens.reduce<number>((accumulator, item) => {
+  const orcamento = itens?.reduce<number>((accumulator, item) => {
     return accumulator + Number(item.valor_total);
   }, 0);
 

@@ -67,7 +67,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
       numero: '',
       idEtapa: 0,
       subetapas: [
-        { id: 1, nome: '', unidade: '', numero: '', etapa: 0, idSubetapa: 0, quantidade: 0, valor: 0, valorTotal: '' }
+        { id: 1, nome: '', unidade: '', numero: '', etapa: 0, idSubetapa: 0, quantidade: '', valor: '', valorTotal: '' }
       ]
     }
   ])
@@ -77,13 +77,11 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
   const formIsValid = nome && idCliente && obra && modelo && status && errors.length === 0
 
   const handleAddEtapa = () => {
-    // Verifica se existe alguma etapa e obtém o maior ID
-    const newEtapaId = Math.random()
 
     setItems(prevState => [
       ...prevState,
       {
-        id: newEtapaId,
+        id: Math.random(),
         nome: '',
         valorTotal: '',
         idEtapa: 0,
@@ -96,9 +94,8 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
             numero: '',
             etapa: 0,
             idSubetapa: 0,
-            quantidade: 0,
-            valor: 0,
-            fornecedor: '',
+            quantidade: '',
+            valor: '',
             valorTotal: ''
           }]
       }
@@ -123,11 +120,10 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                   nome: '',
                   unidade: '',
                   numero: '',
-                  quantidade: 0,
+                  quantidade: '',
                   idSubetapa: 0,
-                  etapa: 0,
-                  valor: 0,
-                  fornecedor: '',
+                  etapa:  0,
+                  valor: '',
                   valorTotal: ''
                 }
               ]
@@ -150,126 +146,147 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
     )
   }
 
-  const handleChangeSubitem = (etapaId: number, subetapaId: number, field: string, value: string, e?: any) => {
-    const cleanedValue = value.replace(/\D/g, '')
-
-    let integerPart = cleanedValue.slice(0, -2)
-    let decimalPart = cleanedValue.slice(-2)
-
-    if (decimalPart.length > 2) {
-      integerPart += decimalPart.slice(0, -2)
-      decimalPart = decimalPart.slice(-2)
-    }
-
-    const formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + decimalPart
-
-    const trataValue = field === 'valor'
-      ? formattedValue.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()
-      : field === 'quantidade'
-        ? value.replace(',', '.')
-        : value
-
-    if (field === 'subetapa' && value === '0') {
-      changeModal(<CreateEtapa />)
-    }
-
-    if (field === 'subetapa' && value !== '0') {
-      setItems(prevState =>
-        prevState.map(etapa => {
-          if (etapa.id === etapaId) {
-            const updatedSubetapas = etapa.subetapas.map(subetapa => {
-              if (subetapa.id === subetapaId) {
-                const id = Number(value)
-                const subetapaFiltered = subetapas.find((etapaSearch) => etapaSearch.id === id)
-
-                return {
-                  ...subetapa,
-                  [field]: trataValue,
-                  nome: subetapaFiltered ? subetapaFiltered.nome : e,
-                  id, // Setando o ID da subetapa selecionada
-                  idSubetapa: Number(id),
-                  etapa: Number(etapaId)
-                }
-              }
-              return subetapa
-            })
-
-            const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
-
-            return {
-              ...etapa,
-              subetapas: updatedSubetapas,
-              valorTotal: etapaTotal.toFixed(2)
-            }
-          }
-          return etapa
-        })
-      )
-    }
-
-    if (field === 'numSubEtapa') {
-      setItems(prevState =>
-        prevState.map(etapa => {
-          if (etapa.id === etapaId) {
-            const updatedSubetapas = etapa.subetapas.map(subetapa => {
-              if (subetapa.id === subetapaId) {
-                return {
-                  ...subetapa,
-                  numero: value
-                }
-              }
-              return subetapa
-            })
-
-            const etapaTotal = updatedSubetapas.reduce<number>((acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'), 0)
-
-            return {
-              ...etapa,
-              subetapas: updatedSubetapas,
-              valorTotal: etapaTotal.toFixed(2)
-            }
-          }
-          return etapa
-        })
-      )
-    }
-
+  const handleChangeSubitemNumber = (etapaId: number, subetapaId: number, value: string) => {
     setItems(prevState =>
       prevState.map(etapa => {
         if (etapa.id === etapaId) {
-          const updatedSubetapas = etapa.subetapas.map(subetapa => {
-            if (subetapa.id === subetapaId) {
-              const valor = parseFloat(String(subetapa.valor)) || 0;
-              const quantidade = parseFloat(String(subetapa.quantidade)) || 0; // Usando 0 aqui para checar se é zero
-              const updatedValue = parseFloat(trataValue) || 0;
+          return {
+            ...etapa,
+            subetapas: etapa.subetapas.map(subetapa =>
+              subetapa.id === subetapaId
+                ? { ...subetapa, numero: value }
+                : subetapa
+            )
+          }
+        }
+        return etapa
+      })
+    )
+  }
 
-              return {
-                ...subetapa,
-                [field]: trataValue,
-                id: subetapaId,
-                valorTotal:
-                  field === 'valor' && valor !== 0 && quantidade !== 0
-                    ? (updatedValue * quantidade).toFixed(2)
-                    : '' // Deixando em branco se valor ou quantidade for zero
-              };
+  const handleChangeSubitemNome = (etapaId: number, subetapaId: number, value: string) => {
+
+    if (value === '0') {
+      changeModal(<CreateEtapa />)
+      return
+    }
+
+    const nome = subetapas.find(item => item.id === Number(value))?.nome;
+    const nomeSubetapaAlreadyExists = items.filter((item) => Number(item.id) === Number(etapaId)).find((item) => item.subetapas.find((subitem) => subitem.nome === nome))
+    const idSubetapaAlreadyExists = items.filter((item) => Number(item.id) === Number(etapaId)).find((item) => item.subetapas.find((subitem) => subitem.id === Number(value)))
+
+    if (nomeSubetapaAlreadyExists && idSubetapaAlreadyExists) {
+      return null
+    }
+
+    setItems(prevState =>
+    prevState.map(etapa => {
+      if (etapa.id === etapaId) {
+        return {
+          ...etapa,
+          subetapas: etapa.subetapas.map(subetapa =>
+            subetapaId === subetapa.id
+              ? { ...subetapa, nome: nome!, etapa: etapa.id, id: Number(value) }
+              : subetapa
+          )
+        };
+      }
+      return etapa;
+    })
+  );
+  }
+
+  const handleChangeSubitemUnidade = (etapaId: number, subetapaId: number, value: string) => {
+    setItems(prevState =>
+      prevState.map(etapa => {
+        if (etapa.id === etapaId) {
+           return {
+            ...etapa,
+            subetapas: etapa.subetapas.map(subetapa =>
+              subetapa.id === subetapaId
+                ? { ...subetapa, unidade: value }
+                : subetapa
+            )
+          }
+        }
+        return etapa
+      })
+    )
+  }
+
+  const handleChangeSubitemQuantidade = (etapaId: number, subetapaId: number, value: string) => {
+    setItems(prevState =>
+      prevState.map(etapa => {
+        if (etapa.id === etapaId) {
+          // Atualizar as subetapas com a nova quantidade e calcular o valorTotal da subetapa
+          const subetapasAtualizadas = etapa.subetapas.map(subetapa => {
+            if (subetapa.id === subetapaId) {
+              // Calcula o novo valorTotal da subetapa com a quantidade atualizada
+              const novoValorTotal = String(Number(subetapa.valor) * Number(value));
+              return { ...subetapa, quantidade: value, valorTotal: novoValorTotal };
             }
             return subetapa;
           });
 
-          const etapaTotal = updatedSubetapas.reduce((acc, subetapa) =>
-            acc + parseFloat(subetapa.valorTotal || '0'), 0
+          // Recalcula o valorTotal da etapa com as subetapas atualizadas
+          const etapaTotal = subetapasAtualizadas.reduce<number>(
+            (acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'),
+            0
           );
 
           return {
             ...etapa,
-            subetapas: updatedSubetapas,
+            subetapas: subetapasAtualizadas,
+            valorTotal: String(etapaTotal) // Atualiza o valorTotal da etapa
+          };
+        }
+        return etapa;
+      })
+    );
+  };
+
+  const handleChangeSubitemValor = (etapaId: number, subetapaId: number, value: string) => {
+    const cleanedValue = value.replace(/\D/g, '');
+
+    let integerPart = cleanedValue.slice(0, -2);
+    let decimalPart = cleanedValue.slice(-2);
+
+    if (decimalPart.length > 2) {
+      integerPart += decimalPart.slice(0, -2);
+      decimalPart = decimalPart.slice(-2);
+    }
+
+    const trataValue = parseFloat(`${integerPart}.${decimalPart}`).toFixed(2);
+
+    setItems(prevState =>
+      prevState.map(etapa => {
+        if (etapa.id === etapaId) {
+          const subetapasAtualizadas = etapa.subetapas.map(subetapa => {
+            if (subetapa.id === subetapaId) {
+              const novoValorTotal = (parseFloat(trataValue) * parseFloat(subetapa.quantidade)).toFixed(2);
+              console.log(novoValorTotal.toString().slice(0, -2) + (Number(trataValue) * Number(subetapa.quantidade.slice(-2))))
+
+              return { ...subetapa, valor: trataValue, valorTotal: novoValorTotal };
+            }
+
+            return subetapa;
+          });
+
+          const etapaTotal = subetapasAtualizadas.reduce<number>(
+            (acc, subetapa) => acc + parseFloat(subetapa.valorTotal || '0'),
+            0
+          );
+
+          return {
+            ...etapa,
+            subetapas: subetapasAtualizadas,
             valorTotal: etapaTotal.toFixed(2)
           };
         }
         return etapa;
       })
     );
-  }
+  };
 
   const handleChangeItem = (
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>,
@@ -308,7 +325,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
         setItems(prevState =>
           prevState.map(item =>
             item.id === etapaId
-              ? { ...item, nome: etapaSelecionada.nome, idEtapa: Number(value), id: etapaSelecionada.id, numero: value }
+              ? { ...item, nome: etapaSelecionada.nome, idEtapa: Number(value), id: etapaSelecionada.id}
               : item
           )
         )
@@ -316,17 +333,13 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
     }
 
     if (fieldName === 'numEtapa') {
-      const [etapaSelecionada] = etapas?.filter(etapa => etapa.id === Number(value));
-
-      if (etapaSelecionada) {
-        setItems(prevState =>
-          prevState.map(item =>
-            item.id === etapaId
-              ? { ...item, numero: value }
-              : item
-          )
-        );
-      }
+      setItems(prevState =>
+        prevState.map(item =>
+          item.id === etapaId
+            ? { ...item, numero: value }
+            : item
+        )
+      );
     }
 
     setState(value)
@@ -350,7 +363,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
       idCliente,
       obra,
       item: items.map(({ subetapas, ...rest }) => ({ id: rest.idEtapa, nome: rest.nome, numero: rest.numero, valor_total: rest.valorTotal })),
-      subitem: subitens.map((subitem) => ({ id: subitem.idSubetapa, numero: subitem.numero, nome: subitem.nome, etapa: subitem.etapa, quantidade: subitem.quantidade, unidade: subitem.unidade, valor_unitario: subitem.valor, valor_total: subitem.valorTotal }))
+      subitem: subitens.map((subitem) => ({ id: subitem.id, numero: subitem.numero, nome: subitem.nome, etapa: subitem.etapa, quantidade: subitem.quantidade, unidade: subitem.unidade, valor_unitario: subitem.valor, valor_total: subitem.valorTotal }))
     }
 
     try {
@@ -398,7 +411,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
         setObrasCliente(initialObras)
 
         // Mapeando os itens e associando seus subitens correspondentes
-        const itemsWithSubitems = response.item?.sort((a: any, b: any) => a.numero > b.numero ? 1 : -1).map((item: any) => {
+        const itemsWithSubitems = response.item?.sort((a: any, b: any) => Number(a.numero) > Number(b.numero) ? 1 : -1).map((item: any) => {
         // Filtrar subitens que pertencem ao item atual
           const subitemsForItem = response.subitem.filter(
             (subitem: any) => subitem.etapa === item.id
@@ -421,7 +434,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
             valorTotal: item.valor_total,
             numero: item.numero,
             idEtapa: item.id,
-            subetapas: subitemsForItem.sort((a: { numero: number }, b: { numero: number }) => a.numero > b.numero ? -1 : 1).sort((a: { numero: any }, b: { numero: any }) => {
+            subetapas: subitemsForItem.sort((a: { numero: string }, b: { numero: string }) => Number(a.numero) > Number(b.numero) ? -1 : 1).sort((a: { numero: any }, b: { numero: any }) => {
               try {
                 const parseNumber = (num: string) => num?.split('.')?.map((part: string) => parseInt(part, 10) || 0);
 
@@ -600,13 +613,13 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                     id={String(etapa.id)}
                     onChange={(e) => handleChangeItem(e, 'etapa', e.target.value, () => {}, etapa.id)}
                     $error={!!getErrorMessageByFieldName('etapa')}
-                    value={etapas.length > 0 ? etapas.filter((etapaSeleted) => etapaSeleted?.id === etapa?.id)[0]?.numero : undefined}
+                    value={etapa.id}
                     >
                     <option value="">Selecione uma etapa</option>
                     <option value='0'>Cadastrar nova etapa</option>
                     <option disabled>________________________________</option>
-                    {etapas.length > 0 && etapas.map((item) => (
-                      <option key={item.id} value={item.id} className={String(item.id)}>{etapa.nome}</option>
+                    {etapas.length > 0 && etapas.sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' })).map((item) => (
+                      <option key={item.id} value={item.id} className={String(item.id)}>{item.nome}</option>
                     ))}
                   </Select>
                 </FormGroup>
@@ -632,13 +645,10 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                 {etapa.subetapas?.map((subitem: any) => {
                   const valorTotal = subitem.valor * subitem.quantidade
                   const etapaActive = document.getElementsByClassName(String(etapa.id))[0]?.className as unknown as HTMLOptionElement | any
-                  const subetapasActive = subetapas.filter((item) => item.etapa === Number(etapaActive))
-
-                  //console.log(subitem.numero, 'oi', subetapasActive.find((item) => item.id === subitem.id)?.numero)
-
+                  const subetapasActive = subetapas.filter((item) => Number(item.etapa) === Number(etapaActive))
                   return (
                     <>
-                    {!!etapasOpened.find((item) => item === Number(etapa.id)) &&
+                    {!!etapasOpened.find((item) => Number(item) === Number(etapa.id)) &&
                       <FormContent key={subitem.id} $items>
                         <ArrowSubitem />
                         <FormGroup oneOfSix $error={getErrorMessageByFieldName('numSubEtapa')}>
@@ -647,7 +657,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                           type="text"
                           value={subitem.numero || subetapasActive.find((item) => item.id === subitem.id)?.numero && `${etapa.numero + '.' + subetapasActive.find((item) => item.id === subitem.id)?.numero}` || ''}
                           $error={!!getErrorMessageByFieldName('numSubEtapa')}
-                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'numSubEtapa', e.target.value)}
+                          onChange={(e) => handleChangeSubitemNumber(etapa.id, subitem.id, e.target.value)}
                           placeholder="Ex.: 01.01"
                           $square
                         />
@@ -656,14 +666,14 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                         <FormGroup oneOfFive $error={getErrorMessageByFieldName('subetapa')}>
                           <Legend>Subetapa:</Legend>
                           <Select
-                            onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'subetapa', e.target.value, e)}
+                            onChange={(e) => handleChangeSubitemNome(etapa.id, subitem.id, e.target.value)}
                             $error={!!getErrorMessageByFieldName('subetapa')}
-                            defaultValue={subitem.id}
+                            value={subitem.id}
                           >
                             <option>Selecione a subetapa</option>
                             <option value='0'>Cadastrar nova subetapa</option>
                             <option disabled>________________________________</option>
-                            {subetapasActive.map((servico) => {
+                            {subetapasActive.sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' })).map((servico) => {
                               return (
                               <option key={servico.id} value={servico.id} >{servico.nome}</option>
                               )
@@ -677,13 +687,13 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                         <Select
                           value={subitem.unidade}
                           $error={!!getErrorMessageByFieldName('unidade')}
-                          onChange={(e) => handleChangeSubitem(Number(etapaActive), subitem.id, 'unidade', e.target.value)}
+                          onChange={(e) => handleChangeSubitemUnidade(Number(etapaActive), subitem.id, e.target.value)}
                         >
                           <option value='0'>Selecione uma medida</option>
                           <option value='kg'>Kg</option>
-                          <option value='metro'>m</option>
-                          <option value='m2'>m2</option>
-                          <option value='m3'>m3</option>
+                          <option value='metro'>M</option>
+                          <option value='m2'>M2</option>
+                          <option value='m3'>M3</option>
                           <option value='unidade'>Unidade</option>
                           <option value='mês'>Mês</option>
                           <option value='verba'>Verba</option>
@@ -698,7 +708,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                           type="tel"
                           value={subitem.quantidade}
                           $error={!!getErrorMessageByFieldName('quantidade')}
-                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'quantidade', e.target.value)}
+                          onChange={(e) => handleChangeSubitemQuantidade(etapa.id, subitem.id, e.target.value)}
                           placeholder="Quantidade"
                           $square
                         />
@@ -709,8 +719,9 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                         <Input
                           type="tel"
                           $error={!!getErrorMessageByFieldName('valor')}
+                          defaultValue={subitem.valor}
                           value={currencyFormat(subitem.valor)}
-                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valor', e.target.value)}
+                          onChange={(e) => handleChangeSubitemValor(etapa.id, subitem.id, e.target.value)}
                           placeholder="Valor"
                         />
                       </FormGroup>
@@ -723,7 +734,6 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
                             style: 'currency',
                             currency: 'BRL'
                           }).format(valorTotal)}
-                          onChange={(e) => handleChangeSubitem(etapa.id, subitem.id, 'valorTotal', e.target.value)}
                           placeholder="Valor total"
                           $error={!!getErrorMessageByFieldName('valorTotal')}
                           readOnly

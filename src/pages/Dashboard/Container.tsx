@@ -1,22 +1,16 @@
 import React, { useEffect, useState, useRef, useContext, useLayoutEffect, useCallback, type Dispatch, type SetStateAction } from 'react'
-import { GlobalContainer } from '../../assets/styles/global'
 
 import LoadingContext from '../../contexts/loadingContext'
 import ObrasContext from '../../contexts/obrasContext'
 import RdoRdaContext from '../../contexts/rdoRdaContext'
-
-import Menu from '../../components/Menu'
-import Header from '../../components/Header'
-
-import CreateFirstObra from './components/CreateFirsObra'
-import Sections from './components/Sections'
 import AuthContext from '../../contexts/authContext'
+
+import Presentation from './Presentation'
 
 import { type Obra } from '../../interfaces/globalInterfaces'
 
-const Dashboard: React.FC = () => {
-  const refPage = useRef<null | HTMLElement>(null)
-
+const Container: React.FC = () => {
+  const refPage = useRef<HTMLElement | null>(null)
   const { changeLoading } = useContext(LoadingContext)
   const { token } = useContext(AuthContext)
   const { obras, listObras } = useContext(ObrasContext)
@@ -135,54 +129,23 @@ const Dashboard: React.FC = () => {
   }, [token, getData])
 
   return (
-    <GlobalContainer ref={refPage}>
-      <Menu />
-      <Header title={obras.length > 0 ? 'Obras em andamento' : 'Dashboard'} />
-        {!obras || obras.length === 0
-          ? <CreateFirstObra />
-          : (
-          <div style={{ paddingBottom: 20 }}>
-            <Sections
-              titleHeader='Obras'
-              typeSection={'obra'}
-              items={itensObras}
-              itemDb={obras}
-              setItem={setItensObras}
-              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
-              more={more}
-              width={width}
-            />
 
-            <Sections
-              titleHeader='RDOS'
-              typeSection={'rdo'}
-              isSubHeader
-              items={itensRdo}
-              itemDb={rdos}
-              setItem={setItensRdos}
-              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
-              more={more}
-              showDoc
-              width={width}
-            />
-
-            <Sections
-              titleHeader='RDAS'
-              typeSection={'rda'}
-              isSubHeader
-              items={itensRda}
-              itemDb={rdas}
-              setItem={setItensRdas}
-              handleChangeMore={(type, setItems, itemsDb) => handleChangeMore(type, setItems, itemsDb)}
-              more={more}
-              showDoc
-              width={width}
-            />
-
-        </div>
-            )}
-    </GlobalContainer>
+    <Presentation
+      refPage={refPage}
+      obras={obras}
+      itensObras={itensObras}
+      setItensObras={setItensObras}
+      handleChangeMore={handleChangeMore}
+      more={more}
+      width={width}
+      itensRdo={itensRdo}
+      rdos={rdos}
+      setItensRdos={setItensRdos}
+      itensRda={itensRda}
+      rdas={rdas}
+      setItensRdas={setItensRdas}
+    />
   )
 }
 
-export default Dashboard
+export default Container

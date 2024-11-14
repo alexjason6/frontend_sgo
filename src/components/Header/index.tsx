@@ -14,7 +14,7 @@ const Header: React.FC<TypeHeader> = ({ title, cliente, subHeader, goBack, modal
 
   return (
     <Container $subHeader={subHeader} $modal={modal} $fullwidth={fullwidth}>
-      <Title>{title}{cliente && <span> - <b>{cliente ?? cliente.nome}</b></span>}</Title>
+      <Title>{title}{cliente && <span> - <b>{cliente.nome}</b></span>}</Title>
       {goBack && <GoBack onClick={handleGoBack}><Back /><p>Voltar</p></GoBack>}
       <Divisor $subHeader={subHeader}/>
     </Container>

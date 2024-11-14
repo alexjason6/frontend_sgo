@@ -72,12 +72,12 @@ const HeaderResumoObra: React.FC<TypeHeaderResumoObra> = ({ obra, detalhamento, 
       <Dados>
         <span>Início da obra:</span>
         <br />
-        {dateFormat(obra.data_inicio, false)}
+        {!isNaN(Number(obra.data_inicio)) ? dateFormat(obra.data_inicio, false) : '__/__/____'}
       </Dados>
       <Dados>
         <span>Previsão de entrega:</span>
         <br />
-        {dateFormat(obra.previsao_entrega, false)}
+        {!isNaN(Number(obra.previsao_entrega)) ? dateFormat(obra.previsao_entrega, false) : '__/__/____'}
       </Dados>
       <Dados>
         <span>Metragem total projeto:</span>

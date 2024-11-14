@@ -15,17 +15,19 @@ import { comprometidoValue, executadoValue, m2ValueTotalOrcamento, orcamentoValu
 
 import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
-import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
+import { RdoRda, type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
 
-const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id, idCliente }) => {
+const CardItem: React.FC<TypeCardItem> = (props) => {
+  const { cliente, type, nome, id, idCliente } = props;
+  const { item } = props as any;
   const navigate = useNavigate()
   const { changeModal } = useContext(ModalContext)
   const { changeLoading } = useContext(LoadingContext)
   const { orcamentos } = useContext(OrcamentosContext)
   const { rdos, lancamentosRdo } = useContext(RdoRdaContext)
   const { obras } = useContext(ObrasContext)
-  const [rdo] = rdos.filter((file) => file.obra === Number(id))
-  const lancamentos = lancamentosRdo.filter((lancamento) => lancamento.rdo === rdo?.id && lancamento.cliente === idCliente)
+  const [rdo] = rdos.filter((file) => Number(file.obra) === (Number(item.obra) || Number(item.id)))
+  const lancamentos = lancamentosRdo.filter((lancamento) => Number(lancamento.rdo) === Number(rdo?.id) && Number(lancamento.cliente) === Number(idCliente))
   const itensObra = orcamentos.filter((orcamento) => orcamento.obra === id && orcamento.id_cliente === idCliente)
   const [itens] = itensObra.map((itemObra) => itemObra.item)
 
@@ -79,16 +81,16 @@ const CardItem: React.FC<TypeCardItem> = ({ cliente, type, nome, item, id, idCli
         {type === 'obra'
           ? (
             <>
-              <Item>Valor da obra <Value $valor>{orcamentoValue(itens)}</Value></Item>
+              <Item>Valor da obra <Value $valor>{itens && orcamentoValue(itens)}</Value></Item>
               <Hr />
 
-              <Item>Executado <Value $executado>{executadoValue(lancamentos)}</Value></Item>
+              <Item>Executado <Value $executado>{itens && executadoValue(lancamentos)}</Value></Item>
               <Hr />
 
-              <Item>Comprometido <Value $comprometido>{comprometidoValue(lancamentos)}</Value></Item>
+              <Item>Comprometido <Value $comprometido>{lancamentos && comprometidoValue(lancamentos)}</Value></Item>
               <Hr />
 
-              <Item>Saldo <Value $saldo>{saldoValue(itens, lancamentos)}</Value></Item>
+              <Item>Saldo <Value $saldo>{itens && saldoValue(itens, lancamentos)}</Value></Item>
               <Hr />
             </>
             )

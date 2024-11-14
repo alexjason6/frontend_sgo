@@ -24,15 +24,15 @@ const initialContextValue: FornecedoresContextType = {
 const FornecedoresContext = createContext<FornecedoresContextType>(initialContextValue)
 
 export const FornecedoresProvider: React.FC<FornecedoresProviderProps> = ({ children }) => {
-  const { token } = useContext(AuthContext)
+  const { token, signOut } = useContext(AuthContext)
   const [fornecedores, setFornecedores] = useState<Fornecedores[]>([])
 
   const listFornecedores = useCallback(async ({ token }: ContextData) => {
     try {
       const response = await FornecedoresServices.list({ token })
 
-      if (response.message) {
-        return
+      if (response.message === 'Token inválido.') {
+        signOut()
       }
 
       if (response.length >= 1) {

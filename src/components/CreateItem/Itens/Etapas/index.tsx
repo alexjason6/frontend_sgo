@@ -182,7 +182,7 @@ const CreateEtapa: React.FC = () => {
 
             <FormGroup oneOfFour>
               <Legend>Número subetapa:</Legend>
-              <Input type='number' placeholder='Ex.: 01' onChange={(event) => handleChangeSubetapaNumber(event)} />
+              <Input type='text' placeholder='Ex.: 01' onChange={(event) => handleChangeSubetapaNumber(event)} />
             </FormGroup>
 
             <FormGroup>

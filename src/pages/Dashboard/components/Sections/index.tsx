@@ -66,7 +66,7 @@ const Sections: React.FC<PropsSections> = ({
               type={typeSection}
               cliente={cliente?.nome ?? 'Cliente desconhecido'}
               item={item}
-              id={item.id}
+              id={item.id || obra.id}
               nome={obra?.nome ?? 'Obra desconhecida'}
               idCliente={cliente?.id}
             />

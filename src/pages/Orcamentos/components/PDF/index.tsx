@@ -28,7 +28,7 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
 
   const createPdf = async () => {
     await generatePDF(ref, {
-      method: 'open',
+      method: 'save',
       page: {
         format: 'A4',
         margin: Margin.MEDIUM,
@@ -70,7 +70,7 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
               <Td $index>Valor unitário</Td>
               <Td $index>Valor total</Td>
             </Tr>
-            {orcamento.item.map((item: any) => (
+            {orcamento.item.sort((a: { numero: any; }, b: { numero: any; }) => Number(a.numero) > Number(b.numero) ? 1 : -1).map((item: any) => (
             <>
               <Tr>
                 <Td className={String(item.numero)}>{item.numero}</Td>
@@ -104,9 +104,9 @@ const OrcamentoPdf: React.FC<Orcamento> = ({orcamento}) => {
                   return 0;
                 }).map((subitem: any) => {
                   const etapaActive = document.getElementsByClassName(String(item.numero))[0]?.className as unknown as HTMLOptionElement | any
-                  //const [subetapasActive] = orcamento.subitem.filter((item2: { etapa: any; }) => etapaActive === item2.etapa || Number(etapaActive) === Number(item2.etapa))
+                  //const [subetapasActive] = orcamento.subitem.filter((item2: { etapa: any; }) => Number(etapaActive) === Number(item2.etapa))
 
-                  return (subitem.etapa === item.numero || Number(etapaActive) === Number(item.numero)) ? (
+                  return (Number(subitem.numero.split('.')[0]) === Number(item.numero)) ? (
                   <Tr $subitem>
                     <Td $subitem>{subitem.numero}</Td>
                     <Td $subitem $large>{subitem?.nome}</Td>
