@@ -1,16 +1,18 @@
 import React, { useContext, type Dispatch, type SetStateAction } from 'react'
 
+import ClientesContext from '../../../../contexts/clientesContext'
+import ModalContext from '../../../../contexts/modalContext'
+import ObrasContext from '../../../../contexts/obrasContext'
+import CreateRdoRda from '../../../../components/CreateItem/Itens/RdaRdo'
+
+import Button from '../../../../components/Button'
 import Header from '../../../../components/Header'
+
 import CardItem from '../CardItem'
 
 import { Content, Itens, More, Chevron } from './styles'
 
 import { type Obra, type RdoRda } from '../../../../interfaces/globalInterfaces'
-import ClientesContext from '../../../../contexts/clientesContext'
-import Button from '../../../../components/Button'
-import ModalContext from '../../../../contexts/modalContext'
-import CreateRdoRda from '../../../../components/CreateItem/Itens/RdaRdo'
-import ObrasContext from '../../../../contexts/obrasContext'
 
 interface PropsSections {
   titleHeader: string

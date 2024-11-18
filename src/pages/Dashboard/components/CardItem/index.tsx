@@ -15,7 +15,7 @@ import { comprometidoValue, executadoValue, m2ValueTotalOrcamento, orcamentoValu
 
 import { Container, Title, Hr, Item, Value, Cliente } from './styles'
 
-import { RdoRda, type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
+import { type Obra, type TypeCardItem } from '../../../../interfaces/globalInterfaces'
 
 const CardItem: React.FC<TypeCardItem> = (props) => {
   const { cliente, type, nome, id, idCliente } = props;

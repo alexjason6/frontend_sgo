@@ -7,7 +7,7 @@ import RdoRdaContext from '../../contexts/rdoRdaContext'
 import FornecedoresContext from '../../contexts/fornecedoresContext'
 import LoadingContext from '../../contexts/loadingContext'
 import ModalContext from '../../contexts/modalContext'
-import OrcamentoPdf from '../Orcamentos/components/PDF'
+
 import OrcamentosContext from '../../contexts/orcamentosContext'
 
 import Menu from '../../components/Menu'
@@ -23,6 +23,7 @@ import Toast from '../../utils/toast'
 import { Content, Infos, Pdf, Xlsx } from './styles'
 
 import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
+import RdoRdaPdf from './components/PDF'
 
 const RdoRda: React.FC = () => {
   const params = useParams()
@@ -97,7 +98,7 @@ const RdoRda: React.FC = () => {
       changeLoading(true, 'Gerando arquivo...')
 
       try {
-        changeModal(<OrcamentoPdf orcamento={lancamentos} />)
+        changeModal(<RdoRdaPdf lancamentos={lancamentos} />)
       } catch (error) {
         changeLoading(false)
         console.error("Erro ao gerar PDF:", error);
@@ -140,10 +141,10 @@ const RdoRda: React.FC = () => {
                 onChange={handleChangeFilteredData}
               />
             </FormGroup>
-            {/* <div>
+            <div>
               <Pdf onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'pdf')}/>
               <Xlsx onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'excel')}/>
-            </div> */}
+            </div>
           </div>
           <TableInfos infos={infos || filteredData.filter((filter) => filter.rdo === Number(id))} fornecedores={fornecedores} id={obra} />
         </Infos>
