@@ -7,7 +7,7 @@ import RdoRdaContext from '../../contexts/rdoRdaContext'
 import FornecedoresContext from '../../contexts/fornecedoresContext'
 import LoadingContext from '../../contexts/loadingContext'
 import ModalContext from '../../contexts/modalContext'
-
+import ObrasContext from '../../contexts/obrasContext'
 import OrcamentosContext from '../../contexts/orcamentosContext'
 
 import Menu from '../../components/Menu'
@@ -16,6 +16,7 @@ import TableInfos from '../../components/TableInfos'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import FormGroup from '../../components/FormGroup'
+import RdoRdaPdf from './components/PDF'
 
 import { ExportLancamentosXLSX } from '../../utils/createXlsx'
 import Toast from '../../utils/toast'
@@ -23,7 +24,6 @@ import Toast from '../../utils/toast'
 import { Content, Infos, Pdf, Xlsx } from './styles'
 
 import { type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
-import RdoRdaPdf from './components/PDF'
 
 const RdoRda: React.FC = () => {
   const params = useParams()
@@ -35,6 +35,7 @@ const RdoRda: React.FC = () => {
   const { fornecedores } = useContext(FornecedoresContext)
   const { rdos, rdas, lancamentosRdo, lancamentosRda } = useContext(RdoRdaContext)
   const { orcamentos } = useContext(OrcamentosContext);
+  const { obras } = useContext(ObrasContext)
 
   const { changeLoading } = useContext(LoadingContext)
   const { changeModal } = useContext(ModalContext)
@@ -74,20 +75,8 @@ const RdoRda: React.FC = () => {
 
   const createDoc = async (lancamentos: any, type: string) => {
     if (type === 'excel') {
-      const [rdo] = rdos.filter(
-        (item) => Number(item.id) === Number(lancamentos![0].rdo)
-      );
-      const [orcamento] = orcamentos.filter(
-        (item) => Number(item.obra) === Number(obra))
-
-        console.log({orcamento}, {obra})
-
       try {
-        const trataLancamentos = lancamentos.map((lancamento: { etapa: any , subetapa: any}, rest: any) =>
-          ({item: orcamento?.item.filter((orcamentoitem) => Number(orcamentoitem.numero) === Number(lancamento.etapa))[0].nome, subetapa: orcamento?.subitem.filter((orcamentoitem) => orcamentoitem.numero.toString().split('.')[-1] === lancamento.subetapa), ...rest})
-        )
-        console.log('Oi: ,', trataLancamentos, {lancamentos} )
-        ExportLancamentosXLSX({ lancamentos })
+        ExportLancamentosXLSX({ lancamentos, orcamentos, obras, cliente })
       } catch (error) {
         console.error('Erro ao gerar o arquivo Excel:', error);
         return Toast({ type: 'danger', text: 'Erro ao gerar arquivo para excel.', duration: 5000 });
@@ -142,8 +131,8 @@ const RdoRda: React.FC = () => {
               />
             </FormGroup>
             <div>
-              <Pdf onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'pdf')}/>
-              <Xlsx onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'excel')}/>
+              <Pdf onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'pdf')} />
+              <Xlsx onClick={() => createDoc(infos || filteredData.filter((filter) => filter.rdo === Number(id)), 'excel')} />
             </div>
           </div>
           <TableInfos infos={infos || filteredData.filter((filter) => filter.rdo === Number(id))} fornecedores={fornecedores} id={obra} />

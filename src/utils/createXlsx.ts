@@ -1,10 +1,7 @@
 import xlsx from "json-as-xlsx";
 import { currencyFormat } from "./currencyFormat";
 import dateFormat from "./dateFormat";
-/* import { useContext } from "react";
-import OrcamentosContext from "../contexts/orcamentosContext";
-import RdoRdaContext from "../contexts/rdoRdaContext";
-import ObrasContext from "../contexts/obrasContext"; */
+import { Obra, Orcamento } from "../interfaces/globalInterfaces";
 
 interface Props {
   orcamento?: {
@@ -29,7 +26,6 @@ interface Props {
     servico: string;
     valor_total: string;
   };
-
   lancamentos?: {
     agencia: string;
     banco: string;
@@ -60,6 +56,9 @@ interface Props {
     valor_comprometido: string;
     valor_pagamento: string;
   }[];
+  obras?: Obra[];
+  orcamentos?: Orcamento[];
+  cliente?: string;
 }
 
 export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
@@ -127,17 +126,21 @@ export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
   return xlsx(data, settings);
 };
 
-export const ExportLancamentosXLSX = ({ lancamentos }: Props) => {
-  console.log(lancamentos);
-
+export const ExportLancamentosXLSX = ({
+  lancamentos,
+  orcamentos,
+  obras,
+  cliente,
+}: Props) => {
+  const [obra] = obras?.filter((item) => item.id === lancamentos![0].obra)!;
   const content = lancamentos!.map((lancamento: any) => {
-    const valorUnitario = currencyFormat(lancamento.valor_unitario);
-    const somaTotal =
-      Number(lancamento.valor_unitario) * Number(lancamento.quantidade);
-    const valorTotal = Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(somaTotal);
+    const [orcamento] = orcamentos?.filter((item) => item.obra === obra.id)!;
+    const [etapa] = orcamento.item.filter(
+      (item: { id: number }) => item.id === Number(lancamento.etapa)
+    );
+    const [subetapa] = orcamento.subitem.filter(
+      (item) => item.id === Number(lancamento.subetapa)
+    );
 
     return {
       dataLancamento: dateFormat(lancamento.data_lancamento),
@@ -145,8 +148,8 @@ export const ExportLancamentosXLSX = ({ lancamentos }: Props) => {
       nfDate: dateFormat(lancamento.data_nf),
       descricao: lancamento.descricao,
       valorComprometido: currencyFormat(lancamento.valor_comprometido),
-      servicos: "SERVIÇO",
-      item: "ITEM",
+      servicos: etapa.nome,
+      item: subetapa.nome,
       contrato: lancamento.valor_comprometido && lancamento.observacao,
       dataPagamento: dateFormat(lancamento.data_pagamento),
       valorPagamento: currencyFormat(lancamento.valor_pagamento),
@@ -155,7 +158,7 @@ export const ExportLancamentosXLSX = ({ lancamentos }: Props) => {
 
   const data = [
     {
-      sheet: "Rdo - ",
+      sheet: `Rdo - ${cliente}`,
       columns: [
         { value: "dataLancamento", label: "DATA DE LANÇAMENTO" },
         { value: "nfNumber", label: "Nº DA NOTA FISCAL" },
@@ -173,11 +176,11 @@ export const ExportLancamentosXLSX = ({ lancamentos }: Props) => {
   ];
 
   const settings = {
-    fileName: `lançamentos RDO obra`, // ${obra.nome}`,
+    fileName: `lançamentos RDO obra ${obra.nome}`,
     extraLength: 3,
     writeMode: "writeFile",
     writeOptions: {},
   };
 
-  //return xlsx(data, settings);
+  return xlsx(data, settings);
 };
