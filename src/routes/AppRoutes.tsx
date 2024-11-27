@@ -35,7 +35,7 @@ const AppRouter = () => (
       <Route path="/fornecedores/novo" element={<CreateItem type='fornecedor' />} />
       <Route path="/orcamentos" element={<Orcamentos />} />
       <Route path="/orcamentos/novo" element={<CreateItem type='orcamento' />} />
-      <Route path="/orcamentos/edit/:id" element={<EditOrcamentos />} />
+      <Route path="/orcamentos/edit/:id" element={<CreateItem type='orcamento' />} />
       <Route path="/orcamentos/modelos" element={<ModelosOrcamentos />} />
       <Route path="/orcamentos/modelos/novo" element={<CreateModelo />} />
       <Route path="/not-found" element={<NotFound />} />

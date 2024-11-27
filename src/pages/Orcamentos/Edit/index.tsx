@@ -191,9 +191,9 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
           )
         };
       }
-      return etapa;
-    })
-  );
+        return etapa;
+      })
+    );
   }
 
   const handleChangeSubitemUnidade = (etapaId: number, subetapaId: number, value: string) => {
@@ -369,7 +369,7 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
     try {
       changeLoading(true, 'Enviando os dados do orçamento...')
       const mapperOrcamento = OrcamentoMapper.toPersistence(dataOrcamento)
-      const edit = await OrcamentosServices.update({ token, mapperOrcamento })
+      const edit = await OrcamentosServices.update({ token })
 
       changeLoading(true, 'atualizando lista de obras...')
       await listOrcamentos({ token })
@@ -496,27 +496,6 @@ const EditItem: React.FC<Props> = ({idOrcamento}) => {
       }
     }
   }, [changeLoading, getData, getInitialOrcamento, orcamento])
-
-/*   useEffect(() => {
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        return {
-          ...item,
-          subetapas: item.subetapas.map((subitem) => {
-            const subetapasActive = subetapas.filter((item2) => item2.nome === subitem.nome);
-            const subetapaActive = subetapasActive.find((item3) => item3.id === subitem.id);
-            const autoNumero = `${item.numero}.${subetapaActive?.numero}`;
-
-            return {
-              ...subitem,
-              etapa: Number(item.numero),
-              numero: autoNumero,
-            };
-          })
-        };
-      })
-    );
-  }, [subetapas, etapas, etapasOpened]); */
 
   return (
     <GlobalContainer>

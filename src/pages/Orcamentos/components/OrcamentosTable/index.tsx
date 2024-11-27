@@ -53,7 +53,7 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
     }
 
     try {
-      const create = await OrcamentosServices.create({ token, mapperOrcamento: orcamentoData })
+      const create = await OrcamentosServices.create({ token, mapperOrcamentoUpdate: orcamentoData })
 
       changeLoading(true, 'atualizando lista de orçamentos...')
       listOrcamentos({ token })

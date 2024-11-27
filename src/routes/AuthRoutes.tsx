@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
-import Login from '../pages/Login/Container'
+import Login from '../pages/Login'
 import NotFound from '../pages/NotFound'
 
 const AuthRouter = () => {

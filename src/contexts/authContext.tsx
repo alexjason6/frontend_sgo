@@ -62,19 +62,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signIn = async ({ email, password }: LoginData) => {
     changeLoading(true, 'Fazendo login...')
 
+    console.log(email, password)
+
     try {
       const response = await AuthServices.signIn({ email, password })
 
-      if (!response.token || !response.newToken) {
-        Toast({ type: 'danger', text: 'Falha na autenticação. Por favor, verifique suas credenciais.' })
-        return
+      if (response.id_user) {
+        setToken(response.token)
+
+        localStorage.setItem('@SGO:token', response.token)
+
+        await getUser({ id: response.id_user, hash: response.token })
       }
-
-      setToken(response.token)
-
-      localStorage.setItem('@SGO:token', response.token)
-
-      await getUser({ id: response.id_user, hash: response.token })
 
     } catch {
       Toast({ type: 'danger', text: 'Falha na autenticação. Por favor, verifique suas credenciais.' })

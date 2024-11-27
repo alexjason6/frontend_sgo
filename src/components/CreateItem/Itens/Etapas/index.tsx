@@ -175,7 +175,7 @@ const CreateEtapa: React.FC = () => {
               <Select onChange={handleChangeEtapaParentNumber}>
                 <option>Selecione uma etapa</option>
                 {etapas.map((etapa) => (
-                  <option key={etapa.id} value={etapa.id}>{etapa.numero} - {etapa.nome}</option>
+                  <option key={etapa.id} value={etapa.id}>{etapa.nome}</option>
                 ))}
               </Select>
             </FormGroup>

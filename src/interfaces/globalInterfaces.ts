@@ -166,6 +166,7 @@ export interface ItemOrcamento {
   nome: string;
   numero: number;
   valor_total: string;
+  valorTotal?: string;
 }
 
 export interface SubitemOrcamento {
@@ -201,6 +202,7 @@ export interface Etapa {
   status?: number;
   orcamento?: number;
   subetapas?: Array<{}>;
+  fornecedor?: string;
 }
 
 export interface Subetapa {
@@ -210,6 +212,7 @@ export interface Subetapa {
   nome: string;
   status: number;
   orcamento: number;
+  fornecedor?: string;
 }
 
 export interface TiposOrcamentos {

@@ -38,8 +38,16 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
     try {
       const response = await RdoRdaServices.getLancamentosRdo({token, type: 'rdo', id})
 
-      setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
-      changeLoading(false, '')
+      if (response === '') {
+        return
+      }
+
+      if (response.length > 0) {
+        setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
+        changeLoading(false, '')
+
+        return
+      }
     } catch (error) {
       Toast({ type: 'danger', text: 'Erro ao carregar lançamentos', duration: 5000 })
     }
@@ -75,7 +83,15 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [getLancamentos])
+  }, [lancamentos])
+
+  if (lancamentos.length === 0) {
+    return (
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <p>Nenhum lançamento encontrado.</p>
+      </div>
+    )
+  }
 
   return (
     <div style={{overflowY: 'auto', maxHeight: 600,}}>

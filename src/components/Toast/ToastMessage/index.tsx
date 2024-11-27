@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { FiXCircle, FiCheckCircle } from 'react-icons/fi'
+import { FiXCircle, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
 
 import { Container } from './styles'
 
@@ -28,6 +28,7 @@ const ToastMessage: React.FC<TypeToastMessage> = ({ message, id, type = 'default
 
   return (
     <Container $type={type} onClick={handleRemoveToast} role='button'>
+      {type === 'default' && <FiAlertCircle size={20} color='#ffffff'/>}
       {type === 'danger' && <FiXCircle size={20} color='#ffffff'/>}
       {type === 'success' && <FiCheckCircle size={20} color='#ffffff'/>}
       <strong>{message}</strong>

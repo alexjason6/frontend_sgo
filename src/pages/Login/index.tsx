@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import React, { ChangeEventHandler, FormEventHandler } from 'react'
+import React from 'react'
 
 import { Legend } from '../../assets/styles/global'
 
@@ -13,19 +13,21 @@ import Button from '../../components/Button'
 import {
   Container, SgoContainer, Name, FormContainer, Form, Logo, Text, Cliente, LogoCliente
 } from './styles'
+import useLogin from './useLogin'
 
-import {type PropsLogin} from '../../interfaces/presentationInterfaces'
 
-const Presentation: React.FC<PropsLogin> = ({
-  handleLogin,
-  wellcomeMessage,
-  getErrorMessageByFieldName,
-  handleChangelogin,
-  login,
-  handleChangePassword,
-  password,
-  loginIsValid,
-}) => {
+const Login: React.FC = () => {
+  const {
+    wellcomeMessage,
+    loginIsValid,
+    login,
+    password,
+    getErrorMessageByFieldName,
+    handleChangelogin,
+    handleChangePassword,
+    handleLogin,
+  } = useLogin()
+
   return (
     <Container>
       <SgoContainer>
@@ -76,4 +78,4 @@ const Presentation: React.FC<PropsLogin> = ({
   )
 }
 
-export default Presentation
+export default Login

@@ -10,7 +10,8 @@ import { url } from "../utils/urlServices";
 interface ValidateCreateOrcamentosParams {
   token: string;
   id?: number;
-  mapperOrcamento?: any;
+  mapperOrcamentoCreate?: any;
+  mapperOrcamentoUpdate?: any;
   mapperItem?: any;
   mapperModelo?: any;
   mapperSubitem?: any;
@@ -72,13 +73,16 @@ class OrcamentosServices {
     }
   }
 
-  async create({ token, mapperOrcamento }: ValidateCreateOrcamentosParams) {
+  async create({
+    token,
+    mapperOrcamentoCreate,
+  }: ValidateCreateOrcamentosParams) {
     try {
       const response = await this.httpClient.post("/api/orcamentos/create", {
         headers: {
           Authorization: token,
         },
-        data: mapperOrcamento,
+        data: mapperOrcamentoCreate,
       });
 
       return response;
@@ -88,15 +92,18 @@ class OrcamentosServices {
     }
   }
 
-  async update({ token, mapperOrcamento }: ValidateCreateOrcamentosParams) {
+  async update({
+    token,
+    mapperOrcamentoUpdate,
+  }: ValidateCreateOrcamentosParams) {
     try {
       const response = await this.httpClient.put(
-        `/api/orcamentos/edit/${mapperOrcamento.id}`,
+        `/api/orcamentos/edit/${mapperOrcamentoUpdate.id}`,
         {
           headers: {
             Authorization: token,
           },
-          data: mapperOrcamento,
+          data: mapperOrcamentoUpdate,
         }
       );
 
