@@ -14,7 +14,7 @@ import Header from '../../components/Header'
 import Button from '../../components/Button'
 import NoItemListed from '../../components/NoItemListed'
 
-import CreateItem from '../../components/CreateItem/'
+import CreateItem from '../../components/CreateOrEditItem'
 import OrcamentosTable from './components/OrcamentosTable'
 
 import { ButtonContainer, ContentPage } from './styles'

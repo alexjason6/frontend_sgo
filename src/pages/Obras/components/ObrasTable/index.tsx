@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 
 import ModalContext from '../../../../contexts/modalContext'
 
-import CreateObra from '../../../../components/CreateItem/Itens/Obras'
+import CreateObra from '../../../../components/CreateOrEditItem/Itens/Obras'
 
 import checkStatus from '../../../../utils/checkStatus'
 

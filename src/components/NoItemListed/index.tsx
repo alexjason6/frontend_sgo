@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import ModalContext from '../../contexts/modalContext'
 
 import Button from '../Button'
-import CreateModelo from '../CreateItem/Itens/Modelos'
+import CreateModelo from '../CreateOrEditItem/Itens/Modelos'
 
 import { Container } from './styles'
 

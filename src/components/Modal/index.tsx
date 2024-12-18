@@ -1,9 +1,10 @@
-import React, { type ReactNode, useContext, useEffect } from 'react'
+import React, { type ReactNode } from 'react'
 
-import ModalContext from '../../contexts/modalContext'
+import ReactPortal from '../ReactPortal'
+
+import useModal from './useModal'
 
 import { Close, Container, Content, X } from './styles'
-import ReactPortal from '../ReactPortal'
 
 interface TypeModal {
   component: ReactNode
@@ -11,18 +12,7 @@ interface TypeModal {
 }
 
 const Modal: React.FC<TypeModal> = ({ component, confirmation }) => {
-  const { changeModal } = useContext(ModalContext)
-
-  useEffect(() => {
-    const closeOnEscapeKey = (e: { key: string }) => e.key === 'Escape' ? changeModal() : null
-    document.body.addEventListener('keydown', closeOnEscapeKey)
-    document.body.classList.add('no-scroll')
-
-    return () => {
-      document.body.removeEventListener('keydown', closeOnEscapeKey)
-      document.body.classList.remove('no-scroll')
-    }
-  }, [changeModal])
+  const {changeModal} = useModal()
 
   return (
     <ReactPortal containerId='modal-root'>

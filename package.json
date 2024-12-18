@@ -1,6 +1,6 @@
 {
   "name": "frontend_sgo",
-  "version": "0.1.49",
+  "version": "0.1.56",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -17,7 +17,7 @@
     "moment-timezone": "^0.5.45",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.53.0",
+    "react-hook-form": "^7.53.2",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
@@ -57,6 +57,7 @@
   "author": "Alex Jason - La Publicitè - alex@alexjason.com.br",
   "license": "MIT",
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "^9.11.1",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
     "eslint": "^9.11.1",

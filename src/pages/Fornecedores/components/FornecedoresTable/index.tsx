@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react'
 
-import CreateItem from '../../../../components/CreateItem'
+import CreateItem from '../../../../components/CreateOrEditItem'
 
 import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 import phoneFormat from '../../../../utils/phoneFormat'
@@ -48,11 +48,11 @@ const FornecedoresTable: React.FC<ClientTableProps> = ({ fornecedores }) => {
           return (
             <React.Fragment key={fornecedor.id}>
               <Tr $open={open === fornecedor.id} onClick={() => handleOpenInfo(fornecedor.id)}>
-                <Td>{fornecedor.nome}</Td>
+                <Td>{fornecedor.nome.toUpperCase()}</Td>
                 <Td>{cpfCnpjFormat(fornecedor?.cpf_cnpj)}</Td>
                 <Td>{phoneFormat(fornecedor.telefone)}</Td>
                 <Td>{fornecedor.email}</Td>
-                <Td>{fornecedor.responsavel}</Td>
+                <Td>{fornecedor.responsavel.toUpperCase()}</Td>
                 <Td>{checkStatus(fornecedor.status)}</Td>
               </Tr>
               {open === fornecedor.id && (

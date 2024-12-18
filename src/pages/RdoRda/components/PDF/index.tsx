@@ -13,7 +13,7 @@ import LogoCliente from '../../../../assets/images/cliente.svg'
 
 import dateFormat from "../../../../utils/dateFormat";
 import { currencyFormat } from "../../../../utils/currencyFormat";
-import { orcamentoValue } from "../../../../utils/calculateInfosObras";
+import { comprometidoValue, executadoValue } from "../../../../utils/calculateInfosObras";
 
 import { Header, Subtitle, Title, Infos, Content, Item, Tr, Td, Container } from "./styles";
 
@@ -30,9 +30,9 @@ const RdoRdaPdf: React.FC<Lancamentos> = ({lancamentos}) => {
   const {orcamentos} = useContext(OrcamentosContext)
   const {obras} = useContext(ObrasContext)
 
-  const [cliente] = clientes.filter((item) => item.id === lancamentos[0].cliente)
-  const [obra] = obras.filter((item) => item.id === lancamentos[0].obra)
-  const [orcamento] = orcamentos.filter((item) => item.obra === obra.id)
+  const [cliente] = clientes.filter((item) => item.id === lancamentos[0]?.cliente)
+  const [obra] = obras.filter((item) => item.id === lancamentos[0]?.obra)
+  const [orcamento] = orcamentos.filter((item) => item.obra === obra?.id)
 
   const createPdf = async () => {
     await generatePDF(ref, {
@@ -61,16 +61,15 @@ const RdoRdaPdf: React.FC<Lancamentos> = ({lancamentos}) => {
       <Header>
         <img src={Logo} style={{float: 'right', marginLeft: 20}} width={80} alt="SGO - Sistema de gerenciamento de obras"/>
         <img src={LogoCliente} style={{float: 'right'}} width={80} alt="Logo cliente"/>
-        <Title>Lançamentos do RDO - {obra.nome}</Title>
-        <Subtitle><Infos>Cliente: <span>{cliente.nome}</span></Infos></Subtitle>
-        <Infos>Data orçamento: <span>{dateFormat(orcamento.data_criacao)}</span></Infos>
-        <Infos>Valor total orçamento: <span>{orcamentoValue(orcamento.item)}</span></Infos>
+        <Title>Lançamentos do RDO - {obra?.nome}</Title>
+        <Subtitle><Infos>Cliente: <span>{cliente?.nome}</span></Infos></Subtitle>
+        <Infos>Data orçamento: <span>{dateFormat(orcamento?.data_criacao)}</span></Infos>
       </Header>
 
       <Content>
         <Item>
           <tbody>
-            <Tr $index>
+            <Tr $index style={{borderBottomWidth: 1, borderBottomColor: '#ffffff', borderBottomStyle: 'solid'}}>
               <Td $index>Data lançamento</Td>
               <Td $index>NF</Td>
               <Td $index>Emissão NF</Td>
@@ -82,13 +81,25 @@ const RdoRdaPdf: React.FC<Lancamentos> = ({lancamentos}) => {
               <Td $index>Data pagamento</Td>
               <Td $index>Valor</Td>
             </Tr>
+            <Tr $index>
+              <Td $index>Total</Td>
+              <Td $index></Td>
+              <Td $index></Td>
+              <Td $index $large></Td>
+              <Td $index $medium></Td>
+              <Td $index $medium></Td>
+              <Td $index $medium></Td>
+              <Td $index>{comprometidoValue(lancamentos)}</Td>
+              <Td $index></Td>
+              <Td $index>{executadoValue(lancamentos)}</Td>
+            </Tr>
             {lancamentos.length >= 1 && (
               <>
                 {lancamentos.map((lancamento: any) => {
                   const [fornecedor] = fornecedores.filter((item) => item.id === lancamento.fornecedor)
 
                   return (
-                  <Tr $subitem>
+                  <Tr $subitem key={lancamento.id}>
                     <Td $subitem>{dateFormat(lancamento.data_lancamento)}</Td>
                     <Td $subitem>{lancamento.nf}</Td>
                     <Td $subitem>{dateFormat(lancamento.data_nf)}</Td>

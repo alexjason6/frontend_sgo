@@ -1,9 +1,10 @@
-import styled, { css } from 'styled-components'
+import styled, { css } from "styled-components";
 
 interface PropStyles {
-  $error?: boolean
-  $listData?: boolean
-  $square?: boolean
+  $error?: boolean;
+  $listData?: boolean;
+  $square?: boolean;
+  $dateFilter?: boolean;
 }
 
 export default styled.input<PropStyles>`
@@ -38,22 +39,33 @@ export default styled.input<PropStyles>`
     $error &&
     css`
       border-color: ${theme.colors.danger.primary};
-  `}
+    `}
 
-  ${({ $listData, theme }) => $listData && css`
-    background: ${theme.colors.white};
-    color: ${theme.colors.grays.primary};
-    border: none;
-    border-radius: 0;
-    border-bottom: 2px solid ${theme.colors.oranges.primary};
+  ${({ $listData, theme }) =>
+    $listData &&
+    css`
+      background: ${theme.colors.white};
+      color: ${theme.colors.grays.primary};
+      border: none;
+      border-radius: 0;
+      border-bottom: 2px solid ${theme.colors.oranges.primary};
 
-    &:hover {
-      border-color: ${theme.colors.oranges.primary};
-    }
-  `}
+      &:hover {
+        border-color: ${theme.colors.oranges.primary};
+      }
+    `}
 
-  ${({ $square }) => $square && css`
-    width: 70px !important;
-    min-width: 70px;
-  `}
-`
+  ${({ $square }) =>
+    $square &&
+    css`
+      width: 80px !important;
+      min-width: 70px;
+    `}
+
+  ${({ $dateFilter }) =>
+    $dateFilter &&
+    css`
+      width: 130px !important;
+      min-width: 70px;
+    `}
+`;

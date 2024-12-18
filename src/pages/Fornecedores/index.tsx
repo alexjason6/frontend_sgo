@@ -1,66 +1,43 @@
-import React, { useContext, useEffect } from 'react'
+import React from 'react'
+import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 
 import { GlobalContainer } from '../../assets/styles/global'
 
-import FornecedoresContext from '../../contexts/fornecedoresContext'
-import ModalContext from '../../contexts/modalContext'
-import AuthContext from '../../contexts/authContext'
-import LoadingContext from '../../contexts/loadingContext'
+import useFornecedores from './useFornecedores'
 
 import Menu from '../../components/Menu'
 import Header from '../../components/Header'
 import Button from '../../components/Button'
-import CreateItem from '../../components/CreateItem'
+import CreateItem from '../../components/CreateOrEditItem'
 
 import NoItemListed from '../../components/NoItemListed'
 import FornecedoresTable from './components/FornecedoresTable'
 
-import { Content, ContentPage, ButtonContainer } from './styles'
+import { Content, ContentPage, ButtonContainer, Arrow, Sort } from './styles'
 
 const ListFornecedores: React.FC = () => {
-  const { fornecedores, listFornecedores } = useContext(FornecedoresContext)
-  const { token } = useContext(AuthContext)
-  const { changeLoading } = useContext(LoadingContext)
-  const { changeModal } = useContext(ModalContext)
-
-  const handleCreateUser = () => {
-    changeModal(<CreateItem type='fornecedor' />)
-  }
-
-  const getFornecedores = async () => {
-    await listFornecedores({ token })
-
-    changeLoading(false)
-  }
-
-  useEffect(() => {
-    changeLoading(true, 'Buscando fornecedores...')
-    if (!fornecedores || fornecedores.length === 0) {
-      void getFornecedores()
-    }
-
-    const timeout = setTimeout(() => {
-      changeLoading(false)
-    }, 1000)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [])
+  const { fornecedoresData, fornecedoresLength, changeModal, sortFornecedores } = useFornecedores();
+  const ASCName = fornecedoresData.every((current, index, array) => {
+    if (index === 0) return true; // Primeiro elemento não tem anterior para comparar
+    return array[index - 1].nome <= current.nome; // Verifica se o anterior <= atual
+  })
 
   return (
     <GlobalContainer>
       <Menu />
       <Header title='Fornecedores' goBack/>
-      <Content $data={fornecedores.length > 0}>
-        {!fornecedores || fornecedores.length === 0
+      <Content $data={fornecedoresLength > 0}>
+        {!fornecedoresData || fornecedoresLength === 0
           ? (<NoItemListed component={<CreateItem type='fornecedor' />} text='Não foram encontrados fornecedores cadastrados.' />)
           : (
               <ContentPage>
                 <ButtonContainer>
-                  <Button $blue onClick={handleCreateUser}>Adicionar fornecedor</Button>
+                  <div style={{width: 200}}>
+                    <Button $blue onClick={() => changeModal(<CreateItem type="fornecedor" />)}>Adicionar fornecedor</Button>
+                  </div>
+                  <Sort onClick={() => sortFornecedores("name", ASCName ? 'DESC' : 'ASC')}>Nome <Arrow $direction={ASCName}/></Sort>
                 </ButtonContainer>
-                <FornecedoresTable fornecedores={fornecedores} />
+                <FornecedoresTable fornecedores={fornecedoresData} />
               </ContentPage>
             )}
       </Content>

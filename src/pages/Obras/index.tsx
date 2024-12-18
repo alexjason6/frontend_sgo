@@ -16,7 +16,7 @@ import ObrasTable from './components/ObrasTable'
 
 import { ButtonContainer, ContentPage } from './styles'
 import NoItemListed from '../../components/NoItemListed'
-import CreateObra from '../../components/CreateItem/Itens/Obras'
+import CreateObra from '../../components/CreateOrEditItem/Itens/Obras'
 
 const ListObras: React.FC = () => {
   const { obras, listObras } = useContext(ObrasContext)

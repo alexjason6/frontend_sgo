@@ -15,7 +15,7 @@ import NoItemListed from '../../components/NoItemListed'
 import ClientesTable from './components/ClientesTable'
 
 import { Content, ContentPage, ButtonContainer } from './styles'
-import CreateCliente from '../../components/CreateItem/Itens/Clientes'
+import CreateCliente from '../../components/CreateOrEditItem/Itens/Clientes'
 
 const ListClientes: React.FC = () => {
   const { clientes, listClientes } = useContext(ClientesContext)

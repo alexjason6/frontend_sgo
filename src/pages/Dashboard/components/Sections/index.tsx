@@ -3,7 +3,7 @@ import React, { useContext, type Dispatch, type SetStateAction } from 'react'
 import ClientesContext from '../../../../contexts/clientesContext'
 import ModalContext from '../../../../contexts/modalContext'
 import ObrasContext from '../../../../contexts/obrasContext'
-import CreateRdoRda from '../../../../components/CreateItem/Itens/RdaRdo'
+import CreateRdoRda from '../../../../components/CreateOrEditItem/Itens/RdaRdo'
 
 import Button from '../../../../components/Button'
 import Header from '../../../../components/Header'

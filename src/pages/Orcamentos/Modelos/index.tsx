@@ -14,7 +14,7 @@ import Button from '../../../components/Button'
 
 import { ButtonContainer, ContentPage } from '../styles'
 
-import CreateModelo from '../../../components/CreateItem/Itens/Modelos'
+import CreateModelo from '../../../components/CreateOrEditItem/Itens/Modelos'
 import ModelosTable from './components/ModelosTable'
 
 const ModelosOrcamento: React.FC = () => {

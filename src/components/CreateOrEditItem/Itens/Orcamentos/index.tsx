@@ -4,12 +4,12 @@ import { FiPlus, FiX } from 'react-icons/fi'
 
 import { GlobalContainer, Legend } from '../../../../assets/styles/global'
 
-import Header from '../../../../components/Header'
-import Menu from '../../../../components/Menu'
-import FormGroup from '../../../../components/FormGroup'
-import Input from '../../../../components/Input'
-import Select from '../../../../components/Select'
-import Button from '../../../../components/Button'
+import Header from '../../../Header'
+import Menu from '../../../Menu'
+import FormGroup from '../../../FormGroup'
+import Input from '../../../Input'
+import Select from '../../../Select'
+import Button from '../../../Button'
 
 import CreateObra from "../Obras";
 import CreateEtapa from "../Etapas";
@@ -229,13 +229,9 @@ const Orcamentos: React.FC<Props> = ({idOrcamento}) => {
                         <Legend>Subetapa:</Legend>
                         <Select
                           onChange={(e) => {
-                            const cleanedValue = e.target.value.replace(/\D/g, '');
-                            const integerPart = cleanedValue.slice(0, -2) || '0';
-                            const decimalPart = cleanedValue.slice(-2).padStart(2, '0');
-                            const formattedValue = parseFloat(`${integerPart}.${decimalPart}`).toFixed(2) || 0;
 
-                            if (e.target.value === '0') return changeModal(<CreateEtapa />);
-                            updateSubitem(etapa.id, subitem.id, { valor: String(formattedValue)});
+                            if (e.target.value === '0|0') return changeModal(<CreateEtapa />);
+                            updateSubitem(etapa.id, subitem.id, { nome: e.target.value.split('|')[1], idSubetapa: Number(e.target.value.split('|')[0]) });
                           }}
                           $error={!!getErrorMessageByFieldName('subetapa')}
                           value={`${subitem.idSubetapa || ''}|${subitem.nome || ''}`}
@@ -259,14 +255,15 @@ const Orcamentos: React.FC<Props> = ({idOrcamento}) => {
                         onChange={(e) => updateSubitem(Number(etapaActive), subitem.id, { unidade: e.target.value })}
                       >
                         <option value='0'>Selecione uma medida</option>
+                        <option value='apartamento'>Apto</option>
+                        <option value='dia'>Dia</option>
                         <option value='kg'>Kg</option>
+                        <option value='mês'>Mês</option>
                         <option value='metro'>M</option>
                         <option value='m2'>M2</option>
                         <option value='m3'>M3</option>
                         <option value='unidade'>Unidade</option>
-                        <option value='mês'>Mês</option>
                         <option value='verba'>Verba</option>
-                        <option value='dia'>Dia</option>
                         <option value='viagem'>Viagem</option>
                       </Select>
                     </FormGroup>

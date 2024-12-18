@@ -1,7 +1,7 @@
 import React from 'react'
+import ReactPortal from '../ReactPortal'
 
 import { Container, Loader, Message } from './styles'
-import ReactPortal from '../ReactPortal'
 
 interface TypeLoading {
   message?: string | null | undefined

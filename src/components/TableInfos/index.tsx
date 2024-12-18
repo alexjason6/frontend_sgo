@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useContext } from 'react'
 
-import EtapasContext from '../../contexts/etapasContext'
 import AuthContext from '../../contexts/authContext'
 import ModalContext from '../../contexts/modalContext'
 import LoadingContext from '../../contexts/loadingContext'
@@ -17,42 +16,20 @@ import EditLancamento from '../../pages/RdoRda/Edit'
 
 import { Table, Td, Thead, Tr, Th } from './styles'
 
-import { type Fornecedores, type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
+import { Etapa, Subetapa, type Fornecedores, type LancamentoRdoRda } from '../../interfaces/globalInterfaces'
 
 interface TypeInfos {
   infos: LancamentoRdoRda[]
   fornecedores: Fornecedores[]
-  id?: string | number
+  id?: string | number,
+  etapas: Etapa[],
+  subetapas: Subetapa[]
 }
 
-const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
+const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id, etapas, subetapas }) => {
   const {token} = useContext(AuthContext)
   const {changeLoading} = useContext(LoadingContext)
-  const { etapas, subetapas } = useContext(EtapasContext)
   const {changeModal} = useContext(ModalContext)
-  const sortLancamentos = infos.sort((a, b) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1)
-  const lastLancamentos = sortLancamentos
-  const [lancamentos, setLancamentos] = useState<LancamentoRdoRda[]>(lastLancamentos)
-
-  const getLancamentos = useCallback(async () => {
-    try {
-      const response = await RdoRdaServices.getLancamentosRdo({token, type: 'rdo', id})
-
-      if (response === '') {
-        return
-      }
-
-      if (response.length > 0) {
-        setLancamentos(response.sort((a: { data_lancamento: any }, b: { data_lancamento: any }) => Number(a.data_lancamento) > Number(b.data_lancamento) ? -1 : 1))
-        changeLoading(false, '')
-
-        return
-      }
-    } catch (error) {
-      Toast({ type: 'danger', text: 'Erro ao carregar lançamentos', duration: 5000 })
-    }
-
-  }, [changeLoading, id, token])
 
   const formatValue = (value?: string | null) => {
     if (!value) {
@@ -75,17 +52,7 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
     }
   }
 
-  useEffect(() => {
-    getLancamentos()
-
-    const interval = setInterval(() => {
-      getLancamentos()
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, [lancamentos])
-
-  if (lancamentos.length === 0) {
+  if (infos.length === 0) {
     return (
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <p>Nenhum lançamento encontrado.</p>
@@ -116,14 +83,14 @@ const TableInfos: React.FC<TypeInfos> = ({ infos, fornecedores, id }) => {
             <Th $index $total><b></b></Th>
             <Th $index $total><b></b></Th>
             <Th $index $total><b></b></Th>
-            <Th $index $total><b>{comprometidoValue(lancamentos)}</b></Th>
+            <Th $index $total><b>{comprometidoValue(infos)}</b></Th>
             <Th $index $total><b></b></Th>
             <Th $index $total><b></b></Th>
-            <Th $index $total><b>{executadoValue(lancamentos)}</b></Th>
+            <Th $index $total><b>{executadoValue(infos)}</b></Th>
           </Tr>
         </Thead>
         <tbody>
-        {lancamentos.length >= 1 && lancamentos.map((lancamento) => {
+        {infos.length >= 1 && infos.map((lancamento) => {
           const [fornecedor] = fornecedores.filter((item) => Number(item.id) === Number(lancamento.fornecedor))
           const [etapa] = etapas.filter((item) => Number(item.id) === Number(lancamento.etapa))
           const [subetapa] = subetapas?.filter((item) => Number(item.id) === Number(lancamento?.subetapa))

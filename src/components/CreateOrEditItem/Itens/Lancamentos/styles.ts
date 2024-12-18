@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { device } from "../../../assets/styles/themes/devices";
+import { device } from "../../../../assets/styles/themes/devices";
 
 interface PropStyle {
   $fullwidth?: boolean;
@@ -63,18 +63,7 @@ export const FormContent = styled.section<PropStyle>`
 export const ButtonContainer = styled.div`
   width: calc(100% - 60px);
   margin: 0 auto;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
   text-align: right;
-  gap: 20px;
-  padding: 0px;
-
-  p {
-    color: ${({ theme }) => theme.colors.danger.primary};
-    text-decoration: underline;
-    cursor: pointer;
-  }
 `;
 
 export const AddItem = styled.span`

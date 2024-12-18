@@ -198,6 +198,23 @@ class RdoRdaServices {
       throw new Error("Falha na listagem de lançamentos.");
     }
   }
+
+  async deleteLancamentosRdo({ token, id }: ValidateCreateRdoRdaParams) {
+    try {
+      const response = await this.httpClient.delete(
+        `/api/rdo/lancamentos/delete/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Erro ao listar lançamentos:", error);
+      throw new Error("Falha na listagem de lançamentos.");
+    }
+  }
 }
 
 export default new RdoRdaServices();

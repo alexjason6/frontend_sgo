@@ -8,12 +8,12 @@ import ModalContext from '../../../../contexts/modalContext'
 import FornecedoresContext from '../../../../contexts/fornecedoresContext'
 import AuthContext from '../../../../contexts/authContext'
 
-import Input from '../../../../components/Input'
-import Button from '../../../../components/Button'
-import FormGroup from '../../../../components/FormGroup'
-import Header from '../../../../components/Header'
-import Select from '../../../../components/Select'
-import Menu from '../../../../components/Menu'
+import Input from '../../../Input'
+import Button from '../../../Button'
+import FormGroup from '../../../FormGroup'
+import Header from '../../../Header'
+import Select from '../../../Select'
+import Menu from '../../../Menu'
 
 import phoneFormat from '../../../../utils/phoneFormat'
 import cepFormat from '../../../../utils/cepFormat'
@@ -172,12 +172,17 @@ const CreateFornecedor: React.FC<Data> = ({ fornecedor }) => {
       }
 
       const mapperFornecedores = FornecedoresMapper.toPersistence(dataFornecedor)
+
       const create = !fornecedor
         ? await FornecedoresServices.create({ token, mapperFornecedores })
-        : await FornecedoresServices.update({ token, mapperFornecedores })
+        : await FornecedoresServices.update({ token, id: fornecedor.id, mapperFornecedores })
 
       if (create.id) {
         clearFormFields()
+      }
+
+      if (fornecedor && create.id) {
+        handleEditInfos()
       }
 
       changeLoading(true, 'atualizando lista de fornecedores...')

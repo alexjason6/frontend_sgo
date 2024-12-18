@@ -25,7 +25,7 @@ import FormGroup from '../../../components/FormGroup'
 import Input from '../../../components/Input'
 import Select from '../../../components/Select'
 import Button from '../../../components/Button'
-import CreateFornecedor from '../../../components/CreateItem/Itens/Fornecedores'
+import CreateFornecedor from '../../../components/CreateOrEditItem/Itens/Fornecedores'
 
 import dateFormat from '../../../utils/dateFormat'
 import Toast from '../../../utils/toast'
@@ -34,6 +34,7 @@ import { currencyFormat } from '../../../utils/currencyFormat'
 import { ButtonContainer, Content, Form, FormContent } from '../CreateLancamento/styles'
 
 import { type TypeEditLancamento } from '../../../interfaces/globalInterfaces'
+import CreateEtapa from '../../../components/CreateOrEditItem/Itens/Etapas'
 
 const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
   const { isOpen, changeModal } = useContext(ModalContext)
@@ -113,7 +114,7 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
       Toast({ type: 'success', text: 'Lançamento alterado com sucesso.', duration: 5000 })
     } catch (error) {
       console.error('Erro ao editar o lançamento:', error)
-      Toast({ type: 'danger', text: 'Erro ao editar os lançamento.', duration: 5000 })
+      Toast({ type: 'danger', text: 'Erro ao editar o lançamento.', duration: 5000 })
     } finally {
       changeLoading(false)
       listRdos({ token })
@@ -132,6 +133,23 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
       changeModal(<CreateFornecedor />)
     } else {
       setFornecedor(Number(value))
+    }
+  }
+
+  const handleDeleteLancamento = async (id: number) => {
+    changeLoading(true, 'Enviando dados...')
+    try {
+      const apagar = await RdoRdaServices.deleteLancamentosRdo({ token, id })
+
+      if (apagar.status === 'ok') {
+        Toast({ type: 'success', text: 'Lançamento apagado com sucesso.', duration: 5000 })
+        changeModal(false)
+      }
+    }  catch (error) {
+      console.error('Erro ao apagar o lançamento:', error)
+      Toast({ type: 'danger', text: 'Erro ao apagar o lançamento.', duration: 5000 })
+    } finally {
+      changeLoading(false)
     }
   }
 
@@ -168,7 +186,13 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
 
             <FormGroup oneOfFour>
               <Legend>Fornecedor:</Legend>
-              <Select value={fornecedor} onChange={(e) => handleChangeFornecedor(e.target.value)}>
+              <Select value={fornecedor} onChange={(e) => {
+                  if (e.target.value === '0') {
+                    changeModal(<CreateFornecedor />)
+                    return
+                  }
+                  handleChangeFornecedor(e.target.value)
+                  }}>
                 <option value=''>Selecione um fornecedor</option>
                 <option value="0">Cadastrar novo fornecedor</option>
                 <option disabled>________________________________</option>
@@ -192,10 +216,10 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
                 <option  value=''>Selecione o contrato</option>
                 <option>Novo contrato</option>
                 <option disabled>________________________________</option>
-                {lancamentosRdo.filter((lancamentoFilter) => lancamentoFilter.valor_comprometido).map((lancamento) => {
+                {lancamentosRdo.filter((lancamentoFilter) => lancamentoFilter.valor_comprometido).map((lancamento, index) => {
                   const fornecedor = fornecedores.find((item) => item.id === lancamento.fornecedor)
                   return (
-                  <option value={lancamento.id} key={lancamento.id}>Contrato NF: {lancamento.nf} - {dateFormat(lancamento.data_lancamento)} - {fornecedor?.nome} - {currencyFormat(String(lancamento.valor_comprometido))}</option>
+                  <option value={lancamento.id} key={index}>Contrato NF: {lancamento.nf} - {dateFormat(lancamento.data_lancamento)} - {fornecedor?.nome} - {currencyFormat(String(lancamento.valor_comprometido))}</option>
                 )})}
               </Select>
             </FormGroup>}
@@ -225,26 +249,37 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
           <FormContent $items>
             <FormGroup oneOfFive>
               <Legend>Etapa:</Legend>
-              <Select onChange={(e) => setEtapa(e.target.value)} defaultValue={etapa}>
+              <Select onChange={(e) => {
+                  if (e.target.value === '0') {
+                    changeModal(<CreateFornecedor />)
+                    return
+                  }
+                  setEtapa(e.target.value)}}
+                  defaultValue={etapa}>
                 <option value="">Selecione uma etapa</option>
                 <option value='0'>Cadastrar nova etapa</option>
                 <option disabled>________________________________</option>
-                {orcamentoSelected?.item.filter((item) => item.nome !== '').map((etapa) => {
+                {orcamentoSelected?.item.filter((item) => item.nome !== '').map((etapa, index) => {
                   return (
-                  <option key={etapa.id} value={etapa.id}>{etapa.numero} - {etapa.nome}</option>
+                  <option key={index} value={etapa.id}>{etapa.numero} - {etapa.nome}</option>
                 )})}
               </Select>
             </FormGroup>
 
             <FormGroup oneOfFive>
               <Legend>Subetapa:</Legend>
-              <Select onChange={(e) => setSubetapa(e.target.value)} defaultValue={subetapa}>
+              <Select onChange={(e) => {
+                  if (e.target.value === '0') {
+                    changeModal(<CreateEtapa/>)
+                    return
+                  }
+                  setSubetapa(e.target.value)}} defaultValue={subetapa}>
                 <option value="">Selecione uma subetapa</option>
                 <option value='0'>Cadastrar nova subetapa</option>
                 <option disabled>________________________________</option>
-                {subetapaFiltered?.filter((item, index, self) => index === self.findIndex((t) => t.id === item.id)).map((subetapa) => {
+                {subetapaFiltered?.filter((item, index, self) => index === self.findIndex((t) => t.id === item.id)).map((subetapa, index) => {
                   return (
-                  <option key={subetapa?.id} value={subetapa?.id}>{subetapa?.numero} - {subetapa?.nome}</option>
+                  <option key={index} value={subetapa?.id}>{subetapa?.numero} - {subetapa?.nome}</option>
                 )})}
               </Select>
             </FormGroup>
@@ -267,6 +302,7 @@ const EditLancamento: React.FC<TypeEditLancamento> = ({ lancamento }) => {
         </Form>
 
         <ButtonContainer>
+          <p onClick={() => handleDeleteLancamento(lancamento.id)}>Deletar lançamento</p>
           <Button $green onClick={handleEditLancamento}>Gravar lançamento</Button>
         </ButtonContainer>
       </Content>

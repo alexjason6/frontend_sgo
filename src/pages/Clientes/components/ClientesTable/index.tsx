@@ -5,7 +5,7 @@ import cpfCnpjFormat from '../../../../utils/cpfCnpjFormat'
 import phoneFormat from '../../../../utils/phoneFormat'
 import checkStatus from '../../../../utils/checkStatus'
 
-import Create from '../../../../components/CreateItem/Itens/Clientes'
+import Create from '../../../../components/CreateOrEditItem/Itens/Clientes'
 
 import { Table, Tr, Td } from './styles'
 

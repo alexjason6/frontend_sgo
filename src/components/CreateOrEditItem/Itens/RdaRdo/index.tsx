@@ -47,7 +47,6 @@ const CreateRdoRda: React.FC<typeParams> = ({ type }) => {
   const [orcamentosCliente, setOrcamentosCliente] = useState<Orcamento[]>([])
   const { errors, setError, removeError, getErrorMessageByFieldName } = useErrors()
   const formIsValid = cliente && obra && orcamento && status && errors.length === 0
-  console.log(cliente, obra, orcamento, status)
 
   const handleChangeItem = (event: ChangeEvent<HTMLSelectElement>, fieldName: string, message: string, setState: Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>>) => {
     const trataValue = Number(event.target.value)
@@ -138,6 +137,8 @@ const CreateRdoRda: React.FC<typeParams> = ({ type }) => {
 
     changeLoading(true, 'Buscando orçamentos...')
     await listOrcamentos({ token })
+
+    changeLoading(false)
   }, [listClientes, listObras, listOrcamentos, changeLoading, token])
 
   useEffect(() => {

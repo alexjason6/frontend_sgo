@@ -1,7 +1,12 @@
 import xlsx from "json-as-xlsx";
 import { currencyFormat } from "./currencyFormat";
 import dateFormat from "./dateFormat";
-import { Obra, Orcamento } from "../interfaces/globalInterfaces";
+import {
+  Etapa,
+  Obra,
+  Orcamento,
+  Subetapa,
+} from "../interfaces/globalInterfaces";
 
 interface Props {
   orcamento?: {
@@ -59,6 +64,8 @@ interface Props {
   obras?: Obra[];
   orcamentos?: Orcamento[];
   cliente?: string;
+  etapas?: Etapa[];
+  subetapas?: Subetapa[];
 }
 
 export const ExportOrcamentoXLSX = ({ orcamento }: Props) => {
@@ -131,15 +138,16 @@ export const ExportLancamentosXLSX = ({
   orcamentos,
   obras,
   cliente,
+  etapas,
+  subetapas,
 }: Props) => {
-  const [obra] = obras?.filter((item) => item.id === lancamentos![0].obra)!;
+  const [obra] = obras?.filter((item) => item?.id === lancamentos![0]?.obra)!;
   const content = lancamentos!.map((lancamento: any) => {
-    const [orcamento] = orcamentos?.filter((item) => item.obra === obra.id)!;
-    const [etapa] = orcamento.item.filter(
-      (item: { id: number }) => item.id === Number(lancamento.etapa)
+    const etapa = etapas?.filter(
+      (item) => Number(item.id) === Number(lancamento.etapa)
     );
-    const [subetapa] = orcamento.subitem.filter(
-      (item) => item.id === Number(lancamento.subetapa)
+    const subetapa = subetapas?.filter(
+      (item) => Number(item.id) === Number(lancamento?.subetapa)
     );
 
     return {
@@ -148,8 +156,8 @@ export const ExportLancamentosXLSX = ({
       nfDate: dateFormat(lancamento.data_nf),
       descricao: lancamento.descricao,
       valorComprometido: currencyFormat(lancamento.valor_comprometido),
-      servicos: etapa.nome,
-      item: subetapa.nome,
+      servicos: etapa![0]?.nome,
+      item: subetapa![0]?.nome || lancamento.descricao,
       contrato: lancamento.valor_comprometido && lancamento.observacao,
       dataPagamento: dateFormat(lancamento.data_pagamento),
       valorPagamento: currencyFormat(lancamento.valor_pagamento),
@@ -176,7 +184,7 @@ export const ExportLancamentosXLSX = ({
   ];
 
   const settings = {
-    fileName: `lançamentos RDO obra ${obra.nome}`,
+    fileName: `lançamentos RDO obra ${obra?.nome}`,
     extraLength: 3,
     writeMode: "writeFile",
     writeOptions: {},

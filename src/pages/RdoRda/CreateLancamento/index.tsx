@@ -36,7 +36,7 @@ import { AddItem, ButtonContainer, Content, Divisor, Form, FormContent } from '.
 import { type TypeNewLancamento } from '../../../interfaces/globalInterfaces'
 import { onlyNumberFormat } from '../../../utils/onlyNumbersFormat'
 import dateFormat from '../../../utils/dateFormat'
-import CreateFornecedor from '../../../components/CreateItem/Itens/Fornecedores'
+import CreateFornecedor from '../../../components/CreateOrEditItem/Itens/Fornecedores'
 
 
 const CreateLancamento: React.FC<TypeNewLancamento> = ({ tipo, rdoRda, nameCliente, obraId, cliente_id }) => {

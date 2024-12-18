@@ -11,6 +11,12 @@ export const Infos = styled.div`
   padding: 0px 30px 30px 30px;
 `;
 
+export const TextFilter = styled.span`
+  margin-left: 10px;
+  font-size: 10px;
+  color: ${({ theme }) => theme.colors.grays.primary};
+`;
+
 export const Pdf = styled(BsFiletypePdf)`
   color: ${({ theme }) => theme.colors.grays.light};
   font-size: 25px;

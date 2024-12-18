@@ -52,13 +52,15 @@ const OrcamentosTable: React.FC<ItemTableProps> = ({ orcamentos, tipo, clientes,
       subitem: orcamento.subitem
     }
 
+    console.log({orcamentoData})
+
     try {
-      const create = await OrcamentosServices.create({ token, mapperOrcamentoUpdate: orcamentoData })
+      const create = await OrcamentosServices.create({ token, mapperOrcamentoCreate: orcamentoData })
 
       changeLoading(true, 'atualizando lista de orçamentos...')
-      listOrcamentos({ token })
 
       if (create.id) {
+        listOrcamentos({ token })
         Toast({ type: 'success', text: 'Orçamento duplicado com sucesso.', duration: 5000 })
       }
     } catch (error) {

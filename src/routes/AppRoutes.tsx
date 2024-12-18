@@ -3,19 +3,19 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 
 import Loading from '../components/Loading'
 
-const Dashboard = lazy(async () => await import('../pages/Dashboard/Container'))
+const Dashboard = lazy(async () => await import('../pages/Dashboard'))
 const Clientes = lazy(async () => await import('../pages/Clientes'))
 const Obras = lazy(async () => await import('../pages/Obras'))
 const DetalhamentoObra = lazy(async () => await import('../pages/Obras/Detalhamento'))
 const RdoRda = lazy(async () => await import('../pages/RdoRda'))
-const CreateLancamento = lazy(async () => await import('../pages/RdoRda/CreateLancamento'))
+const CreateLancamento = lazy(async () => await import('../components/CreateOrEditItem/Itens/Lancamentos'))
 const Users = lazy(async () => await import('../pages/Users'))
 const Fornecedores = lazy(async () => await import('../pages/Fornecedores'))
 const Orcamentos = lazy(async () => await import('../pages/Orcamentos'))
 const ModelosOrcamentos = lazy(async () => await import('../pages/Orcamentos/Modelos'))
 const EditOrcamentos = lazy(async () => await import('../pages/Orcamentos/Edit'))
-const CreateModelo = lazy(async () => await import('../components/CreateItem/Itens/Modelos'))
-const CreateItem = lazy(async () => await import('../components/CreateItem'))
+const CreateModelo = lazy(async () => await import('../components/CreateOrEditItem/Itens/Modelos'))
+const CreateItem = lazy(async () => await import('../components/CreateOrEditItem'))
 const NotFound = lazy(async () => await import('../pages/NotFound'))
 
 const AppRouter = () => (
